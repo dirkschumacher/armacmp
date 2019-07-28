@@ -56,7 +56,7 @@ crossprod2 <- armacmp({
 x <- matrix(1:100000)
 all.equal(crossprod2(x, x), crossprod(x, x))
 microbenchmark::microbenchmark(
-  crossprod2(x, x), 
+  crossprod2(x, x),
   crossprod(x, x)
 )
 ```
@@ -94,8 +94,9 @@ log_predict <- armacmp({
   return(score)
 })
 
-X <- model.matrix(I(mpg < 20) ~ -1 + hp + cyl, data = mtcars)
-glm_fit <- glm(I(mpg < 20) ~ -1 + hp + cyl, data = mtcars, family = binomial())
+formula <- I(mpg < 20) ~ -1 + hp + cyl
+X <- model.matrix(formula, data = mtcars)
+glm_fit <- glm(formula, data = mtcars, family = binomial())
 
 all.equal(
   as.numeric(log_predict(matrix(coef(glm_fit)), X)),
@@ -119,9 +120,11 @@ forwardsolve2 <- armacmp({
 })
 
 # example from the docs of backsolve
-r <- rbind(c(1,2,3),
-           c(0,1,1),
-           c(0,0,2))
+r <- rbind(
+  c(1, 2, 3),
+  c(0, 1, 1),
+  c(0, 0, 2)
+)
 x <- matrix(c(8, 4, 2))
 all.equal(backsolve(r, x), backsolve2(r, x))
 all.equal(forwardsolve(r, x), forwardsolve2(r, x))
@@ -163,7 +166,7 @@ qr_lm_coef <- armacmp({
 if_clause <- armacmp({
   X <- input_matrix()
   y <- input_colvec()
-  test <- sum(exp(X)) < 10 #infers that test needs to be bool
+  test <- sum(exp(X)) < 10 # infers that test needs to be bool
   if (test) {
     return(X %*% y + 10)
   } else {

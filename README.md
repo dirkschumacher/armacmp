@@ -53,13 +53,13 @@ x <- matrix(1:100000)
 all.equal(crossprod2(x, x), crossprod(x, x))
 #> [1] TRUE
 microbenchmark::microbenchmark(
-  crossprod2(x, x), 
+  crossprod2(x, x),
   crossprod(x, x)
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 377.610 1051.269 3299.037 1286.347 2074.706 112954.25
-#>   crossprod(x, x) 487.715 1187.769 3117.548 1490.021 2489.635  48641.34
+#>  crossprod2(x, x) 398.045 1082.800 1471.984 1221.947 1534.668  7468.815
+#>   crossprod(x, x) 498.780 1159.242 1702.981 1293.556 1798.164 12916.493
 #>  neval
 #>    100
 #>    100
@@ -101,8 +101,9 @@ log_predict <- armacmp({
   return(score)
 })
 
-X <- model.matrix(I(mpg < 20) ~ -1 + hp + cyl, data = mtcars)
-glm_fit <- glm(I(mpg < 20) ~ -1 + hp + cyl, data = mtcars, family = binomial())
+formula <- I(mpg < 20) ~ -1 + hp + cyl
+X <- model.matrix(formula, data = mtcars)
+glm_fit <- glm(formula, data = mtcars, family = binomial())
 
 all.equal(
   as.numeric(log_predict(matrix(coef(glm_fit)), X)),
@@ -126,9 +127,11 @@ forwardsolve2 <- armacmp({
 })
 
 # example from the docs of backsolve
-r <- rbind(c(1,2,3),
-           c(0,1,1),
-           c(0,0,2))
+r <- rbind(
+  c(1, 2, 3),
+  c(0, 1, 1),
+  c(0, 0, 2)
+)
 x <- matrix(c(8, 4, 2))
 all.equal(backsolve(r, x), backsolve2(r, x))
 #> [1] TRUE
@@ -175,7 +178,7 @@ qr_lm_coef <- armacmp({
 if_clause <- armacmp({
   X <- input_matrix()
   y <- input_colvec()
-  test <- sum(exp(X)) < 10 #infers that test needs to be bool
+  test <- sum(exp(X)) < 10 # infers that test needs to be bool
   if (test) {
     return(X %*% y + 10)
   } else {
