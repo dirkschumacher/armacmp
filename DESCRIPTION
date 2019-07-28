@@ -16,6 +16,7 @@ Imports:
     Rcpp,
     RcppArmadillo
 Suggests: 
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    covr
 URL: https://github.com/dirkschumacher/armacmp
 BugReports: https://github.com/dirkschumacher/armacmp/issues

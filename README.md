@@ -7,6 +7,10 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Travis build
+status](https://travis-ci.org/dirkschumacher/armacmp.svg?branch=master)](https://travis-ci.org/dirkschumacher/armacmp)
+[![Codecov test
+coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
 <!-- badges: end -->
 
 The goal of `armacmp` is to create an experimental DSL to formulate
@@ -57,9 +61,9 @@ microbenchmark::microbenchmark(
   crossprod(x, x)
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 398.045 1082.800 1471.984 1221.947 1534.668  7468.815
-#>   crossprod(x, x) 498.780 1159.242 1702.981 1293.556 1798.164 12916.493
+#>              expr     min       lq     mean   median       uq      max
+#>  crossprod2(x, x) 386.967 1112.693 2136.701 1324.453 2087.465 19026.29
+#>   crossprod(x, x) 462.068 1188.245 2821.558 1464.352 2460.791 27770.27
 #>  neval
 #>    100
 #>    100
