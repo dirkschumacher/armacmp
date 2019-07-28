@@ -1,0 +1,20 @@
+Package: armacmp
+Title: Build complex Armadillo Code from R
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Dirk",
+           family = "Schumacher",
+           role = c("aut", "cre"),
+           email = "mail@dirk-schumacher.net")
+Description: Compile R code to Armadillo Cpp code.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 6.1.1
+Imports: 
+    Rcpp,
+    RcppArmadillo
+Suggests: 
+    testthat (>= 2.1.0)
+    
