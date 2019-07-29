@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 349.228  699.903 1710.988 1087.391 1306.624 17546.54
-#>   crossprod(x, x) 449.779 1144.064 1648.264 1231.592 1598.029 11626.40
-#>        t(x) %*% x 823.201 1666.128 2444.818 1781.459 2365.633 10295.70
+#>              expr     min       lq      mean   median       uq       max
+#>  crossprod2(x, x) 361.060  954.179  971.2295  994.086 1042.860  5937.841
+#>   crossprod(x, x) 465.021 1079.916 1303.0898 1121.900 1204.816 10016.969
+#>        t(x) %*% x 840.821 1581.544 1801.0190 1625.199 1708.032  6360.595
 #>  neval
 #>    100
 #>    100
@@ -180,11 +180,30 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>                                    expr      min       lq     mean
-#>  for_loop_r(matrix(1:10000, ncol = 10)) 2.246397 2.502574 4.048623
-#>    for_loop(matrix(1:10000, ncol = 10)) 1.382844 1.437096 1.793920
+#>  for_loop_r(matrix(1:10000, ncol = 10)) 2.223331 2.457638 3.134952
+#>    for_loop(matrix(1:10000, ncol = 10)) 1.381783 1.426180 1.569390
 #>    median       uq       max neval
-#>  2.874190 4.664367 15.992515   100
-#>  1.502294 1.791654  4.472844   100
+#>  2.506972 2.830634 18.270963   100
+#>  1.460964 1.625115  2.682035   100
+```
+
+### A faster `cumprod`
+
+``` r
+cumprod2 <- armacmp({
+  return(cumprod(input_colvec()))
+})
+
+x <- as.numeric(1:1e6)
+bench::mark(
+  cumprod(x),
+  as.numeric(cumprod2(x))
+)
+#> # A tibble: 2 x 6
+#>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 cumprod(x)              127.87ms 132.44ms      7.58   15.26MB     2.53
+#> 2 as.numeric(cumprod2(x))   3.17ms   4.23ms    212.      7.63MB    70.6
 ```
 
 ## API

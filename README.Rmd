@@ -166,6 +166,20 @@ microbenchmark::microbenchmark(
 )
 ```
 
+### A faster `cumprod`
+
+```{r}
+cumprod2 <- armacmp({
+  return(cumprod(input_colvec()))
+})
+
+x <- as.numeric(1:1e6)
+bench::mark(
+  cumprod(x),
+  as.numeric(cumprod2(x))
+)
+```
+
 ## API
 
 ### Inputs

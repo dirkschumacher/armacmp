@@ -74,10 +74,10 @@ new_element_type <- function(type, original_sexp, annotated_sexp = original_sexp
 
 # functions that we simply translate to armadillo
 
-binary_function_mapping <- new.env(hash = TRUE)
+binary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 binary_function_mapping$solve <- "arma::solve"
 
-unary_function_mapping <- new.env(hash = TRUE)
+unary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 unary_function_mapping$t <- "arma::trans"
 unary_function_mapping$exp <- "arma::exp"
 unary_function_mapping$abs <- "arma::abs"
@@ -100,3 +100,5 @@ unary_function_mapping$tan <- "arma::tan"
 unary_function_mapping$atan <- "arma::atan"
 unary_function_mapping$tanh <- "arma::tanh"
 unary_function_mapping$atanh <- "arma::atanh"
+unary_function_mapping$cumsum <- "arma::cumsum"
+unary_function_mapping$cumprod <- "arma::cumprod"
