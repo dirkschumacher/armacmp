@@ -59,7 +59,8 @@ x <- matrix(1:100000)
 all.equal(crossprod2(x, x), crossprod(x, x))
 microbenchmark::microbenchmark(
   crossprod2(x, x),
-  crossprod(x, x)
+  crossprod(x, x),
+  t(x) %*% x
 )
 ```
 
@@ -68,7 +69,7 @@ Compute the coefficient of a linear regression problem:
 ```{r}
 lm_fit <- armacmp({
   X <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(solve(X, y))
 })
 X <- model.matrix(mpg ~ hp + cyl, data = mtcars)
@@ -80,16 +81,16 @@ Or a C++ version of plogis:
 
 ```{r}
 plogis2 <- armacmp({
-  return(1 / (1 + exp(-input_matrix())))
+  return(1 / (1 + exp(-input_colvec())))
 })
-all.equal(plogis2(matrix(1:10)), stats::plogis(matrix(1:10)))
+all.equal(as.numeric(plogis2(1:10)), stats::plogis(1:10))
 ```
 
 Or make predictions in a logistic regression model given the coefficients:
 
 ```{r}
 log_predict <- armacmp({
-  coef <- input_matrix()
+  coef <- input_colvec()
   new_X <- input_matrix()
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
@@ -101,7 +102,7 @@ X <- model.matrix(formula, data = mtcars)
 glm_fit <- glm(formula, data = mtcars, family = binomial())
 
 all.equal(
-  as.numeric(log_predict(matrix(coef(glm_fit)), X)),
+  as.numeric(log_predict(coef(glm_fit), X)),
   as.numeric(predict(glm_fit, newdata = mtcars, type = "response"))
 )
 ```
@@ -112,12 +113,12 @@ Forward and backward solve are implemented
 ```{r}
 backsolve2 <- armacmp({
   x <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(backsolve(x, y))
 })
 forwardsolve2 <- armacmp({
   x <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(forwardsolve(x, y))
 })
 
@@ -170,6 +171,7 @@ microbenchmark::microbenchmark(
 ### Inputs
 
 * `input_matrix` defines a new input parameter of type matrix
+* `input_colvec` defines a new input parameter of type colvec (a matrix with one column)
 * ...
 
 ### Body

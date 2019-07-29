@@ -58,13 +58,16 @@ all.equal(crossprod2(x, x), crossprod(x, x))
 #> [1] TRUE
 microbenchmark::microbenchmark(
   crossprod2(x, x),
-  crossprod(x, x)
+  crossprod(x, x),
+  t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min        lq     mean   median       uq      max
-#>  crossprod2(x, x) 349.722  964.2375 1292.697 1002.904 1065.416 6216.602
-#>   crossprod(x, x) 447.769 1065.8295 1107.765 1116.031 1163.930 5105.667
+#>              expr     min       lq     mean   median       uq      max
+#>  crossprod2(x, x) 349.228  699.903 1710.988 1087.391 1306.624 17546.54
+#>   crossprod(x, x) 449.779 1144.064 1648.264 1231.592 1598.029 11626.40
+#>        t(x) %*% x 823.201 1666.128 2444.818 1781.459 2365.633 10295.70
 #>  neval
+#>    100
 #>    100
 #>    100
 ```
@@ -74,7 +77,7 @@ Compute the coefficient of a linear regression problem:
 ``` r
 lm_fit <- armacmp({
   X <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(solve(X, y))
 })
 X <- model.matrix(mpg ~ hp + cyl, data = mtcars)
@@ -87,9 +90,9 @@ Or a C++ version of plogis:
 
 ``` r
 plogis2 <- armacmp({
-  return(1 / (1 + exp(-input_matrix())))
+  return(1 / (1 + exp(-input_colvec())))
 })
-all.equal(plogis2(matrix(1:10)), stats::plogis(matrix(1:10)))
+all.equal(as.numeric(plogis2(1:10)), stats::plogis(1:10))
 #> [1] TRUE
 ```
 
@@ -98,7 +101,7 @@ coefficients:
 
 ``` r
 log_predict <- armacmp({
-  coef <- input_matrix()
+  coef <- input_colvec()
   new_X <- input_matrix()
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
@@ -110,7 +113,7 @@ X <- model.matrix(formula, data = mtcars)
 glm_fit <- glm(formula, data = mtcars, family = binomial())
 
 all.equal(
-  as.numeric(log_predict(matrix(coef(glm_fit)), X)),
+  as.numeric(log_predict(coef(glm_fit), X)),
   as.numeric(predict(glm_fit, newdata = mtcars, type = "response"))
 )
 #> [1] TRUE
@@ -121,12 +124,12 @@ Forward and backward solve are implemented
 ``` r
 backsolve2 <- armacmp({
   x <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(backsolve(x, y))
 })
 forwardsolve2 <- armacmp({
   x <- input_matrix()
-  y <- input_matrix()
+  y <- input_colvec()
   return(forwardsolve(x, y))
 })
 
@@ -177,11 +180,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: milliseconds
 #>                                    expr      min       lq     mean
-#>  for_loop_r(matrix(1:10000, ncol = 10)) 2.034266 2.479202 3.420276
-#>    for_loop(matrix(1:10000, ncol = 10)) 1.374095 1.430728 1.709544
+#>  for_loop_r(matrix(1:10000, ncol = 10)) 2.246397 2.502574 4.048623
+#>    for_loop(matrix(1:10000, ncol = 10)) 1.382844 1.437096 1.793920
 #>    median       uq       max neval
-#>  2.613669 3.090027 10.329957   100
-#>  1.494744 1.716525  3.981985   100
+#>  2.874190 4.664367 15.992515   100
+#>  1.502294 1.791654  4.472844   100
 ```
 
 ## API
@@ -189,6 +192,8 @@ microbenchmark::microbenchmark(
 ### Inputs
 
   - `input_matrix` defines a new input parameter of type matrix
+  - `input_colvec` defines a new input parameter of type colvec (a
+    matrix with one column)
   - …
 
 ### Body

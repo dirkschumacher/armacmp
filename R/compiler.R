@@ -1,13 +1,17 @@
 compile_to_function <- function(annotated_ast, function_name) {
   stopifnot(is.list(annotated_ast))
   n_input_parameters <- 0L
-  input_parameter_names <- c()
-  new_input_matrix_parameter <- function() {
-    n_input_parameters <<- n_input_parameters + 1L
-    name <- paste0("param__input_", n_input_parameters)
-    input_parameter_names <<- c(input_parameter_names, name)
-    name
+  input_parameters <- list()
+  param_factory <- function(arma_type) {
+    function() {
+      n_input_parameters <<- n_input_parameters + 1L
+      name <- paste0("param__input_", n_input_parameters)
+      input_parameters <<- c(input_parameters, list(list(arma_type = arma_type, name = name)))
+      name
+    }
   }
+  new_input_matrix_parameter <- param_factory("arma::mat")
+  new_input_colvec_parameter <- param_factory("arma::colvec")
 
   # define the compiler that takes an annotated AST and turns it
   # into code
@@ -22,6 +26,10 @@ compile_to_function <- function(annotated_ast, function_name) {
     arma_type <- "arma::mat"
     if (x$annotated_sexp[[3L]]$type == "input_matrix") {
       arma_type <- "const arma::mat&"
+    }
+
+    if (x$annotated_sexp[[3L]]$type == "input_colvec") {
+      arma_type <- "const arma::colvec&"
     }
 
     paste0(
@@ -69,6 +77,10 @@ compile_to_function <- function(annotated_ast, function_name) {
 
   compile_element.annotated_element_input_matrix <- function(x) {
     new_input_matrix_parameter()
+  }
+
+  compile_element.annotated_element_input_colvec <- function(x) {
+    new_input_colvec_parameter()
   }
 
   compile_element.annotated_element_bracket <- function(x) {
@@ -155,9 +167,9 @@ compile_to_function <- function(annotated_ast, function_name) {
 
   # build the final function body string
   input_params <- vapply(
-    input_parameter_names,
+    input_parameters,
     function(x) {
-      paste0("const arma::mat& ", x)
+      paste0("const ", x$arma_type, "& ", x$name)
     }, character(1L)
   )
   paste0(

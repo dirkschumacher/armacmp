@@ -18,8 +18,8 @@ annotate_ast <- function(ast) {
 classify_sexp <- function(sexp) {
   if (length(sexp) <= 1L) {
     sexp_chr <- as.character(sexp)
-    if (is.call(sexp) && sexp_chr == "input_matrix") {
-      return(new_element_type("input_matrix", sexp))
+    if (is.call(sexp) && sexp_chr %in% c("input_matrix", "input_colvec")) {
+      return(new_element_type(sexp_chr, sexp))
     }
     return(new_element_type("terminal", sexp))
   }
