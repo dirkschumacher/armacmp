@@ -75,6 +75,16 @@ compile_to_function <- function(annotated_ast, function_name) {
     paste0("( ", compile_element(x$annotated_sexp[[2L]]), " )")
   }
 
+  compile_element.annotated_element_pow <- function(x) {
+    paste0(
+      "arma::pow( ",
+      compile_element(x$annotated_sexp[[2L]]),
+      ", ",
+      compile_element(x$annotated_sexp[[3L]]),
+      " )"
+    )
+  }
+
   make_operator_fun <- function(op) {
     function(x) {
       len <- length(x$annotated_sexp)
@@ -98,7 +108,7 @@ compile_to_function <- function(annotated_ast, function_name) {
 
   compile_element.annotated_element_matmul <- make_operator_fun("*")
 
-  compile_element.annotated_element_mul <- make_operator_fun("%")
+  compile_element.annotated_element_mult <- make_operator_fun("%")
   compile_element.annotated_element_div <- make_operator_fun("/")
   compile_element.annotated_element_plus <- make_operator_fun("+")
   compile_element.annotated_element_minus <- make_operator_fun("-")

@@ -38,3 +38,8 @@ test_that("it supports forwardsolve", {
   x <- classify_sexp(quote(forwardsolve(x, y)))
   expect_true(x$type == "forwardsolve")
 })
+
+test_that("it supports POW", {
+  x <- classify_sexp(quote(x^3))
+  expect_true(x$type == "pow")
+})
