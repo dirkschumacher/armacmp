@@ -33,6 +33,8 @@ classify_sexp <- function(sexp) {
   meta_data <- list()
   element_type_map <- new.env(parent = emptyenv())
   element_type_map[["<-"]] <- "assignment"
+  element_type_map[["{"]] <- "curley_bracket"
+  element_type_map[["replace"]] <- "replace"
   element_type_map[["+"]] <- "plus"
   element_type_map[["-"]] <- "minus"
   element_type_map[["*"]] <- "mult"

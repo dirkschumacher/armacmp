@@ -132,6 +132,39 @@ all.equal(backsolve(r, x), backsolve2(r, x))
 all.equal(forwardsolve(r, x), forwardsolve2(r, x))
 ```
 
+### For loops
+
+```{r}
+for_loop <- armacmp({
+  X <- input_matrix()
+  X_new <- X
+  # only seq_len is currently supported
+  for (i in seq_len(10 + 10)) {
+    # use replace to update an existing variable
+    replace(X_new, log(X_new + i))
+  }
+  return(X_new)
+})
+
+for_loop_r <- function(X) {
+  X_new <- X
+  for (i in seq_len(10 + 10)) {
+    X_new <- log(X_new + i)
+  }
+  return(X_new)
+}
+
+all.equal(
+  for_loop_r(matrix(1:10000, ncol = 10)),
+  for_loop(matrix(1:10000, ncol = 10))
+)
+
+microbenchmark::microbenchmark(
+  for_loop_r(matrix(1:10000, ncol = 10)),
+  for_loop(matrix(1:10000, ncol = 10))
+)
+```
+
 ## API
 
 ### Inputs

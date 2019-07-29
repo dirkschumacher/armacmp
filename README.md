@@ -61,9 +61,9 @@ microbenchmark::microbenchmark(
   crossprod(x, x)
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 386.967 1112.693 2136.701 1324.453 2087.465 19026.29
-#>   crossprod(x, x) 462.068 1188.245 2821.558 1464.352 2460.791 27770.27
+#>              expr     min        lq     mean   median       uq      max
+#>  crossprod2(x, x) 349.722  964.2375 1292.697 1002.904 1065.416 6216.602
+#>   crossprod(x, x) 447.769 1065.8295 1107.765 1116.031 1163.930 5105.667
 #>  neval
 #>    100
 #>    100
@@ -141,6 +141,47 @@ all.equal(backsolve(r, x), backsolve2(r, x))
 #> [1] TRUE
 all.equal(forwardsolve(r, x), forwardsolve2(r, x))
 #> [1] TRUE
+```
+
+### For loops
+
+``` r
+for_loop <- armacmp({
+  X <- input_matrix()
+  X_new <- X
+  # only seq_len is currently supported
+  for (i in seq_len(10 + 10)) {
+    # use replace to update an existing variable
+    replace(X_new, log(X_new + i))
+  }
+  return(X_new)
+})
+
+for_loop_r <- function(X) {
+  X_new <- X
+  for (i in seq_len(10 + 10)) {
+    X_new <- log(X_new + i)
+  }
+  return(X_new)
+}
+
+all.equal(
+  for_loop_r(matrix(1:10000, ncol = 10)),
+  for_loop(matrix(1:10000, ncol = 10))
+)
+#> [1] TRUE
+
+microbenchmark::microbenchmark(
+  for_loop_r(matrix(1:10000, ncol = 10)),
+  for_loop(matrix(1:10000, ncol = 10))
+)
+#> Unit: milliseconds
+#>                                    expr      min       lq     mean
+#>  for_loop_r(matrix(1:10000, ncol = 10)) 2.034266 2.479202 3.420276
+#>    for_loop(matrix(1:10000, ncol = 10)) 1.374095 1.430728 1.709544
+#>    median       uq       max neval
+#>  2.613669 3.090027 10.329957   100
+#>  1.494744 1.716525  3.981985   100
 ```
 
 ## API

@@ -19,7 +19,7 @@ compile_to_function <- function(annotated_ast, function_name) {
     stopifnot(x$annotated_sexp[[2L]]$type == "terminal")
 
     # deduce type
-    arma_type <- "const arma::mat"
+    arma_type <- "arma::mat"
     if (x$annotated_sexp[[3L]]$type == "input_matrix") {
       arma_type <- "const arma::mat&"
     }
@@ -30,6 +30,40 @@ compile_to_function <- function(annotated_ast, function_name) {
       " = ",
       compile_element(x$annotated_sexp[[3L]]),
       ";"
+    )
+  }
+  compile_element.annotated_element_replace <- function(x) {
+    paste0(
+      compile_element(x$annotated_sexp[[2L]]),
+      " = ",
+      compile_element(x$annotated_sexp[[3L]]),
+      "; \n"
+    )
+  }
+
+  compile_element.annotated_element_curley_bracket <- function(x) {
+    paste0(
+      "{\n",
+      paste0(lapply(x$annotated_sexp[-1L], function(y) compile_element(y)), collapse = "\n"),
+      "\n}\n"
+    )
+  }
+
+  compile_element.annotated_element_for <- function(x) {
+    # we currently allow just one pattern
+    # for (i in seq_len(10)) { ... }
+    # will be translated to
+    # for (const int i : Rcpp::seq_len(10)) {
+    #   ...
+    # }
+    iter_var_name <- x$annotated_sexp[[2L]]
+    n <- x$annotated_sexp[[3L]][[2L]][[2L]]
+    body <- x$annotated_sexp[[4L]]
+    paste0(
+      "for (const int ", compile_element(iter_var_name),
+      " : Rcpp::seq_len(", compile_element(n), ")) { \n",
+      compile_element(body),
+      "}\n"
     )
   }
 
