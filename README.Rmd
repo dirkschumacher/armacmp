@@ -196,7 +196,7 @@ You can also take a look at the code itself, in case you would like to generate 
 armacmp_compile(function(new_X, coef = type_colvec()) {
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
-  return(X_new)
+  return(score, type = type_colvec())
 }, "log_predict")
 ```
 

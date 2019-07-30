@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 415.370 1019.774 1246.569 1080.576 1185.653  7813.780
-#>   crossprod(x, x) 532.374 1151.391 1436.069 1210.035 1350.534 12160.510
-#>        t(x) %*% x 889.869 1552.139 1845.576 1714.033 1839.878  7946.173
+#>              expr     min       lq     mean   median       uq      max
+#>  crossprod2(x, x) 372.902 1031.966 1682.763 1194.291 1742.654 13527.86
+#>   crossprod(x, x) 511.284 1123.618 1586.920 1239.918 1802.055 13359.43
+#>        t(x) %*% x 822.686 1685.798 2449.785 1817.974 2870.069 14070.91
 #>  neval
 #>    100
 #>    100
@@ -171,12 +171,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 119.696 132.1255
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.150  38.7695
-#>       mean   median       uq     max neval
-#>  138.51982 134.6420 141.1755 233.738   100
-#>   41.91865  39.8165  43.3715  75.640   100
+#>                                                expr     min      lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 115.026 134.152
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.467  39.521
+#>       mean  median       uq     max neval
+#>  156.24938 141.572 166.2035 352.052   100
+#>   45.88111  40.832  46.5465 201.693   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              123.48ms 126.54ms      7.91   15.26MB     2.64
-#> 2 as.numeric(cumprod2(x))   3.75ms   4.25ms    190.      7.63MB    65.6
+#> 1 cumprod(x)              129.05ms 135.46ms      7.14   15.26MB     2.38
+#> 2 as.numeric(cumprod2(x))   4.01ms   7.29ms    125.      7.63MB    44.0
 ```
 
 ### Return type
@@ -223,7 +223,7 @@ generate a C++ snippet that you can further extend.
 armacmp_compile(function(new_X, coef = type_colvec()) {
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
-  return(X_new)
+  return(score, type = type_colvec())
 }, "log_predict")
 #> Compiled R function
 #> 
@@ -231,16 +231,16 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 #> {
 #>     res <- new_X %*% coef
 #>     score <- 1/(1 + exp(-res))
-#>     return(X_new)
+#>     return(score, type = type_colvec())
 #> }
 #> 
 #> =>
 #> 
-#> arma::mat log_predict(const arma::mat& new_X, const arma::colvec& coef)
+#> arma::colvec log_predict(const arma::mat& new_X, const arma::colvec& coef)
 #> {
 #> arma::mat res = new_X * coef;
 #> arma::mat score = 1 / ( 1 + arma::exp( -res ) );
-#> return X_new;
+#> return score;
 #> }
 #> 
 ```
