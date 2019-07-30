@@ -141,7 +141,7 @@ compile_to_str <- function(fun, function_name) {
     stop("Sorry, but the expression:\n\n",
       deparse(x$original_sexp),
       "\n\ncannot be translated into a C++ construct.\n",
-      "Maybe there is a typo? Also not all R functions can be used.",
+      "Not all R functions are supported.",
       call. = FALSE
     )
   }
