@@ -1,11 +1,13 @@
 #' Compile Linear Algebra Code to C++
 #'
 #' @param fun a function
+#' @param verbose print out compiler information
 #'
 #' @export
-armacmp <- function(fun) {
+armacmp <- function(fun, verbose = FALSE) {
   stopifnot(is.function(fun))
   compiled_code <- armacmp_compile(fun, function_name = "armacmp_fun")
+  message(format(compiled_code))
   envir <- new.env(parent = globalenv())
   Rcpp::cppFunction(compiled_code$cpp_code,
     depends = "RcppArmadillo",

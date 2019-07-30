@@ -4,10 +4,12 @@
 \alias{armacmp}
 \title{Compile Linear Algebra Code to C++}
 \usage{
-armacmp(fun)
+armacmp(fun, verbose = FALSE)
 }
 \arguments{
 \item{fun}{a function}
+
+\item{verbose}{print out compiler information}
 }
 \description{
 Compile Linear Algebra Code to C++
