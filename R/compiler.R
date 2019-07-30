@@ -242,9 +242,9 @@ new_cpp_function <- function(original_code, cpp_code) {
 format.armacmp_cpp_fun <- function(x, ...) {
   original_code_str <- deparse(x$original_code)
   paste0(
-    "Compiled R function\n\n",
+    "R function\n\n",
     paste0(original_code_str, collapse = "\n"),
-    "\n\n=>\n\n",
+    "\n\nC++ function translation\n\n",
     x$cpp_code
   )
 }
