@@ -173,6 +173,21 @@ bench::mark(
 )
 ```
 
+
+### Return type
+
+```{r, echo=TRUE, eval=FALSE}
+return_type <- armacmp(function(X) {
+  return(sum(log(X)), type = type_scalar_numeric())
+})
+X <- matrix(1:1000, ncol = 10)
+all.equal(
+  return_type(X),
+  sum(log(X))
+)
+return_type(X)
+```
+
 ## API
 
 ### Inputs
@@ -214,12 +229,6 @@ if_clause <- armacmp(function(X, y) {
   } else {
     return(X %*% y)
   }
-})
-```
-
-```{r, echo=TRUE, eval=FALSE}
-return_type <- armacmp(function(X) {
-  return(sum(exp(X)), type = type_scalar_numeric())
 })
 ```
 

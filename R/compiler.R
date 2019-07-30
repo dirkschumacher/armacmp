@@ -13,6 +13,8 @@ compile_to_str <- function(fun, function_name) {
   })
   annotated_ast <- annotate_ast(fun_body)
 
+  return_type <- "arma::mat"
+
   # define the compiler that takes an annotated AST and turns it
   # into code
   compile_element <- function(x) UseMethod("compile_element")
@@ -145,7 +147,11 @@ compile_to_str <- function(fun, function_name) {
 
   compile_element.annotated_element_return <- function(x) {
     # always return something
-    stopifnot(length(x$annotated_sexp) == 2L)
+    stopifnot(length(x$annotated_sexp) %in% c(2L, 3L))
+    if (length(x$annotated_sexp) == 3L) {
+      type_spec <- eval(x$annotated_sexp[[3]]$original_sexp)
+      return_type <<- type_spec$cpp_type
+    }
     paste0(
       "return ",
       compile_element(x$annotated_sexp[[2L]]),
@@ -169,7 +175,7 @@ compile_to_str <- function(fun, function_name) {
   )
 
   paste0(
-    "arma::mat ", function_name,
+    return_type, " ", function_name,
     "(",
     paste0(input_params, collapse = ", "),
     ")", "\n",
