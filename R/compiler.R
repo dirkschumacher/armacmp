@@ -13,7 +13,7 @@ compile_to_str <- function(fun, function_name) {
   })
   annotated_ast <- annotate_ast(fun_body)
 
-  return_type <- "arma::mat"
+  return_type <- NULL
 
   # define the compiler that takes an annotated AST and turns it
   # into code
@@ -151,7 +151,13 @@ compile_to_str <- function(fun, function_name) {
     stopifnot(length(x$annotated_sexp) %in% c(2L, 3L))
     if (length(x$annotated_sexp) == 3L) {
       type_spec <- eval(x$annotated_sexp[[3]]$original_sexp)
-      return_type <<- type_spec$cpp_type
+      if (is.null(return_type) || return_type == type_spec$cpp_type) {
+        return_type <<- type_spec$cpp_type
+      } else {
+        stop("You specified two different return types ",
+             return_type, " and ", type_spec$cpp_type,
+             ". In C++ a function can only have one return type.", call. = FALSE)
+      }
     }
     paste0(
       "return ",
@@ -174,7 +180,9 @@ compile_to_str <- function(fun, function_name) {
       paste0("const ", x$cpp_type, "& ", name)
     }, character(1L)
   )
-
+  if (is.null(return_type)) {
+    return_type <- "arma::mat"
+  }
   paste0(
     return_type, " ", function_name,
     "(",
