@@ -1,17 +1,17 @@
-compile_to_function <- function(annotated_ast, function_name) {
-  stopifnot(is.list(annotated_ast))
-  n_input_parameters <- 0L
-  input_parameters <- list()
-  param_factory <- function(arma_type) {
-    function() {
-      n_input_parameters <<- n_input_parameters + 1L
-      name <- paste0("param__input_", n_input_parameters)
-      input_parameters <<- c(input_parameters, list(list(arma_type = arma_type, name = name)))
-      name
+compile_to_str <- function(fun, function_name) {
+  fun_body <- methods::functionBody(fun)
+  fun_args <- as.list(args(fun))
+
+  fun_args <- Filter(function(x) !is.null(x), fun_args)
+  fun_args <- lapply(fun_args, function(x) {
+    if (is.call(x)) {
+      eval(x, envir = parent.frame())
+    } else {
+      # we overwrite by matrix type ... YOLO
+      type_matrix()
     }
-  }
-  new_input_matrix_parameter <- param_factory("arma::mat")
-  new_input_colvec_parameter <- param_factory("arma::colvec")
+  })
+  annotated_ast <- annotate_ast(fun_body)
 
   # define the compiler that takes an annotated AST and turns it
   # into code
@@ -24,13 +24,6 @@ compile_to_function <- function(annotated_ast, function_name) {
 
     # deduce type
     arma_type <- "arma::mat"
-    if (x$annotated_sexp[[3L]]$type == "input_matrix") {
-      arma_type <- "const arma::mat&"
-    }
-
-    if (x$annotated_sexp[[3L]]$type == "input_colvec") {
-      arma_type <- "const arma::colvec&"
-    }
 
     paste0(
       arma_type, " ",
@@ -167,11 +160,14 @@ compile_to_function <- function(annotated_ast, function_name) {
 
   # build the final function body string
   input_params <- vapply(
-    input_parameters,
-    function(x) {
-      paste0("const ", x$arma_type, "& ", x$name)
+    seq_along(fun_args),
+    function(i) {
+      x <- fun_args[[i]]
+      name <- names(fun_args)[[i]]
+      paste0("const ", x$cpp_type, "& ", name)
     }, character(1L)
   )
+
   paste0(
     "arma::mat ", function_name,
     "(",

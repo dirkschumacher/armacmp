@@ -4,10 +4,10 @@
 \alias{armacmp}
 \title{Compile Linear Algebra Code to C++}
 \usage{
-armacmp(code)
+armacmp(fun)
 }
 \arguments{
-\item{code}{an R like expression that is translated to C++}
+\item{fun}{a function}
 }
 \description{
 Compile Linear Algebra Code to C++
