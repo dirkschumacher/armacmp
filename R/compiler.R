@@ -70,14 +70,6 @@ compile_to_str <- function(fun, function_name) {
     )
   }
 
-  compile_element.annotated_element_input_matrix <- function(x) {
-    new_input_matrix_parameter()
-  }
-
-  compile_element.annotated_element_input_colvec <- function(x) {
-    new_input_colvec_parameter()
-  }
-
   compile_element.annotated_element_bracket <- function(x) {
     paste0("( ", compile_element(x$annotated_sexp[[2L]]), " )")
   }
