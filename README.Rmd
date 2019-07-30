@@ -191,7 +191,7 @@ return_type(X)
 ### `colSums` et al.
 
 ```{r}
-colSums2 <- armacmp(function(X) return(colSums(X)))
+colSums2 <- armacmp(function(X) return(colSums(X)), verbose = TRUE)
 rowSums2 <- armacmp(function(X) return(rowSums(X)))
 colMeans2 <- armacmp(function(X) return(colMeans(X)))
 rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
