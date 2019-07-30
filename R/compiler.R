@@ -1,4 +1,16 @@
-compile_to_str <- function(fun, function_name) {
+#' Compile a function to C++
+#'
+#' @param fun a function
+#' @param function_name the function name
+#'
+#' @return a list of type "armacmp_cpp_fun"
+#' @export
+armacmp_compile <- function(fun, function_name) {
+  stopifnot(
+    is.function(fun),
+    is.character(function_name),
+    length(function_name) == 1L
+  )
   fun_body <- methods::functionBody(fun)
   fun_args <- as.list(args(fun))
 
@@ -155,8 +167,10 @@ compile_to_str <- function(fun, function_name) {
         return_type <<- type_spec$cpp_type
       } else {
         stop("You specified two different return types ",
-             return_type, " and ", type_spec$cpp_type,
-             ". In C++ a function can only have one return type.", call. = FALSE)
+          return_type, " and ", type_spec$cpp_type,
+          ". In C++ a function can only have one return type.",
+          call. = FALSE
+        )
       }
     }
     paste0(
@@ -183,7 +197,7 @@ compile_to_str <- function(fun, function_name) {
   if (is.null(return_type)) {
     return_type <- "arma::mat"
   }
-  paste0(
+  cpp_code <- paste0(
     return_type, " ", function_name,
     "(",
     paste0(input_params, collapse = ", "),
@@ -192,4 +206,34 @@ compile_to_str <- function(fun, function_name) {
     paste0(output, collapse = "\n"), "\n",
     "}", "\n"
   )
+  new_cpp_function(
+    original_code = fun,
+    cpp_code = cpp_code
+  )
+}
+
+new_cpp_function <- function(original_code, cpp_code) {
+  structure(
+    list(
+      original_code = original_code,
+      cpp_code = cpp_code
+    ),
+    class = "armacmp_cpp_fun"
+  )
+}
+
+#' @export
+format.armacmp_cpp_fun <- function(x, ...) {
+  original_code_str <- deparse(x$original_code)
+  paste0(
+    "Compiled R function\n\n",
+    paste0(original_code_str, collapse = "\n"),
+    "\n\n=>\n\n",
+    x$cpp_code
+  )
+}
+
+#' @export
+print.armacmp_cpp_fun <- function(x, ...) {
+  cat(format(x, ...), "\n")
 }

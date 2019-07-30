@@ -5,11 +5,11 @@
 #' @export
 armacmp <- function(fun) {
   stopifnot(is.function(fun))
-  compiled_code <- compile_to_str(fun, function_name = "armacmpfun")
+  compiled_code <- armacmp_compile(fun, function_name = "armacmp_fun")
   envir <- new.env(parent = globalenv())
-  Rcpp::cppFunction(compiled_code,
+  Rcpp::cppFunction(compiled_code$cpp_code,
     depends = "RcppArmadillo",
     plugins = "cpp11", env = envir
   )
-  envir$armacmpfun
+  envir$armacmp_fun
 }
