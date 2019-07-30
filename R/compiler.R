@@ -137,6 +137,22 @@ armacmp_compile <- function(fun, function_name) {
     paste0("arma::solve(arma::trimatl( ", compile_element(x$annotated_sexp[[2L]]), " ), ", compile_element(x$annotated_sexp[[3L]]), " )")
   }
 
+  compile_element.annotated_element_colsums <- function(x) {
+    paste0("arma::sum( ", compile_element(x$annotated_sexp[[2L]]), ", 0 )")
+  }
+
+  compile_element.annotated_element_rowsums <- function(x) {
+    paste0("arma::sum( ", compile_element(x$annotated_sexp[[2L]]), ", 1 )")
+  }
+
+  compile_element.annotated_element_colmeans <- function(x) {
+    paste0("arma::mean( ", compile_element(x$annotated_sexp[[2L]]), ", 0 )")
+  }
+
+  compile_element.annotated_element_rowmeans <- function(x) {
+    paste0("arma::mean( ", compile_element(x$annotated_sexp[[2L]]), ", 1 )")
+  }
+
   compile_element.annotated_element_simple_binary_function <- function(x) {
     stopifnot(length(x$annotated_sexp) == 3L, !is.null(x$meta_data$armadillo_fun))
     paste0(

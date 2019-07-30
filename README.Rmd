@@ -92,7 +92,7 @@ Or make predictions in a logistic regression model given the coefficients:
 log_predict <- armacmp(function(coef = type_colvec(), new_X) {
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
-  return(score)
+  return(score, type = type_colvec())
 })
 
 formula <- I(mpg < 20) ~ -1 + hp + cyl
@@ -188,6 +188,21 @@ all.equal(
 return_type(X)
 ```
 
+### `colSums` et al.
+
+```{r}
+colSums2 <- armacmp(function(X) return(colSums(X)))
+rowSums2 <- armacmp(function(X) return(rowSums(X)))
+colMeans2 <- armacmp(function(X) return(colMeans(X)))
+rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
+
+X <- matrix(1:100, ncol = 10)
+all.equal(colSums(X), as.numeric(colSums2(X)))
+all.equal(rowSums(X), as.numeric(rowSums2(X)))
+all.equal(colMeans(X), as.numeric(colMeans2(X)))
+all.equal(rowMeans(X), as.numeric(rowMeans2(X)))
+```
+
 ### Just compile and look at the C++ code
 
 You can also take a look at the code itself, in case you would like to generate a C++ snippet that you can further extend.
@@ -208,6 +223,7 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 You can define your inputs using the standard function syntax. By default paramters are of type `type_matrix`. But they can have other types such as:
 
 * `type_colvec` - a column vector
+* `type_rowvec` - a row vector
 * `type_scalar_integer` - a single int value
 * `type_scalar_numeric` - a single double value
 
@@ -247,4 +263,4 @@ if_clause <- armacmp(function(X, y) {
 
 ### Related projects
 
-* (nCompiler)[https://github.com/nimble-dev/nCompiler] - Code-generate C++ from R. Inspired the approach to compile R functions directly.
+* [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate C++ from R. Inspired the approach to compile R functions directly.

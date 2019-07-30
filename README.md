@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 372.902 1031.966 1682.763 1194.291 1742.654 13527.86
-#>   crossprod(x, x) 511.284 1123.618 1586.920 1239.918 1802.055 13359.43
-#>        t(x) %*% x 822.686 1685.798 2449.785 1817.974 2870.069 14070.91
+#>              expr     min        lq     mean   median       uq       max
+#>  crossprod2(x, x) 390.867  998.9485 1203.483 1063.383 1146.311 11028.408
+#>   crossprod(x, x) 521.356 1091.4830 1378.163 1169.347 1240.024  7934.895
+#>        t(x) %*% x 865.991 1596.5165 1790.804 1702.510 1828.089  7220.454
 #>  neval
 #>    100
 #>    100
@@ -102,7 +102,7 @@ coefficients:
 log_predict <- armacmp(function(coef = type_colvec(), new_X) {
   res <- new_X %*% coef
   score <- 1 / (1 + exp(-res))
-  return(score)
+  return(score, type = type_colvec())
 })
 
 formula <- I(mpg < 20) ~ -1 + hp + cyl
@@ -171,12 +171,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min      lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 115.026 134.152
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.467  39.521
+#>                                                expr     min       lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 113.459 132.0755
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.312  39.3030
 #>       mean  median       uq     max neval
-#>  156.24938 141.572 166.2035 352.052   100
-#>   45.88111  40.832  46.5465 201.693   100
+#>  143.73717 134.142 138.5185 397.829   100
+#>   42.92059  40.290  41.9180  90.856   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              129.05ms 135.46ms      7.14   15.26MB     2.38
-#> 2 as.numeric(cumprod2(x))   4.01ms   7.29ms    125.      7.63MB    44.0
+#> 1 cumprod(x)              120.48ms 126.66ms      7.95   15.26MB     2.65
+#> 2 as.numeric(cumprod2(x))   3.97ms   4.35ms    211.      7.63MB    71.5
 ```
 
 ### Return type
@@ -212,6 +212,25 @@ all.equal(
 #> [1] TRUE
 return_type(X)
 #> [1] 5912.128
+```
+
+### `colSums` et al.
+
+``` r
+colSums2 <- armacmp(function(X) return(colSums(X)))
+rowSums2 <- armacmp(function(X) return(rowSums(X)))
+colMeans2 <- armacmp(function(X) return(colMeans(X)))
+rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
+
+X <- matrix(1:100, ncol = 10)
+all.equal(colSums(X), as.numeric(colSums2(X)))
+#> [1] TRUE
+all.equal(rowSums(X), as.numeric(rowSums2(X)))
+#> [1] TRUE
+all.equal(colMeans(X), as.numeric(colMeans2(X)))
+#> [1] TRUE
+all.equal(rowMeans(X), as.numeric(rowMeans2(X)))
+#> [1] TRUE
 ```
 
 ### Just compile and look at the C++ code
@@ -254,6 +273,7 @@ default paramters are of type `type_matrix`. But they can have other
 types such as:
 
   - `type_colvec` - a column vector
+  - `type_rowvec` - a row vector
   - `type_scalar_integer` - a single int value
   - `type_scalar_numeric` - a single double value
 
@@ -297,6 +317,5 @@ if_clause <- armacmp(function(X, y) {
 
 ### Related projects
 
-  - (nCompiler)\[<https://github.com/nimble-dev/nCompiler>\] -
-    Code-generate C++ from R. Inspired the approach to compile R
-    functions directly.
+  - [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
+    C++ from R. Inspired the approach to compile R functions directly.

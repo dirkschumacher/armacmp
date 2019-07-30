@@ -16,6 +16,16 @@ type_colvec <- function() {
   )
 }
 
+#' Type rowvec
+#' @export
+type_rowvec <- function() {
+  structure(
+    list(cpp_type = "arma::rowvec"),
+    class = "type_rowvec"
+  )
+}
+
+
 #' Type int
 #' @export
 type_scalar_int <- function() {
