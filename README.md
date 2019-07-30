@@ -34,7 +34,7 @@ You can compile R like code to C++. Not all R functions are supported.
 library(armacmp)
 ```
 
-Takes an input\_matrix and returns its transpose.
+Takes a matrix and returns its transpose.
 
 ``` r
 trans <- armacmp(function(X) {
@@ -63,9 +63,9 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 377.117 1039.590 1452.660 1183.293 1580.947 10394.72
-#>   crossprod(x, x) 475.668 1193.104 2151.525 1545.004 2436.765 14295.82
-#>        t(x) %*% x 885.585 1748.494 2874.298 2084.952 3108.082 19722.24
+#>  crossprod2(x, x) 381.523 1021.908 2097.100 1307.267 2235.171 10375.69
+#>   crossprod(x, x) 525.247 1130.928 3579.044 1312.725 2897.533 50872.87
+#>        t(x) %*% x 905.718 1624.180 3957.587 1875.146 3193.344 34626.72
 #>  neval
 #>    100
 #>    100
@@ -172,11 +172,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 114.458 139.7730
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.388  44.0725
-#>       mean  median       uq     max neval
-#>  161.50388 142.639 150.0365 722.764   100
-#>   54.43619  47.731  51.0270 180.684   100
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 122.511 134.6915
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.807  39.6280
+#>       mean   median       uq     max neval
+#>  161.39446 141.8090 153.2055 375.335   100
+#>   46.43529  41.5965  44.7450  98.777   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,22 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              122.14ms 127.84ms      7.89   15.26MB     2.63
-#> 2 as.numeric(cumprod2(x))   3.93ms   4.38ms    200.      7.63MB    70.5
+#> 1 cumprod(x)              128.94ms  132.9ms      7.59   15.26MB     2.53
+#> 2 as.numeric(cumprod2(x))   3.77ms    4.6ms    163.      7.63MB    57.9
+```
+
+### Return type
+
+``` r
+return_type <- armacmp(function(X) {
+  return(sum(log(X)), type = type_scalar_numeric())
+})
+X <- matrix(1:1000, ncol = 10)
+all.equal(
+  return_type(X),
+  sum(log(X))
+)
+return_type(X)
 ```
 
 ## API
@@ -245,12 +259,6 @@ if_clause <- armacmp(function(X, y) {
   } else {
     return(X %*% y)
   }
-})
-```
-
-``` r
-return_type <- armacmp(function(X) {
-  return(sum(exp(X)), type = type_scalar_numeric())
 })
 ```
 
