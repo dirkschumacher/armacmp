@@ -137,6 +137,15 @@ compile_to_str <- function(fun, function_name) {
     )
   }
 
+  compile_element.annotated_element_not_supported <- function(x) {
+    stop("Sorry, but the expression:\n\n",
+      deparse(x$original_sexp),
+      "\n\ncannot be translated into a C++ construct.\n",
+      "Maybe there is a typo? Also not all R functions can be used.",
+      call. = FALSE
+    )
+  }
+
   compile_element.annotated_element_return <- function(x) {
     # always return something
     stopifnot(length(x$annotated_sexp) %in% c(2L, 3L))

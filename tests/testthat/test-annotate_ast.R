@@ -43,3 +43,8 @@ test_that("it supports POW", {
   x <- classify_sexp(quote(x^3))
   expect_true(x$type == "pow")
 })
+
+test_that("it fails if an element is not supported", {
+  x <- classify_sexp(quote(asodied(x^10)))
+  expect_true(x$type == "not_supported")
+})

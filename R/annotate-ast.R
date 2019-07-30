@@ -29,7 +29,7 @@ classify_sexp <- function(sexp) {
   for (i in seq_along(annotated_sexp)[-1L]) {
     annotated_sexp[[i]] <- classify_sexp(annotated_sexp[[i]])
   }
-  element_type <- "sexp"
+  element_type <- "not_supported"
   meta_data <- list()
   element_type_map <- new.env(parent = emptyenv())
   element_type_map[["<-"]] <- "assignment"
