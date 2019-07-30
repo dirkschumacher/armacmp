@@ -176,7 +176,7 @@ bench::mark(
 
 ### Return type
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=TRUE}
 return_type <- armacmp(function(X) {
   return(sum(log(X)), type = type_scalar_numeric())
 })

@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 381.523 1021.908 2097.100 1307.267 2235.171 10375.69
-#>   crossprod(x, x) 525.247 1130.928 3579.044 1312.725 2897.533 50872.87
-#>        t(x) %*% x 905.718 1624.180 3957.587 1875.146 3193.344 34626.72
+#>              expr     min        lq     mean   median       uq      max
+#>  crossprod2(x, x) 405.014  994.1945 2287.063 1070.130 1590.051 50803.32
+#>   crossprod(x, x) 528.073 1086.3940 2147.285 1168.816 1556.472 20969.91
+#>        t(x) %*% x 872.414 1612.4795 2407.424 1736.491 2083.557 17103.26
 #>  neval
 #>    100
 #>    100
@@ -172,11 +172,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 122.511 134.6915
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.807  39.6280
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 117.134 131.6665
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.629  40.0495
 #>       mean   median       uq     max neval
-#>  161.39446 141.8090 153.2055 375.335   100
-#>   46.43529  41.5965  44.7450  98.777   100
+#>  183.16762 160.1190 215.0955 474.885   100
+#>   54.02654  44.2265  60.5560 122.505   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              128.94ms  132.9ms      7.59   15.26MB     2.53
-#> 2 as.numeric(cumprod2(x))   3.77ms    4.6ms    163.      7.63MB    57.9
+#> 1 cumprod(x)              120.43ms    123ms      8.16   15.26MB     5.44
+#> 2 as.numeric(cumprod2(x))   3.79ms      4ms    240.      7.63MB    85.7
 ```
 
 ### Return type
@@ -209,7 +209,9 @@ all.equal(
   return_type(X),
   sum(log(X))
 )
+#> [1] TRUE
 return_type(X)
+#> [1] 5912.128
 ```
 
 ## API
