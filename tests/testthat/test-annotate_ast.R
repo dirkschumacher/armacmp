@@ -1,10 +1,6 @@
 test_that("some quick checks", {
-  x <- classify_sexp(quote(x <- input_matrix()))
+  x <- classify_sexp(quote(x <- 2))
   expect_true(x$type == "assignment")
-  expect_true(x$annotated_sexp[[3L]]$type == "input_matrix")
-
-  x <- classify_sexp(quote(input_matrix()))
-  expect_true(x$type == "input_matrix")
 
   x <- classify_sexp(quote(return(x)))
   expect_true(x$type == "return")
