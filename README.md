@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min        lq     mean   median       uq       max
-#>  crossprod2(x, x) 390.867  998.9485 1203.483 1063.383 1146.311 11028.408
-#>   crossprod(x, x) 521.356 1091.4830 1378.163 1169.347 1240.024  7934.895
-#>        t(x) %*% x 865.991 1596.5165 1790.804 1702.510 1828.089  7220.454
+#>              expr     min       lq     mean   median       uq      max
+#>  crossprod2(x, x) 388.063  996.957 1722.130 1170.525 1573.500 11909.69
+#>   crossprod(x, x) 519.609 1182.247 2245.182 1396.429 1815.715 16929.17
+#>        t(x) %*% x 854.240 1641.405 3392.651 1826.115 2689.650 51191.30
 #>  neval
 #>    100
 #>    100
@@ -172,11 +172,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 113.459 132.0755
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.312  39.3030
-#>       mean  median       uq     max neval
-#>  143.73717 134.142 138.5185 397.829   100
-#>   42.92059  40.290  41.9180  90.856   100
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.590 133.2385
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.192  38.4875
+#>       mean   median      uq      max neval
+#>  207.49997 143.4555 213.521 1000.640   100
+#>   51.90498  39.9610  52.238  273.037   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              120.48ms 126.66ms      7.95   15.26MB     2.65
-#> 2 as.numeric(cumprod2(x))   3.97ms   4.35ms    211.      7.63MB    71.5
+#> 1 cumprod(x)              128.89ms  136.4ms      7.26   15.26MB     2.42
+#> 2 as.numeric(cumprod2(x))   4.35ms    5.5ms    138.      7.63MB    48.4
 ```
 
 ### Return type
@@ -217,7 +217,18 @@ return_type(X)
 ### `colSums` et al.
 
 ``` r
-colSums2 <- armacmp(function(X) return(colSums(X)))
+colSums2 <- armacmp(function(X) return(colSums(X)), verbose = TRUE)
+#> R function
+#> 
+#> function (X) 
+#> return(colSums(X))
+#> 
+#> C++ function translation
+#> 
+#> arma::mat armacmp_fun(const arma::mat& X)
+#> {
+#> return arma::sum( X, 0 );
+#> }
 rowSums2 <- armacmp(function(X) return(rowSums(X)))
 colMeans2 <- armacmp(function(X) return(colMeans(X)))
 rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
@@ -244,7 +255,7 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
   score <- 1 / (1 + exp(-res))
   return(score, type = type_colvec())
 }, "log_predict")
-#> Compiled R function
+#> R function
 #> 
 #> function (new_X, coef = type_colvec()) 
 #> {
@@ -253,7 +264,7 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 #>     return(score, type = type_colvec())
 #> }
 #> 
-#> =>
+#> C++ function translation
 #> 
 #> arma::colvec log_predict(const arma::mat& new_X, const arma::colvec& coef)
 #> {
@@ -262,6 +273,36 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 #> return score;
 #> }
 #> 
+```
+
+### If clause
+
+``` r
+if_clause <- armacmp(function(X) {
+  # infers that test needs to be bool
+  test <- sum(log(X)) < 10
+  if (test) {
+    return((t(X) %*% X) + 10)
+  } else {
+    return(t(X) %*% X)
+  }
+})
+
+if_clause_r <- function(X) {
+  test <- sum(log(X)) < 10
+  if (test) {
+    return((t(X) %*% X) + 10)
+  } else {
+    return(t(X) %*% X)
+  }
+}
+
+X <- matrix(1:10)
+all.equal(
+  if_clause_r(X),
+  if_clause(X)
+)
+#> [1] TRUE
 ```
 
 ## API
@@ -301,17 +342,6 @@ qr_lm_coef <- armacmp(function(X, y) {
   qty <- t(qr.Q(qr_res)) %*% y
   beta_hat <- backsolve(qr.R(qr_res), qty)
   return(beta_hat)
-})
-```
-
-``` r
-if_clause <- armacmp(function(X, y) {
-  test <- sum(exp(X)) < 10 # infers that test needs to be bool
-  if (test) {
-    return(X %*% y + 10)
-  } else {
-    return(X %*% y)
-  }
 })
 ```
 

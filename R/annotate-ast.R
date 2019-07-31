@@ -1,4 +1,6 @@
-annotate_ast <- function(ast) {
+#' @param arma_mat_symbols a character vector of symbol names that are bound to arma matrices/vecs
+#' @noRd
+annotate_ast <- function(ast, arma_mat_symbols = character()) {
   # here we have one S expression or a List of S expression
   # a list of S expression is only assumed at the top level
   is_list_of_sexps <- "{" %in% as.character(ast[[1L]])
@@ -6,31 +8,59 @@ annotate_ast <- function(ast) {
     annotated_ast <- list()
     iterator <- seq_along(ast)[-1L]
     for (i in iterator) {
-      annotated_ast <- c(annotated_ast, list(classify_sexp(ast[[i]])))
+      annotated_ast <- c(annotated_ast, list(classify_sexp(ast[[i]], arma_mat_symbols)))
     }
     annotated_ast
   } else {
     # here we only assume one SEXP
-    list(classify_sexp(ast))
+    list(classify_sexp(ast, arma_mat_symbols))
   }
 }
 
-classify_sexp <- function(sexp) {
+classify_sexp <- function(sexp, arma_mat_symbols) {
   if (length(sexp) <= 1L) {
     sexp_chr <- as.character(sexp)
-    if (is.call(sexp) && sexp_chr %in% c("input_matrix", "input_colvec")) {
-      return(new_element_type(sexp_chr, sexp))
+    type_name <- "terminal"
+    meta_data <- list()
+    if (is.numeric(sexp)) {
+      type_name <- "scalar"
+      meta_data$cpp_type <- "auto"
     }
-    return(new_element_type("terminal", sexp))
+    return(new_element_type(type_name, sexp, meta_data = meta_data))
   }
   first_element <- sexp[[1L]]
   first_element_chr <- as.character(first_element)
   annotated_sexp <- as.list(sexp)
+
+  # some type deduction heuristic
+  # all experimental and hacky :)
+  meta_data <- list()
+  non_mat_types <- c("sum")
+  if (first_element_chr %in% non_mat_types) {
+    meta_data$cpp_type <- "auto"
+  }
+  has_arma_type <- function(x) {
+    x$type != "scalar" && (
+      is.null(x$meta_data$cpp_type) ||
+      grepl("^arma", x$meta_data$cpp_type)
+    )
+  }
+  any_arma_type <- FALSE
+  # this needs to be done more specific for certain types of
+  # expression. E.g. with assignments, only the right hand side
+  # determines the type
   for (i in seq_along(annotated_sexp)[-1L]) {
-    annotated_sexp[[i]] <- classify_sexp(annotated_sexp[[i]])
+    el <- classify_sexp(annotated_sexp[[i]], arma_mat_symbols)
+    annotated_sexp[[i]] <- el
+    if (has_arma_type(el)) {
+      any_arma_type <- TRUE
+    }
+  }
+  if (!any_arma_type) {
+    meta_data$cpp_type <- "auto"
   }
   element_type <- "not_supported"
-  meta_data <- list()
+
   element_type_map <- new.env(parent = emptyenv())
   element_type_map[["<-"]] <- "assignment"
   element_type_map[["{"]] <- "curley_bracket"
@@ -40,6 +70,12 @@ classify_sexp <- function(sexp) {
   element_type_map[["^"]] <- "pow"
   element_type_map[["*"]] <- "mult"
   element_type_map[["/"]] <- "div"
+  element_type_map[["<"]] <- "less"
+  element_type_map[[">"]] <- "greater"
+  element_type_map[["<="]] <- "leq"
+  element_type_map[[">="]] <- "geq"
+  element_type_map[["=="]] <- "equal"
+  element_type_map[["!="]] <- "nequal"
   element_type_map[["%*%"]] <- "matmul"
   element_type_map[["colSums"]] <- "colsums"
   element_type_map[["rowSums"]] <- "rowsums"
@@ -56,11 +92,11 @@ classify_sexp <- function(sexp) {
   }
   if (!is.null(unary_function_mapping[[first_element_chr]])) {
     element_type <- "simple_unary_function"
-    meta_data <- list(armadillo_fun = unary_function_mapping[[first_element_chr]])
+    meta_data$armadillo_fun <- unary_function_mapping[[first_element_chr]]
   }
   if (!is.null(binary_function_mapping[[first_element_chr]])) {
     element_type <- "simple_binary_function"
-    meta_data <- list(armadillo_fun = binary_function_mapping[[first_element_chr]])
+    meta_data$armadillo_fun <- binary_function_mapping[[first_element_chr]]
   }
   new_element_type(element_type, sexp, annotated_sexp, meta_data)
 }

@@ -23,7 +23,14 @@ armacmp_compile <- function(fun, function_name) {
       type_matrix()
     }
   })
-  annotated_ast <- annotate_ast(fun_body)
+
+  # here we identify the arguments of type matrix/vector
+  # this is then used in the annotation process to decide
+  # the right type for assignment operations
+  arma_args <- names(Filter(function(x) {
+    grepl("^arma", x$cpp_type)
+  }, fun_args))
+  annotated_ast <- annotate_ast(fun_body, arma_args)
 
   return_type <- NULL
 
@@ -33,14 +40,25 @@ armacmp_compile <- function(fun, function_name) {
   compile_element.annotated_element_terminal <- function(x) {
     as.character(x$annotated_sexp)
   }
+
+  compile_element.annotated_element_scalar <- function(x) {
+    as.character(x$annotated_sexp)
+  }
+
   compile_element.annotated_element_assignment <- function(x) {
-    stopifnot(x$annotated_sexp[[2L]]$type == "terminal")
+    stopifnot(x$annotated_sexp[[2L]]$type %in% "terminal")
 
     # deduce type
-    arma_type <- "arma::mat"
+    # some elements know their type. We currently just use the
+    # meta_data container to access it
+    # no proper mechanism yet as this is all experimental
+    type <- "arma::mat"
+    if (!is.null(x$annotated_sexp[[3L]]$meta_data$cpp_type)) {
+      type <- x$annotated_sexp[[3L]]$meta_data$cpp_type
+    }
 
     paste0(
-      arma_type, " ",
+      type, " ",
       compile_element(x$annotated_sexp[[2L]]),
       " = ",
       compile_element(x$annotated_sexp[[3L]]),
@@ -79,6 +97,17 @@ armacmp_compile <- function(fun, function_name) {
       " : Rcpp::seq_len(", compile_element(n), ")) { \n",
       compile_element(body),
       "}\n"
+    )
+  }
+
+  compile_element.annotated_element_if <- function(x) {
+    # might not cover all edge cases
+    paste0(
+      "\nif ( ", compile_element(x$annotated_sexp[[2L]]), " ) \n",
+      compile_element(x$annotated_sexp[[3L]]),
+      if (!is.null(x$annotated_sexp[[4L]])) {
+        paste0(" else ", compile_element(x$annotated_sexp[[4L]]))
+      }
     )
   }
 
@@ -123,6 +152,12 @@ armacmp_compile <- function(fun, function_name) {
   compile_element.annotated_element_div <- make_operator_fun("/")
   compile_element.annotated_element_plus <- make_operator_fun("+")
   compile_element.annotated_element_minus <- make_operator_fun("-")
+  compile_element.annotated_element_less <- make_operator_fun("<")
+  compile_element.annotated_element_greater <- make_operator_fun(">")
+  compile_element.annotated_element_geq <- make_operator_fun(">=")
+  compile_element.annotated_element_leq <- make_operator_fun("<=")
+  compile_element.annotated_element_equal <- make_operator_fun("==")
+  compile_element.annotated_element_nequal <- make_operator_fun("!=")
 
   compile_element.annotated_element_simple_unary_function <- function(x) {
     stopifnot(length(x$annotated_sexp) == 2L, !is.null(x$meta_data$armadillo_fun))
