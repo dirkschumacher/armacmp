@@ -27,10 +27,13 @@ armacmp_compile <- function(fun, function_name) {
   # here we identify the arguments of type matrix/vector
   # this is then used in the annotation process to decide
   # the right type for assignment operations
-  arma_args <- names(Filter(function(x) {
-    grepl("^arma", x$cpp_type)
-  }, fun_args))
-  annotated_ast <- annotate_ast(fun_body, arma_args)
+  arma_args <- Map(function(x) {
+    !grepl("^arma", x$cpp_type)
+  }, fun_args)
+  is_not_bound_to_arma_datatype <- function(symbol_name) {
+    !is.null(arma_args[[symbol_name]]) && arma_args[[symbol_name]]
+  }
+  annotated_ast <- annotate_ast(fun_body, is_not_bound_to_arma_datatype)
 
   return_type <- NULL
 
@@ -38,10 +41,6 @@ armacmp_compile <- function(fun, function_name) {
   # into code
   compile_element <- function(x) UseMethod("compile_element")
   compile_element.annotated_element_terminal <- function(x) {
-    as.character(x$annotated_sexp)
-  }
-
-  compile_element.annotated_element_scalar <- function(x) {
     as.character(x$annotated_sexp)
   }
 
@@ -183,7 +182,25 @@ armacmp_compile <- function(fun, function_name) {
 
   compile_element.annotated_element_matmul <- make_operator_fun("*")
 
-  compile_element.annotated_element_mult <- make_operator_fun("%")
+  compile_element.annotated_element_mult <- function(x) {
+    # when we know no armadillo is involved, we will use
+    # the normal * operator
+    no_arma <- !is.null(x$meta_data$cpp_type) &&
+              x$meta_data$cpp_type == "auto"
+    op <- if (no_arma) {
+      "*"
+    } else {
+      "%"
+    }
+    paste0(
+      compile_element(x$annotated_sexp[[2L]]),
+      " ",
+      op,
+      " ",
+      compile_element(x$annotated_sexp[[3L]])
+    )
+  }
+
   compile_element.annotated_element_div <- make_operator_fun("/")
   compile_element.annotated_element_plus <- make_operator_fun("+")
   compile_element.annotated_element_minus <- make_operator_fun("-")

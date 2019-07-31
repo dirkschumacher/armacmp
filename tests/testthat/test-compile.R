@@ -72,3 +72,12 @@ test_that("namespaced functions", {
     grepl("arma::sqrt( X )", code, fixed = TRUE)
   )
 })
+
+test_that("arma element wise mult only when arma is used", {
+  code <- armacmp_compile(function(x = type_scalar_numeric(), y = type_scalar_numeric()) {
+    return(x * y, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("x * y", code, fixed = TRUE)
+  )
+})

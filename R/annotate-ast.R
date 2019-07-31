@@ -1,6 +1,6 @@
-#' @param arma_mat_symbols a character vector of symbol names that are bound to arma matrices/vecs
+#' @param is_not_bound_to_arma_datatype a function indicating if a symbol is not bound to an arma data type
 #' @noRd
-annotate_ast <- function(ast, arma_mat_symbols = character()) {
+annotate_ast <- function(ast, is_not_bound_to_arma_datatype = function(x) FALSE) {
   # here we have one S expression or a List of S expression
   # a list of S expression is only assumed at the top level
   is_list_of_sexps <- "{" %in% as.character(ast[[1L]])
@@ -8,22 +8,21 @@ annotate_ast <- function(ast, arma_mat_symbols = character()) {
     annotated_ast <- list()
     iterator <- seq_along(ast)[-1L]
     for (i in iterator) {
-      annotated_ast <- c(annotated_ast, list(classify_sexp(ast[[i]], arma_mat_symbols)))
+      annotated_ast <- c(annotated_ast, list(classify_sexp(ast[[i]], is_not_bound_to_arma_datatype)))
     }
     annotated_ast
   } else {
     # here we only assume one SEXP
-    list(classify_sexp(ast, arma_mat_symbols))
+    list(classify_sexp(ast, is_not_bound_to_arma_datatype))
   }
 }
 
-classify_sexp <- function(sexp, arma_mat_symbols = character()) {
+classify_sexp <- function(sexp, is_not_bound_to_arma_datatype = function(x) FALSE) {
   if (length(sexp) <= 1L) {
     sexp_chr <- as.character(sexp)
     type_name <- "terminal"
     meta_data <- list()
-    if (is.numeric(sexp)) {
-      type_name <- "scalar"
+    if (is.numeric(sexp) || is_not_bound_to_arma_datatype(sexp_chr)) {
       meta_data$cpp_type <- "auto"
     }
     return(new_element_type(type_name, sexp, meta_data = meta_data))
@@ -57,7 +56,7 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
   # expression. E.g. with assignments, only the right hand side
   # determines the type
   for (i in seq_along(annotated_sexp)[-1L]) {
-    el <- classify_sexp(annotated_sexp[[i]], arma_mat_symbols)
+    el <- classify_sexp(annotated_sexp[[i]], is_not_bound_to_arma_datatype)
     annotated_sexp[[i]] <- el
     if (has_arma_type(el)) {
       any_arma_type <- TRUE
