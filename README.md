@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 388.063  996.957 1722.130 1170.525 1573.500 11909.69
-#>   crossprod(x, x) 519.609 1182.247 2245.182 1396.429 1815.715 16929.17
-#>        t(x) %*% x 854.240 1641.405 3392.651 1826.115 2689.650 51191.30
+#>              expr     min        lq     mean   median       uq       max
+#>  crossprod2(x, x) 357.337  969.9115 1199.647 1018.377 1096.747  7272.153
+#>   crossprod(x, x) 471.707 1081.6490 1415.818 1158.952 1230.923  5701.794
+#>        t(x) %*% x 806.691 1597.5390 1983.228 1677.217 1808.017 13010.352
 #>  neval
 #>    100
 #>    100
@@ -172,11 +172,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.590 133.2385
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.192  38.4875
-#>       mean   median      uq      max neval
-#>  207.49997 143.4555 213.521 1000.640   100
-#>   51.90498  39.9610  52.238  273.037   100
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 119.316 132.5790
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.289  38.5475
+#>       mean   median      uq     max neval
+#>  144.37346 134.2080 139.286 332.674   100
+#>   42.36518  39.3855  40.950 132.454   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              128.89ms  136.4ms      7.26   15.26MB     2.42
-#> 2 as.numeric(cumprod2(x))   4.35ms    5.5ms    138.      7.63MB    48.4
+#> 1 cumprod(x)              121.62ms 129.43ms      7.88   15.26MB     2.63
+#> 2 as.numeric(cumprod2(x))   3.76ms   4.26ms    200.      7.63MB    69.1
 ```
 
 ### Return type
@@ -279,7 +279,7 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 
 ``` r
 if_clause <- armacmp(function(X) {
-  # infers that test needs to be bool
+  # infers that test needs to be bool (auto)
   test <- sum(log(X)) < 10
   if (test) {
     return((t(X) %*% X) + 10)
@@ -297,12 +297,24 @@ if_clause_r <- function(X) {
   }
 }
 
-X <- matrix(1:10)
+X <- matrix(1:10000)
 all.equal(
   if_clause_r(X),
   if_clause(X)
 )
 #> [1] TRUE
+
+microbenchmark::microbenchmark(
+  if_clause_r(X),
+  if_clause(X)
+)
+#> Unit: microseconds
+#>            expr     min       lq     mean   median       uq       max
+#>  if_clause_r(X) 282.046 295.7720 491.2066 312.1915 420.1165 10413.537
+#>    if_clause(X) 125.642 128.8145 174.3683 133.9040 159.0430  1402.795
+#>  neval
+#>    100
+#>    100
 ```
 
 ## API
