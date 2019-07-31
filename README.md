@@ -62,10 +62,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq      max
-#>  crossprod2(x, x) 408.267  973.580 1061.574 1025.740 1090.676 6580.824
-#>   crossprod(x, x) 520.961 1077.827 1339.998 1136.161 1221.111 6786.331
-#>        t(x) %*% x 876.246 1597.347 1850.229 1666.182 1741.370 7880.158
+#>              expr     min       lq     mean   median       uq       max
+#>  crossprod2(x, x) 346.015 1031.214 1420.213 1114.491 1298.974 10793.264
+#>   crossprod(x, x) 477.722 1147.070 1763.624 1254.349 1482.325 15696.563
+#>        t(x) %*% x 801.403 1609.419 1961.031 1759.886 1896.672  8554.159
 #>  neval
 #>    100
 #>    100
@@ -146,8 +146,8 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
   X_new <- X
   # only seq_len is currently supported
   for (i in seq_len(10 + 10)) {
-    # use replace to update an existing variable
-    replace(X_new, log(t(X_new) %*% X_new + i + offset))
+    # use = to update an existing variable
+    X_new = log(t(X_new) %*% X_new + i + offset)
   }
   return(X_new)
 })
@@ -171,12 +171,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 129.994 132.9465
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.550  38.7525
-#>       mean  median       uq     max neval
-#>  168.74769 138.548 156.9025 586.638   100
-#>   50.70104  41.033  50.7465 216.561   100
+#>                                                expr     min      lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.563 132.999
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.256  38.597
+#>       mean   median       uq     max neval
+#>  141.66037 135.5635 139.0855 256.657   100
+#>   40.64748  39.4970  40.5150  73.438   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +194,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              126.46ms 132.73ms      7.65   15.26MB     2.55
-#> 2 as.numeric(cumprod2(x))   3.93ms   4.57ms    181.      7.63MB    60.4
+#> 1 cumprod(x)              119.09ms 123.07ms      8.09   15.26MB     5.39
+#> 2 as.numeric(cumprod2(x))   3.96ms   4.42ms    184.      7.63MB    64.7
 ```
 
 ### Return type
@@ -314,8 +314,29 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>            expr     min       lq     mean   median       uq      max neval
-#>  if_clause_r(X) 297.551 313.0035 408.5837 321.2925 337.7315 6110.625   100
-#>    if_clause(X) 130.527 133.5915 158.9186 136.6425 149.1605  504.945   100
+#>  if_clause_r(X) 298.930 326.9995 462.3846 349.9850 429.4220 8079.227   100
+#>    if_clause(X) 134.089 141.3245 166.8097 160.9865 183.5025  297.005   100
+```
+
+### QR decomposition
+
+``` r
+lm_cpp <- armacmp(function(X, y = type_colvec()) {
+  qr_res <- qr(X)
+  qty <- t(qr.Q(qr_res)) %*% y
+  beta_hat <- backsolve(qr.R(qr_res), qty)
+  return(beta_hat, type = type_colvec())
+})
+
+# example from the R docs of lm.fit
+n <- 70000 ; p <- 20
+X <- matrix(rnorm(n * p), n, p) 
+y <- rnorm(n)
+all.equal(
+  as.numeric(coef(lm.fit(X, y))),
+  as.numeric(lm_cpp(X, y))
+)
+#> [1] TRUE
 ```
 
 ## API
@@ -335,28 +356,16 @@ types such as:
 
   - `<-` you can use assignments that cause a C++ copy. As most
     operations return armadillo expressions, this is often not a
-    problem. All assignments create new matrix variables. Other types
-    are not possible at the moment :(.
+    problem. Usually assignments create new matrix variables, unless all
+    operands on the right hand side can be assumed to not be any matrix
+    code. Then the C++11 compiler will figure out the concrete type.
+  - `=` use the equal assignment if you want to reassign a variable with
+    a new value.
   - `...` many more functions :)
 
 ### Return
 
 All functions need to return a value using the `return` function.
-
-## TODO
-
-The idea is to implement a number of more complex constructs and also
-infer some data types to generate better code.
-
-``` r
-qr_lm_coef <- armacmp(function(X, y) {
-  # TBD
-  qr_res <- qr(X)
-  qty <- t(qr.Q(qr_res)) %*% y
-  beta_hat <- backsolve(qr.R(qr_res), qty)
-  return(beta_hat)
-})
-```
 
 ### Related projects
 

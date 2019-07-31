@@ -17,7 +17,7 @@ annotate_ast <- function(ast, arma_mat_symbols = character()) {
   }
 }
 
-classify_sexp <- function(sexp, arma_mat_symbols) {
+classify_sexp <- function(sexp, arma_mat_symbols = character()) {
   if (length(sexp) <= 1L) {
     sexp_chr <- as.character(sexp)
     type_name <- "terminal"
@@ -64,7 +64,7 @@ classify_sexp <- function(sexp, arma_mat_symbols) {
   element_type_map <- new.env(parent = emptyenv())
   element_type_map[["<-"]] <- "assignment"
   element_type_map[["{"]] <- "curley_bracket"
-  element_type_map[["replace"]] <- "replace"
+  element_type_map[["="]] <- "reassign"
   element_type_map[["+"]] <- "plus"
   element_type_map[["-"]] <- "minus"
   element_type_map[["^"]] <- "pow"
@@ -77,12 +77,15 @@ classify_sexp <- function(sexp, arma_mat_symbols) {
   element_type_map[["=="]] <- "equal"
   element_type_map[["!="]] <- "nequal"
   element_type_map[["%*%"]] <- "matmul"
+  element_type_map[["("]] <- "bracket"
+  element_type_map[["qr"]] <- "qr_init"
+  element_type_map[["qr.Q"]] <- "qr_q"
+  element_type_map[["qr.R"]] <- "qr_r"
   element_type_map[["colSums"]] <- "colsums"
   element_type_map[["rowSums"]] <- "rowsums"
   element_type_map[["colMeans"]] <- "colmeans"
   element_type_map[["rowMeans"]] <- "rowmeans"
   element_type_map[["return"]] <- "return"
-  element_type_map[["("]] <- "bracket"
   element_type_map[["backsolve"]] <- "backsolve"
   element_type_map[["forwardsolve"]] <- "forwardsolve"
   element_type_map[["if"]] <- "if"

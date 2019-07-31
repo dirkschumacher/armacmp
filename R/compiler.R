@@ -48,6 +48,21 @@ armacmp_compile <- function(fun, function_name) {
   compile_element.annotated_element_assignment <- function(x) {
     stopifnot(x$annotated_sexp[[2L]]$type %in% "terminal")
 
+    # there are functions that return mutiple values like QR
+    # this is handled here for now
+    if (x$annotated_sexp[[3L]]$type == "qr_init") {
+      var_name <- compile_element(x$annotated_sexp[[2L]])
+      var_name_q <- paste0(var_name, "__Q")
+      var_name_r <- paste0(var_name, "__R")
+      rhs <- compile_element(x$annotated_sexp[[3L]]$annotated_sexp[[2L]])
+      return(
+        paste0(
+          "arma::mat ", var_name_q, ", ", var_name_r, ";\n",
+          "arma::qr_econ( ", var_name_q, ", ", var_name_r, ", ", rhs, " );\n"
+        )
+      )
+    }
+
     # deduce type
     # some elements know their type. We currently just use the
     # meta_data container to access it
@@ -65,7 +80,7 @@ armacmp_compile <- function(fun, function_name) {
       ";"
     )
   }
-  compile_element.annotated_element_replace <- function(x) {
+  compile_element.annotated_element_reassign <- function(x) {
     paste0(
       compile_element(x$annotated_sexp[[2L]]),
       " = ",
@@ -170,6 +185,14 @@ armacmp_compile <- function(fun, function_name) {
 
   compile_element.annotated_element_forwardsolve <- function(x) {
     paste0("arma::solve(arma::trimatl( ", compile_element(x$annotated_sexp[[2L]]), " ), ", compile_element(x$annotated_sexp[[3L]]), " )")
+  }
+
+  compile_element.annotated_element_qr_q <- function(x) {
+    paste0(compile_element(x$annotated_sexp[[2L]]), "__Q")
+  }
+
+  compile_element.annotated_element_qr_r <- function(x) {
+    paste0(compile_element(x$annotated_sexp[[2L]]), "__R")
   }
 
   compile_element.annotated_element_colsums <- function(x) {

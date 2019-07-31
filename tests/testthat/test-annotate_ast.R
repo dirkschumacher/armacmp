@@ -40,6 +40,11 @@ test_that("it supports POW", {
   expect_true(x$type == "pow")
 })
 
+test_that("reassign", {
+  x <- classify_sexp(quote({x = 10}))
+  expect_true(x$annotated_sexp[[2L]]$type == "reassign")
+})
+
 test_that("it fails if an element is not supported", {
   x <- classify_sexp(quote(asodied(x^10)))
   expect_true(x$type == "not_supported")

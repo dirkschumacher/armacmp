@@ -23,3 +23,12 @@ test_that("it fails if two different return types", {
     regexp = "return"
   )
 })
+
+test_that("you can reassign variables", {
+  a_lot_of_fun <- function(x) {
+    x2 <- x
+    x2 = x
+  }
+  code <- armacmp_compile(a_lot_of_fun, "wat")$cpp_code
+  expect_true(grepl("x2 = x", code, fixed = TRUE))
+})

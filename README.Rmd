@@ -134,8 +134,8 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
   X_new <- X
   # only seq_len is currently supported
   for (i in seq_len(10 + 10)) {
-    # use replace to update an existing variable
-    replace(X_new, log(t(X_new) %*% X_new + i + offset))
+    # use = to update an existing variable
+    X_new = log(t(X_new) %*% X_new + i + offset)
   }
   return(X_new)
 })
@@ -253,6 +253,27 @@ microbenchmark::microbenchmark(
 )
 ```
 
+### QR decomposition
+
+```{r, echo=TRUE, eval=TRUE}
+lm_cpp <- armacmp(function(X, y = type_colvec()) {
+  qr_res <- qr(X)
+  qty <- t(qr.Q(qr_res)) %*% y
+  beta_hat <- backsolve(qr.R(qr_res), qty)
+  return(beta_hat, type = type_colvec())
+})
+
+# example from the R docs of lm.fit
+n <- 70000 ; p <- 20
+X <- matrix(rnorm(n * p), n, p) 
+y <- rnorm(n)
+all.equal(
+  as.numeric(coef(lm.fit(X, y))),
+  as.numeric(lm_cpp(X, y))
+)
+```
+
+
 ## API
 
 ### Inputs
@@ -266,27 +287,13 @@ You can define your inputs using the standard function syntax. By default paramt
 
 ### Body
 
-* `<-` you can use assignments that cause a C++ copy. As most operations return armadillo expressions, this is often not a problem. All assignments create new matrix variables. Other types are not possible at the moment :(.
+* `<-` you can use assignments that cause a C++ copy. As most operations return armadillo expressions, this is often not a problem. Usually assignments create new matrix variables, unless all operands on the right hand side can be assumed to not be any matrix code. Then the C++11 compiler will figure out the concrete type.
+* `=` use the equal assignment if you want to reassign a variable with a new value.
 * `...` many more functions :)
 
 ### Return
 
 All functions need to return a value using the `return` function.
-
-## TODO
-
-The idea is to implement a number of more complex constructs and also infer some data types to generate better code.
-
-```{r, echo=TRUE, eval=FALSE}
-qr_lm_coef <- armacmp(function(X, y) {
-  # TBD
-  qr_res <- qr(X)
-  qty <- t(qr.Q(qr_res)) %*% y
-  beta_hat <- backsolve(qr.R(qr_res), qty)
-  return(beta_hat)
-})
-```
-
 
 ### Related projects
 
