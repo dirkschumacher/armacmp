@@ -42,7 +42,7 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
   has_arma_type <- function(x) {
     x$type != "scalar" && (
       is.null(x$meta_data$cpp_type) ||
-      grepl("^arma", x$meta_data$cpp_type)
+        grepl("^arma", x$meta_data$cpp_type)
     )
   }
   any_arma_type <- FALSE
@@ -128,6 +128,7 @@ unary_function_mapping$exp <- "arma::exp"
 unary_function_mapping$abs <- "arma::abs"
 unary_function_mapping$log <- "arma::log"
 unary_function_mapping$sum <- "arma::accu"
+unary_function_mapping$chol <- "arma::chol"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$diag <- "arma::diagmat"
 unary_function_mapping$sqrt <- "arma::sqrt"

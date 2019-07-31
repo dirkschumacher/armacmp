@@ -41,7 +41,9 @@ test_that("it supports POW", {
 })
 
 test_that("reassign", {
-  x <- classify_sexp(quote({x = 10}))
+  x <- classify_sexp(quote({
+    x <- 10
+  }))
   expect_true(x$annotated_sexp[[2L]]$type == "reassign")
 })
 

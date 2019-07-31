@@ -22,7 +22,7 @@ test_that("for loop", {
     # only seq_len is currently supported
     for (i in seq_len(10 + 10)) {
       # use = to update an existing variable
-      X_new = log(t(X_new) %*% X_new + i + offset)
+      X_new <- log(t(X_new) %*% X_new + i + offset)
     }
     return(X_new)
   })
@@ -82,5 +82,14 @@ test_that("qr", {
   expect_equal(
     qr2(X),
     qr.Q(x) %*% qr.R(x)
+  )
+})
+
+test_that("chol", {
+  chol2 <- armacmp(function(X) return(chol(X)))
+  X <- matrix(c(5, 1, 1, 3), 2, 2)
+  expect_equal(
+    chol2(X),
+    chol(X)
   )
 })
