@@ -119,6 +119,7 @@ binary_function_mapping$solve <- "arma::solve"
 
 unary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 unary_function_mapping$t <- "arma::trans"
+unary_function_mapping$`!` <- "!"
 unary_function_mapping$exp <- "arma::exp"
 unary_function_mapping$abs <- "arma::abs"
 unary_function_mapping$log <- "arma::log"

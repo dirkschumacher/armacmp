@@ -223,8 +223,10 @@ if_clause <- armacmp(function(X) {
   test <- sum(log(X)) < 10
   if (test) {
     return((t(X) %*% X) + 10)
-  } else {
+  } else if (sum(X) < 10) {
     return(t(X) %*% X)
+  } else {
+    return(t(X) %*% X * 10)
   }
 })
 
@@ -232,8 +234,10 @@ if_clause_r <- function(X) {
   test <- sum(log(X)) < 10
   if (test) {
     return((t(X) %*% X) + 10)
-  } else {
+  } else if (sum(X) < 10) {
     return(t(X) %*% X)
+  } else {
+    return(t(X) %*% X * 10)
   }
 }
 

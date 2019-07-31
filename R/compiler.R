@@ -105,7 +105,7 @@ armacmp_compile <- function(fun, function_name) {
     paste0(
       "\nif ( ", compile_element(x$annotated_sexp[[2L]]), " ) \n",
       compile_element(x$annotated_sexp[[3L]]),
-      if (!is.null(x$annotated_sexp[[4L]])) {
+      if (length(x$annotated_sexp) > 3 && !is.null(x$annotated_sexp[[4L]])) {
         paste0(" else ", compile_element(x$annotated_sexp[[4L]]))
       }
     )
