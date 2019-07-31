@@ -13,12 +13,25 @@ status](https://travis-ci.org/dirkschumacher/armacmp.svg?branch=master)](https:/
 coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
 <!-- badges: end -->
 
-The goal of `armacmp` is to create an experimental DSL to formulate
-linear algebra code in R that is compiled to C++ using the Armadillo
-Template Library.
+The goal of `armacmp` is to create a DSL to formulate linear algebra
+code in R that is compiled to C++ using the Armadillo Template Library.
 
-Currently just a quick idea and prototype. If this sounds useful, let me
-know.
+The scope of the package is linear algebra and Armadillo. It is not
+meant to evolve into a general purpose R to C++ transpiler.
+
+This is currently an *experimental prototype* with most certainly a lot
+of bugs and the appropriate code quality ;). However I would be happy
+for any type of feedback, alpha testers, feature requests and potential
+use cases.
+
+Potential use cases:
+
+  - Speed up your code :)
+  - Quickly estimate `Rcpp` speedup gain for linear algebra code
+  - Learn how R linear algebra code can be expressed in C++ using
+    `armacmp_compile` and use the code as a starting point for further
+    development.
+  - …
 
 ## Installation
 
@@ -45,6 +58,48 @@ trans(matrix(1:10))
 #> [1,]    1    2    3    4    5    6    7    8    9    10
 ```
 
+## API
+
+`armacmp` always compiles functions. Every function needs to have a
+`return` statement with an optional type argument.
+
+``` r
+my_fun <- armacmp(function(X, y = type_colvec())) {
+  return(X %*% y, type = type_colvec())
+}
+```
+
+### Inputs
+
+You can define your inputs using the standard function syntax. By
+default paramters are of type `type_matrix`. But they can have other
+types such as:
+
+  - `type_colvec` - a column vector
+  - `type_rowvec` - a row vector
+  - `type_scalar_integer` - a single int value
+  - `type_scalar_numeric` - a single double value
+
+### Body
+
+  - `<-` you can use assignments that cause a C++ copy. As most
+    operations return armadillo expressions, this is often not a
+    problem. Usually assignments create new matrix variables, unless all
+    operands on the right hand side can be assumed to not be any matrix
+    code. Then the C++11 compiler will figure out the concrete type.
+  - `=` use the equal assignment if you want to reassign a variable with
+    a new value.
+
+Below is a list of functions that are currently supported:
+
+… *TDD* For now, please take a look at the examples below.
+
+### Return
+
+All functions need to return a value using the `return` function.
+
+## Further examples
+
 Equivalent to R’s crossprod (`t(x) %*% y`)
 
 ``` r
@@ -63,9 +118,9 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 346.015 1031.214 1420.213 1114.491 1298.974 10793.264
-#>   crossprod(x, x) 477.722 1147.070 1763.624 1254.349 1482.325 15696.563
-#>        t(x) %*% x 801.403 1609.419 1961.031 1759.886 1896.672  8554.159
+#>  crossprod2(x, x) 418.475 1002.610 1264.750 1078.998 1182.119  6055.312
+#>   crossprod(x, x) 516.125 1104.085 1528.402 1206.463 1380.613 10128.096
+#>        t(x) %*% x 844.030 1623.602 2159.336 1709.040 1937.041 15640.536
 #>  neval
 #>    100
 #>    100
@@ -171,12 +226,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min      lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.563 132.999
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.256  38.597
-#>       mean   median       uq     max neval
-#>  141.66037 135.5635 139.0855 256.657   100
-#>   40.64748  39.4970  40.5150  73.438   100
+#>                                                expr     min       lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.739 134.7415
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.637  39.4065
+#>       mean   median      uq     max neval
+#>  161.00728 137.9355 156.767 418.402   100
+#>   44.97587  40.4965  44.452 129.472   100
 ```
 
 ### A faster `cumprod`
@@ -194,8 +249,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              119.09ms 123.07ms      8.09   15.26MB     5.39
-#> 2 as.numeric(cumprod2(x))   3.96ms   4.42ms    184.      7.63MB    64.7
+#> 1 cumprod(x)              131.26ms 143.83ms      6.88   15.26MB     2.29
+#> 2 as.numeric(cumprod2(x))   4.21ms   8.47ms     88.2     7.63MB    32.7
 ```
 
 ### Return type
@@ -313,9 +368,9 @@ microbenchmark::microbenchmark(
   if_clause(X)
 )
 #> Unit: microseconds
-#>            expr     min       lq     mean   median       uq      max neval
-#>  if_clause_r(X) 298.930 326.9995 462.3846 349.9850 429.4220 8079.227   100
-#>    if_clause(X) 134.089 141.3245 166.8097 160.9865 183.5025  297.005   100
+#>            expr     min       lq     mean  median       uq      max neval
+#>  if_clause_r(X) 295.927 319.4940 519.2377 334.348 454.8045 6718.922   100
+#>    if_clause(X) 123.221 135.9265 177.1595 143.549 187.2870  949.770   100
 ```
 
 ### QR decomposition
@@ -338,34 +393,6 @@ all.equal(
 )
 #> [1] TRUE
 ```
-
-## API
-
-### Inputs
-
-You can define your inputs using the standard function syntax. By
-default paramters are of type `type_matrix`. But they can have other
-types such as:
-
-  - `type_colvec` - a column vector
-  - `type_rowvec` - a row vector
-  - `type_scalar_integer` - a single int value
-  - `type_scalar_numeric` - a single double value
-
-### Body
-
-  - `<-` you can use assignments that cause a C++ copy. As most
-    operations return armadillo expressions, this is often not a
-    problem. Usually assignments create new matrix variables, unless all
-    operands on the right hand side can be assumed to not be any matrix
-    code. Then the C++11 compiler will figure out the concrete type.
-  - `=` use the equal assignment if you want to reassign a variable with
-    a new value.
-  - `...` many more functions :)
-
-### Return
-
-All functions need to return a value using the `return` function.
 
 ### Related projects
 
