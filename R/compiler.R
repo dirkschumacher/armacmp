@@ -140,6 +140,24 @@ armacmp_compile <- function(fun, function_name) {
     )
   }
 
+  compile_element.annotated_element_solve <- function(x) {
+    if (length(x$annotated_sexp) == 2L) {
+      paste0("arma::inv( ", compile_element(x$annotated_sexp[[2L]]), " )")
+    } else if (length(x$annotated_sexp) == 3L) {
+      paste0("arma::solve( ",
+             compile_element(x$annotated_sexp[[2L]]),
+             ", ",
+             compile_element(x$annotated_sexp[[3L]]),
+             " )")
+    } else {
+      stop(
+        "solve only accepts one or two arguments. Your call looks like this: \n",
+        paste0(deparse(x$original_sexp), collapse = "\n"),
+        call. = FALSE
+      )
+    }
+  }
+
   make_operator_fun <- function(op) {
     function(x) {
       len <- length(x$annotated_sexp)

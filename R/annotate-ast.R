@@ -81,6 +81,7 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
   element_type_map[["qr"]] <- "qr_init"
   element_type_map[["qr.Q"]] <- "qr_q"
   element_type_map[["qr.R"]] <- "qr_r"
+  element_type_map[["solve"]] <- "solve"
   element_type_map[["colSums"]] <- "colsums"
   element_type_map[["rowSums"]] <- "rowsums"
   element_type_map[["colMeans"]] <- "colmeans"
@@ -118,7 +119,7 @@ new_element_type <- function(type, original_sexp, annotated_sexp = original_sexp
 # functions that we simply translate to armadillo
 
 binary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
-binary_function_mapping$solve <- "arma::solve"
+# no simple binary functions
 
 unary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 unary_function_mapping$t <- "arma::trans"

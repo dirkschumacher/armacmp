@@ -32,3 +32,31 @@ test_that("you can reassign variables", {
   code <- armacmp_compile(a_lot_of_fun, "wat")$cpp_code
   expect_true(grepl("x2 = x", code, fixed = TRUE))
 })
+
+test_that("solve accepts 1 and 2 arguments", {
+  code <- armacmp_compile(function(X) {
+    return(solve(X))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl(
+      "arma::inv( X )",
+      code,
+      fixed = TRUE
+    )
+  )
+  code <- armacmp_compile(function(X, y) {
+    return(solve(X, y))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl(
+      "arma::solve( X, y )",
+      code,
+      fixed = TRUE
+    )
+  )
+  expect_error(
+    armacmp_compile(function(X, y) {
+      return(solve(X, y, X))
+    }, "wat")
+  )
+})
