@@ -215,6 +215,14 @@ armacmp_compile <- function(fun, function_name) {
     paste0(compile_element(x$annotated_sexp[[2L]]), "__R")
   }
 
+  compile_element.annotated_element_nrow <- function(x) {
+    paste0(compile_element(x$annotated_sexp[[2L]]), ".n_rows")
+  }
+
+  compile_element.annotated_element_ncol <- function(x) {
+    paste0(compile_element(x$annotated_sexp[[2L]]), ".n_cols")
+  }
+
   compile_element.annotated_element_colsums <- function(x) {
     paste0("arma::sum( ", compile_element(x$annotated_sexp[[2L]]), ", 0 )")
   }

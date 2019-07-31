@@ -82,6 +82,8 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
   element_type_map[["qr.Q"]] <- "qr_q"
   element_type_map[["qr.R"]] <- "qr_r"
   element_type_map[["solve"]] <- "solve"
+  element_type_map[["nrow"]] <- "nrow"
+  element_type_map[["ncol"]] <- "ncol"
   element_type_map[["colSums"]] <- "colsums"
   element_type_map[["rowSums"]] <- "rowsums"
   element_type_map[["colMeans"]] <- "colmeans"

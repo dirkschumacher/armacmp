@@ -93,3 +93,11 @@ test_that("chol", {
     chol(X)
   )
 })
+
+test_that("nrow and ncol", {
+  nrc <- armacmp(function(X) {
+    return(nrow(X) + ncol(X), type = type_scalar_int())
+  })
+  X <- matrix(1:100, ncol = 10)
+  expect_equal(nrc(X), 20)
+})
