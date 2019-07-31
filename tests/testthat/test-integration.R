@@ -10,7 +10,7 @@ test_that("crossprod", {
 test_that("inverse", {
   skip_on_cran()
   inverse <- armacmp(function(X) {
-    return(solve(X))
+    return(solve(X), type = type_matrix())
   })
   x <- matrix(runif(100), ncol = 10)
   expect_equal(inverse(x), solve(x))
@@ -69,5 +69,18 @@ test_that("if", {
   expect_equal(
     if_clause_r(X),
     if_clause(X)
+  )
+})
+
+test_that("qr", {
+  qr2 <- armacmp(function(X) {
+    x <- qr(X)
+    return(qr.Q(x) %*% qr.R(x))
+  })
+  X <- matrix(runif(100), ncol = 10)
+  x <- qr(X)
+  expect_equal(
+    qr2(X),
+    qr.Q(x) %*% qr.R(x)
   )
 })
