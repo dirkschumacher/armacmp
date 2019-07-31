@@ -22,7 +22,7 @@ test_that("for loop", {
     # only seq_len is currently supported
     for (i in seq_len(10 + 10)) {
       # use = to update an existing variable
-      X_new <- log(t(X_new) %*% X_new + i + offset)
+      X_new = log(t(X_new) %*% X_new + i + offset)
     }
     return(X_new)
   })
