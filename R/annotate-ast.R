@@ -29,7 +29,13 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
     return(new_element_type(type_name, sexp, meta_data = meta_data))
   }
   first_element <- sexp[[1L]]
-  first_element_chr <- as.character(first_element)
+  is_namespaced_function <- is.call(first_element)
+  if (is_namespaced_function) {
+    # is namespaced function
+    first_element_chr <- deparse(first_element)
+  } else {
+    first_element_chr <- as.character(first_element)
+  }
   annotated_sexp <- as.list(sexp)
 
   # some type deduction heuristic
@@ -60,6 +66,10 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
     meta_data$cpp_type <- "auto"
   }
   element_type <- "not_supported"
+
+  if (is_namespaced_function) {
+    element_type <- "namespaced_function_call"
+  }
 
   element_type_map <- new.env(parent = emptyenv())
   element_type_map[["<-"]] <- "assignment"

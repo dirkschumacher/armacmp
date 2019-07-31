@@ -251,6 +251,18 @@ armacmp_compile <- function(fun, function_name) {
     )
   }
 
+  compile_element.annotated_element_namespaced_function_call <- function(x) {
+    fun_call <- deparse(x$annotated_sexp[[1L]])
+    compiled_args <- lapply(seq_along(x$annotated_sexp)[-1L], function(i) {
+      compile_element(x$annotated_sexp[[i]])
+    })
+    paste0(
+      fun_call, "( ",
+      paste0(compiled_args, collapse = " , "),
+      " )"
+    )
+  }
+
   compile_element.annotated_element_not_supported <- function(x) {
     stop("Sorry, but the expression:\n\n",
       deparse(x$original_sexp),

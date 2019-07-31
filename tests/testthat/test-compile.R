@@ -60,3 +60,15 @@ test_that("solve accepts 1 and 2 arguments", {
     }, "wat")
   )
 })
+
+test_that("namespaced functions", {
+  code <- armacmp_compile(function(X, y = type_scalar_numeric()) {
+    return(arma::sqrt(X) + std::pow(y, 2))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("std::pow( y , 2 )", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::sqrt( X )", code, fixed = TRUE)
+  )
+})

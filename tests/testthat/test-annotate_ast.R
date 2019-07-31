@@ -51,3 +51,8 @@ test_that("it fails if an element is not supported", {
   x <- classify_sexp(quote(asodied(x^10)))
   expect_true(x$type == "not_supported")
 })
+
+test_that("namespaces work", {
+  x <- classify_sexp(quote(arma::sqrt(X)))
+  expect_true(x$type == "namespaced_function_call")
+})

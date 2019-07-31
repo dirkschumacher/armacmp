@@ -101,3 +101,13 @@ test_that("nrow and ncol", {
   X <- matrix(1:100, ncol = 10)
   expect_equal(nrc(X), 20)
 })
+
+test_that("namespaced functions work", {
+  fun <- armacmp(function(X, y = type_scalar_numeric()) {
+    return(arma::sqrt(X) + std::sqrt(y))
+  })
+  expect_equal(
+    fun(matrix(1:10), 4),
+    sqrt(matrix(1:10)) + sqrt(4)
+  )
+})
