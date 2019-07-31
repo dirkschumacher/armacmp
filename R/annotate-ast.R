@@ -52,6 +52,7 @@ classify_sexp <- function(sexp, arma_mat_symbols = character()) {
     )
   }
   any_arma_type <- FALSE
+
   # this needs to be done more specific for certain types of
   # expression. E.g. with assignments, only the right hand side
   # determines the type

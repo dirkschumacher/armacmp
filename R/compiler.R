@@ -305,7 +305,11 @@ armacmp_compile <- function(fun, function_name) {
     function(i) {
       x <- fun_args[[i]]
       name <- names(fun_args)[[i]]
-      paste0("const ", x$cpp_type, "& ", name)
+      if (x$cpp_type %in% c("double", "int")) {
+        paste0(x$cpp_type, " ", name)
+      } else {
+        paste0("const ", x$cpp_type, "& ", name)
+      }
     }, character(1L)
   )
   if (is.null(return_type)) {
