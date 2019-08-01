@@ -18,7 +18,10 @@ Imports:
     methods
 Suggests: 
     testthat (>= 2.1.0),
-    covr
+    covr,
+    knitr,
+    rmarkdown
 SystemRequirements: C++11
 URL: https://github.com/dirkschumacher/armacmp
 BugReports: https://github.com/dirkschumacher/armacmp/issues
+VignetteBuilder: knitr

@@ -1,0 +1,167 @@
+---
+title: "Function reference"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Function reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(armacmp)
+```
+
+# Function reference
+
+This documents describes all language elements that can be compiled to Armadillo flavored C++ code.
+
+## Function signature
+
+`armacmp` always compiles functions. Every function needs to have a `return` statement with an optional type argument.
+
+```{r, eval=FALSE}
+my_fun <- armacmp(function(X, y = type_colvec())) {
+  return(X %*% y, type = type_colvec())
+}
+```
+
+You can define your inputs using the standard function syntax. By default paramters are of type `type_matrix`. But they can have other types such as:
+
+* `type_colvec` - a column vector
+* `type_rowvec` - a row vector
+* `type_scalar_integer` - a single int value
+* `type_scalar_numeric` - a single double value
+
+All functions need to return a value using the `return` function. The  `return` function can have an optional return type argument with `return(value, type = type_rowvec())`
+
+## Operators
+
+### Assignments
+
+* `<-` this assignment operator creates a new variable for the first time and assigns it a value. It cannot be used to reassign a value.
+* `=` the equal assignment operator is used to reassign a value to an already defined variable.
+
+Example:
+
+```{r, eval = FALSE}
+armacmp(function(X) {
+  X2 <- X + 1
+  X2 = X2 + 1
+  return(X2)
+})
+```
+
+### Multiplication
+
+* `%*%` - *matrix multiplication* translates to the `*` operator on both `arma::mat` types and regular variables/expressions.
+* `*` - *elementwise multiplication* gets translated to `%` for `arma::mat` types and to `*` otherwise.
+
+### The rest
+
+The following operators are translated to their C++ counter-part.
+
+* `/`
+* `+`
+* `-`
+* `!`
+* `<`
+* `>`
+* `>=`
+* `<=`
+
+## Functions
+
+### General math functions
+
+* ```x ^ y`
+* `exp`
+* `abs`
+* `log`
+* `sum`
+* `sqrt`
+* `cos`
+* `acos`
+* `cosh`
+* `acosh`
+* `sin`
+* `asin`
+* `sinh`
+* `asinh`
+* `tan`
+* `atan`
+* `tanh`
+* `atanh`
+
+### Linear algebra
+
+* `t`
+* `chol`
+* `diag`
+* `QR`
+* `solve`
+
+### Rest
+
+* `cumsum`
+* `sort`
+* `unique`
+* `cumsum`
+* `cumprod`
+* `pnorm`
+
+## Control Flow
+
+Currently if/else and for loops are supported.
+
+### if/else
+
+```{r, eval=FALSE}
+if_clause <- armacmp(function(X) {
+  # infers that test needs to be bool (auto)
+  test <- sum(log(X)) < 10
+  if (test) {
+    return((t(X) %*% X) + 10)
+  } else if (sum(X) < 10) {
+    return(t(X) %*% X)
+  } else {
+    return((t(X) %*% X) + 10)
+  }
+})
+```
+
+Just make sure all return statements return the same type.
+
+### For loops
+
+For loops are supported, but in a very constraint form:
+
+```{r, eval=FALSE}
+# the only thing you can change is the name of the counter variable and the parameter of seq_len.
+for (i in seq_len(n)) {
+  ...
+}
+```
+
+Example:
+
+```{r, eval=FALSE}
+for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
+  X_new <- X
+  # only seq_len is currently supported
+  for (i in seq_len(20)) {
+    # use = to update an existing variable
+    X_new = log(t(X_new) %*% X_new + i + offset)
+  }
+  return(X_new)
+})
+```
+
