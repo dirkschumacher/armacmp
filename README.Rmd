@@ -321,4 +321,4 @@ all.equal(
 
 ### Related projects
 
-* [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate C++ from R. Inspired the approach to compile R functions directly.
+* [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate C++ from R. Inspired the approach to compile R functions directly instead of just a code block as in the initial version.

@@ -117,10 +117,10 @@ microbenchmark::microbenchmark(
   t(x) %*% x
 )
 #> Unit: microseconds
-#>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 418.475 1002.610 1264.750 1078.998 1182.119  6055.312
-#>   crossprod(x, x) 516.125 1104.085 1528.402 1206.463 1380.613 10128.096
-#>        t(x) %*% x 844.030 1623.602 2159.336 1709.040 1937.041 15640.536
+#>              expr     min       lq     mean   median       uq      max
+#>  crossprod2(x, x) 369.907 1044.405 1407.425 1114.328 1295.361 12537.67
+#>   crossprod(x, x) 478.216 1144.278 1702.518 1251.660 1387.917 11032.07
+#>        t(x) %*% x 862.934 1640.736 1755.817 1756.903 1888.372  5281.35
 #>  neval
 #>    100
 #>    100
@@ -227,11 +227,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.739 134.7415
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.637  39.4065
-#>       mean   median      uq     max neval
-#>  161.00728 137.9355 156.767 418.402   100
-#>   44.97587  40.4965  44.452 129.472   100
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 129.668 132.9015
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.439  39.3990
+#>       mean  median       uq     max neval
+#>  174.04537 141.513 196.8800 521.617   100
+#>   50.74897  44.251  61.5705 104.044   100
 ```
 
 ### A faster `cumprod`
@@ -249,8 +249,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              131.26ms 143.83ms      6.88   15.26MB     2.29
-#> 2 as.numeric(cumprod2(x))   4.21ms   8.47ms     88.2     7.63MB    32.7
+#> 1 cumprod(x)              119.01ms 123.45ms      8.20   15.26MB     5.46
+#> 2 as.numeric(cumprod2(x))   3.96ms   4.44ms    194.      7.63MB    66.9
 ```
 
 ### Return type
@@ -368,9 +368,9 @@ microbenchmark::microbenchmark(
   if_clause(X)
 )
 #> Unit: microseconds
-#>            expr     min       lq     mean  median       uq      max neval
-#>  if_clause_r(X) 295.927 319.4940 519.2377 334.348 454.8045 6718.922   100
-#>    if_clause(X) 123.221 135.9265 177.1595 143.549 187.2870  949.770   100
+#>            expr     min       lq     mean   median       uq      max neval
+#>  if_clause_r(X) 289.933 307.8880 420.3671 312.8000 347.3890 8550.002   100
+#>    if_clause(X) 130.357 133.3895 141.6005 136.1515 141.1665  252.020   100
 ```
 
 ### QR decomposition
