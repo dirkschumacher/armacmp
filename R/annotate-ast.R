@@ -108,11 +108,11 @@ classify_sexp <- function(sexp, is_not_bound_to_arma_datatype = function(x) FALS
   }
   if (!is.null(unary_function_mapping[[first_element_chr]])) {
     element_type <- "simple_unary_function"
-    meta_data$armadillo_fun <- unary_function_mapping[[first_element_chr]]
+    meta_data$mapping_fun <- unary_function_mapping[[first_element_chr]]
   }
   if (!is.null(binary_function_mapping[[first_element_chr]])) {
     element_type <- "simple_binary_function"
-    meta_data$armadillo_fun <- binary_function_mapping[[first_element_chr]]
+    meta_data$mapping_fun <- binary_function_mapping[[first_element_chr]]
   }
   new_element_type(element_type, sexp, annotated_sexp, meta_data)
 }
@@ -133,17 +133,26 @@ new_element_type <- function(type, original_sexp, annotated_sexp = original_sexp
 binary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 # no simple binary functions
 
+multi_dispatch_fun <- function(arma, std) {
+  structure(
+    list(arma = arma, std = std),
+    class = "multi_dispatch_fun"
+  )
+}
+
+# TODO: concrete cpp function should only be defined in the compiler, not here
+
 unary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
 unary_function_mapping$t <- "arma::trans"
 unary_function_mapping$`!` <- "!"
-unary_function_mapping$exp <- "arma::exp"
-unary_function_mapping$abs <- "arma::abs"
-unary_function_mapping$log <- "arma::log"
+unary_function_mapping$exp <- multi_dispatch_fun(arma = "arma::exp", std = "std::exp")
+unary_function_mapping$abs <- multi_dispatch_fun(arma = "arma::abs", std = "std::abs")
+unary_function_mapping$log <- multi_dispatch_fun(arma = "arma::log", std = "std::log")
 unary_function_mapping$sum <- "arma::accu"
 unary_function_mapping$chol <- "arma::chol"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$diag <- "arma::diagmat"
-unary_function_mapping$sqrt <- "arma::sqrt"
+unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
 unary_function_mapping$sort <- "arma::sort"
 unary_function_mapping$unique <- "arma::unique"
 unary_function_mapping$pnorm <- "arma::normcdf"
@@ -161,3 +170,7 @@ unary_function_mapping$tanh <- "arma::tanh"
 unary_function_mapping$atanh <- "arma::atanh"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$cumprod <- "arma::cumprod"
+
+expression_uses_arma_types <- function(x) {
+  is.null(x$meta_data$cpp_type) || grepl("^arma::", x$meta_data$cpp_type, fixed = TRUE)
+}

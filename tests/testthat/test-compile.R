@@ -81,3 +81,17 @@ test_that("arma element wise mult only when arma is used", {
     grepl("x * y", code, fixed = TRUE)
   )
 })
+
+test_that("multi dispatch of arma and std functions", {
+  code <- armacmp_compile(function(x, y = type_scalar_numeric()) {
+    X <- exp(x)
+    Y <- exp(y)
+    return(1, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("auto Y = std::exp( y )", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat X = arma::exp( x )", code, fixed = TRUE)
+  )
+})

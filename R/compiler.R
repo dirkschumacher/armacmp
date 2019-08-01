@@ -130,8 +130,13 @@ armacmp_compile <- function(fun, function_name) {
   }
 
   compile_element.annotated_element_pow <- function(x) {
+    fun_name <- if (expression_uses_arma_types(x)) {
+      "arma::pow"
+    } else {
+      "std::pow"
+    }
     paste0(
-      "arma::pow( ",
+      fun_name, "( ",
       compile_element(x$annotated_sexp[[2L]]),
       ", ",
       compile_element(x$annotated_sexp[[3L]]),
@@ -212,8 +217,9 @@ armacmp_compile <- function(fun, function_name) {
   compile_element.annotated_element_nequal <- make_operator_fun("!=")
 
   compile_element.annotated_element_simple_unary_function <- function(x) {
-    stopifnot(length(x$annotated_sexp) == 2L, !is.null(x$meta_data$armadillo_fun))
-    paste0(x$meta_data$armadillo_fun, "( ", compile_element(x$annotated_sexp[[2L]]), " )")
+    stopifnot(length(x$annotated_sexp) == 2L, !is.null(x$meta_data$mapping_fun))
+    fun_name <- get_explicit_cpp_function(x)
+    paste0(fun_name, "( ", compile_element(x$annotated_sexp[[2L]]), " )")
   }
 
   compile_element.annotated_element_backsolve <- function(x) {
@@ -257,9 +263,9 @@ armacmp_compile <- function(fun, function_name) {
   }
 
   compile_element.annotated_element_simple_binary_function <- function(x) {
-    stopifnot(length(x$annotated_sexp) == 3L, !is.null(x$meta_data$armadillo_fun))
+    stopifnot(length(x$annotated_sexp) == 3L, !is.null(x$meta_data$mapping_fun))
     paste0(
-      x$meta_data$armadillo_fun,
+      x$meta_data$mapping_fun,
       "( ",
       compile_element(x$annotated_sexp[[2L]]),
       ", ",
@@ -355,6 +361,24 @@ new_cpp_function <- function(original_code, cpp_code) {
     ),
     class = "armacmp_cpp_fun"
   )
+}
+
+has_explicit_cpp_function <- function(x) {
+  !is.null(x$meta_data$mapping_fun)
+}
+
+get_explicit_cpp_function <- function(x) {
+  # not pretty, but just a proof of concept
+  fun_name <- x$meta_data$mapping_fun
+  if (!is.character(fun_name)) {
+    fun_name <- if (expression_uses_arma_types(x)) {
+      x$meta_data$mapping_fun$arma
+    } else {
+      x$meta_data$mapping_fun$std
+    }
+  } else {
+    fun_name
+  }
 }
 
 #' @export
