@@ -34,12 +34,15 @@ Potential use cases:
 * ...
 
 
-
 ## Installation
 
 ``` r
 remotes::install_github("dirkschumacher/armacmp")
 ```
+
+## On speeding up your code with `armacmp`
+
+R is already really fast when it comes to linear algebra operations. So simply compiling your code to C++ might not give you a *significant and relevant* speed boost. The best way to check is to measure it yourself and see for your specific use-case, if compiling your code to C++ justifies the additional complexity.
 
 ## Example
 

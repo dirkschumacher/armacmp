@@ -39,6 +39,14 @@ Potential use cases:
 remotes::install_github("dirkschumacher/armacmp")
 ```
 
+## On speeding up your code with `armacmp`
+
+R is already really fast when it comes to linear algebra operations. So
+simply compiling your code to C++ might not give you a *significant and
+relevant* speed boost. The best way to check is to measure it yourself
+and see for your specific use-case, if compiling your code to C++
+justifies the additional complexity.
+
 ## Example
 
 You can compile R like code to C++. Not all R functions are supported.
@@ -118,9 +126,9 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 417.136  996.070 1369.474 1143.693 1301.532  7955.491
-#>   crossprod(x, x) 519.849 1108.329 1631.169 1285.713 1493.992  9646.383
-#>        t(x) %*% x 884.382 1725.086 2328.397 1825.255 2171.855 11674.032
+#>  crossprod2(x, x) 416.093 1067.318 1524.063 1136.677 1290.149 10401.938
+#>   crossprod(x, x) 465.263 1193.555 1925.607 1273.711 1492.729 16572.836
+#>        t(x) %*% x 876.882 1542.110 2113.463 1789.693 2069.581  6909.747
 #>  neval
 #>    100
 #>    100
@@ -225,12 +233,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 119.404 135.7745
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.181  39.5540
-#>       mean   median       uq      max neval
-#>  205.02421 148.7340 188.4990 2093.689   100
-#>   60.89587  43.4835  55.3215  511.544   100
+#>                                                expr     min      lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 150.029 253.277
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  42.598  68.211
+#>      mean   median       uq      max neval
+#>  406.8802 308.2925 446.5135 2333.085   100
+#>  163.3694  81.9190 125.6545 6182.758   100
 ```
 
 ### A faster `cumprod`
@@ -248,8 +256,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)               124.3ms    128ms      7.87   15.26MB     2.62
-#> 2 as.numeric(cumprod2(x))    4.1ms    4.7ms    180.      7.63MB    84.4
+#> 1 cumprod(x)              132.09ms 399.89ms      2.50   15.26MB     1.25
+#> 2 as.numeric(cumprod2(x))   4.41ms   6.43ms    104.      7.63MB    56.9
 ```
 
 ### Return type
@@ -368,9 +376,9 @@ microbenchmark::microbenchmark(
   if_clause(X)
 )
 #> Unit: microseconds
-#>            expr     min      lq     mean   median       uq      max neval
-#>  if_clause_r(X) 293.200 319.275 481.2335 334.6615 378.2785 6519.597   100
-#>    if_clause(X) 133.376 137.351 161.4604 140.4580 151.2910  894.740   100
+#>            expr     min       lq     mean  median       uq      max neval
+#>  if_clause_r(X) 286.947 317.1115 407.5185 325.027 341.4065 6895.925   100
+#>    if_clause(X)  96.471 135.1730 149.6851 139.450 151.9175  307.139   100
 ```
 
 ### QR decomposition
