@@ -83,13 +83,9 @@ You can define your inputs using the standard function syntax. By default paramt
 
 ### Body
 
-* `<-` you can use assignments that cause a C++ copy. As most operations return armadillo expressions, this is often not a problem. Usually assignments create new matrix variables, unless all operands on the right hand side can be assumed to not be any matrix code. Then the C++11 compiler will figure out the concrete type.
-* `=` use the equal assignment if you want to reassign a variable with a new value.
+* `<-` you can use assignments that cause a C++ copy. As most operations return armadillo expressions, this is often not a problem. Usually assignments create new matrix variables, unless all operands on the right hand side can be assumed to not be any matrix code. Then `armacmp` and the C++11 compiler will figure out the concrete type.
 
-Below is a list of functions that are currently supported:
-
-... *TDD*
-For now, please take a look at the examples below.
+Take a look at the `Function reference` vignette to get an overview of all supported functions and expressions.
 
 ### Return
 
@@ -324,3 +320,13 @@ all.equal(
 ### Related projects
 
 * [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate C++ from R. Inspired the approach to compile R functions directly instead of just a code block as in the initial version.
+
+### Contribute
+
+`armacmp` is experimental and has a volatile codebase. The best way to contribute is to write issues/report bugs/propose features and test the package with your specific use-case.
+
+### Code of conduct
+
+Please note that the 'armacmp' project is released with a
+[Contributor Code of Conduct](CODE_OF_CONDUCT.md).
+By contributing to this project, you agree to abide by its terms.

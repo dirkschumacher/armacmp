@@ -94,13 +94,11 @@ types such as:
     operations return armadillo expressions, this is often not a
     problem. Usually assignments create new matrix variables, unless all
     operands on the right hand side can be assumed to not be any matrix
-    code. Then the C++11 compiler will figure out the concrete type.
-  - `=` use the equal assignment if you want to reassign a variable with
-    a new value.
+    code. Then `armacmp` and the C++11 compiler will figure out the
+    concrete type.
 
-Below is a list of functions that are currently supported:
-
-… *TDD* For now, please take a look at the examples below.
+Take a look at the `Function reference` vignette to get an overview of
+all supported functions and expressions.
 
 ### Return
 
@@ -126,9 +124,9 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 416.093 1067.318 1524.063 1136.677 1290.149 10401.938
-#>   crossprod(x, x) 465.263 1193.555 1925.607 1273.711 1492.729 16572.836
-#>        t(x) %*% x 876.882 1542.110 2113.463 1789.693 2069.581  6909.747
+#>  crossprod2(x, x) 340.037 1030.812 1402.673 1154.196 1377.470  9500.832
+#>   crossprod(x, x) 455.456 1158.664 1619.811 1328.905 1609.060 11892.004
+#>        t(x) %*% x 816.130 1730.158 2513.337 1891.583 2163.432 13980.162
 #>  neval
 #>    100
 #>    100
@@ -233,12 +231,12 @@ microbenchmark::microbenchmark(
   for_loop(matrix(1:1000, ncol = 10), offset = 10)
 )
 #> Unit: microseconds
-#>                                                expr     min      lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 150.029 253.277
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  42.598  68.211
-#>      mean   median       uq      max neval
-#>  406.8802 308.2925 446.5135 2333.085   100
-#>  163.3694  81.9190 125.6545 6182.758   100
+#>                                                expr     min       lq
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 113.945 130.9800
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.677  38.8615
+#>       mean   median      uq     max neval
+#>  143.74756 132.5305 138.254 389.970   100
+#>   42.49324  39.9165  41.564  99.226   100
 ```
 
 ### A faster `cumprod`
@@ -256,8 +254,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              132.09ms 399.89ms      2.50   15.26MB     1.25
-#> 2 as.numeric(cumprod2(x))   4.41ms   6.43ms    104.      7.63MB    56.9
+#> 1 cumprod(x)              126.01ms 127.54ms      7.75   15.26MB     2.58
+#> 2 as.numeric(cumprod2(x))   4.11ms   4.93ms    131.      7.63MB    59.8
 ```
 
 ### Return type
@@ -376,9 +374,9 @@ microbenchmark::microbenchmark(
   if_clause(X)
 )
 #> Unit: microseconds
-#>            expr     min       lq     mean  median       uq      max neval
-#>  if_clause_r(X) 286.947 317.1115 407.5185 325.027 341.4065 6895.925   100
-#>    if_clause(X)  96.471 135.1730 149.6851 139.450 151.9175  307.139   100
+#>            expr     min       lq     mean   median      uq      max neval
+#>  if_clause_r(X) 273.216 310.2540 402.8622 318.8405 341.475 5887.946   100
+#>    if_clause(X) 131.138 134.3195 148.7183 140.4505 145.989  454.870   100
 ```
 
 ### QR decomposition
@@ -407,3 +405,15 @@ all.equal(
   - [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
     C++ from R. Inspired the approach to compile R functions directly
     instead of just a code block as in the initial version.
+
+### Contribute
+
+`armacmp` is experimental and has a volatile codebase. The best way to
+contribute is to write issues/report bugs/propose features and test the
+package with your specific use-case.
+
+### Code of conduct
+
+Please note that the ‘armacmp’ project is released with a [Contributor
+Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project,
+you agree to abide by its terms.
