@@ -1,6 +1,6 @@
 Package: armacmp
 Title: Translate R Linear Algebra Code to Armadillo C++
-Version: 0.0.1.9000
+Version: 0.0.2.9000
 Authors@R: 
     person(given = "Dirk",
            family = "Schumacher",
@@ -15,7 +15,9 @@ RoxygenNote: 6.1.1
 Imports: 
     Rcpp,
     RcppArmadillo,
-    methods
+    methods,
+    R6,
+    utils
 Suggests: 
     testthat (>= 2.1.0),
     covr,
@@ -25,3 +27,10 @@ SystemRequirements: C++11
 URL: https://github.com/dirkschumacher/armacmp
 BugReports: https://github.com/dirkschumacher/armacmp/issues
 VignetteBuilder: knitr
+Collate: 
+    'ast-classes.R'
+    'annotate-ast.R'
+    'armacmp-package.R'
+    'armacmp.R'
+    'compiler.R'
+    'types.R'

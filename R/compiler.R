@@ -28,299 +28,24 @@ armacmp_compile <- function(fun, function_name) {
   # this is then used in the annotation process to decide
   # the right type for assignment operations
   arma_args <- Map(function(x) {
-    !grepl("^arma", x$cpp_type)
+    grepl("^arma", x$cpp_type)
   }, fun_args)
-  is_not_bound_to_arma_datatype <- function(symbol_name) {
+  is_no_arma_datatype <- function(symbol_name) {
     !is.null(arma_args[[symbol_name]]) && arma_args[[symbol_name]]
   }
-  annotated_ast <- annotate_ast(fun_body, is_not_bound_to_arma_datatype)
+  annotated_ast <- annotate_ast(fun_body, is_no_arma_datatype)
 
-  return_type <- NULL
+  output <- annotated_ast$compile()
 
-  # define the compiler that takes an annotated AST and turns it
-  # into code
-  compile_element <- function(x) UseMethod("compile_element")
-  compile_element.annotated_element_terminal <- function(x) {
-    as.character(x$annotated_sexp)
+  return_nodes <- annotated_ast$find_all_returns()
+  if (length(return_nodes) == 0L) {
+    stop("Your function needs to have at least on `return` statement.", call. = FALSE)
   }
-
-  compile_element.annotated_element_assignment <- function(x) {
-    stopifnot(x$annotated_sexp[[2L]]$type %in% "terminal")
-
-    # there are functions that return mutiple values like QR
-    # this is handled here for now
-    if (x$annotated_sexp[[3L]]$type == "qr_init") {
-      var_name <- compile_element(x$annotated_sexp[[2L]])
-      var_name_q <- paste0(var_name, "__Q")
-      var_name_r <- paste0(var_name, "__R")
-      rhs <- compile_element(x$annotated_sexp[[3L]]$annotated_sexp[[2L]])
-      return(
-        paste0(
-          "arma::mat ", var_name_q, ", ", var_name_r, ";\n",
-          "arma::qr_econ( ", var_name_q, ", ", var_name_r, ", ", rhs, " );\n"
-        )
-      )
-    }
-
-    # deduce type
-    # some elements know their type. We currently just use the
-    # meta_data container to access it
-    # no proper mechanism yet as this is all experimental
-    type <- "arma::mat"
-    if (!is.null(x$annotated_sexp[[3L]]$meta_data$cpp_type)) {
-      type <- x$annotated_sexp[[3L]]$meta_data$cpp_type
-    }
-
-    paste0(
-      type, " ",
-      compile_element(x$annotated_sexp[[2L]]),
-      " = ",
-      compile_element(x$annotated_sexp[[3L]]),
-      ";"
-    )
-  }
-  compile_element.annotated_element_reassign <- function(x) {
-    paste0(
-      compile_element(x$annotated_sexp[[2L]]),
-      " = ",
-      compile_element(x$annotated_sexp[[3L]]),
-      "; \n"
-    )
-  }
-
-  compile_element.annotated_element_curley_bracket <- function(x) {
-    paste0(
-      "{\n",
-      paste0(lapply(x$annotated_sexp[-1L], function(y) compile_element(y)), collapse = "\n"),
-      "\n}\n"
-    )
-  }
-
-  compile_element.annotated_element_for <- function(x) {
-    # we currently allow just one pattern
-    # for (i in seq_len(10)) { ... }
-    # will be translated to
-    # for (const int i : Rcpp::seq_len(10)) {
-    #   ...
-    # }
-    iter_var_name <- x$annotated_sexp[[2L]]
-    n <- x$annotated_sexp[[3L]][[2L]][[2L]]
-    body <- x$annotated_sexp[[4L]]
-    paste0(
-      "for (const int ", compile_element(iter_var_name),
-      " : Rcpp::seq_len(", compile_element(n), ")) { \n",
-      compile_element(body),
-      "}\n"
-    )
-  }
-
-  compile_element.annotated_element_if <- function(x) {
-    # might not cover all edge cases
-    paste0(
-      "\nif ( ", compile_element(x$annotated_sexp[[2L]]), " ) \n",
-      compile_element(x$annotated_sexp[[3L]]),
-      if (length(x$annotated_sexp) > 3 && !is.null(x$annotated_sexp[[4L]])) {
-        paste0(" else ", compile_element(x$annotated_sexp[[4L]]))
-      }
-    )
-  }
-
-  compile_element.annotated_element_bracket <- function(x) {
-    paste0("( ", compile_element(x$annotated_sexp[[2L]]), " )")
-  }
-
-  compile_element.annotated_element_pow <- function(x) {
-    fun_name <- if (expression_uses_arma_types(x)) {
-      "arma::pow"
-    } else {
-      "std::pow"
-    }
-    paste0(
-      fun_name, "( ",
-      compile_element(x$annotated_sexp[[2L]]),
-      ", ",
-      compile_element(x$annotated_sexp[[3L]]),
-      " )"
-    )
-  }
-
-  compile_element.annotated_element_solve <- function(x) {
-    if (length(x$annotated_sexp) == 2L) {
-      paste0("arma::inv( ", compile_element(x$annotated_sexp[[2L]]), " )")
-    } else if (length(x$annotated_sexp) == 3L) {
-      paste0(
-        "arma::solve( ",
-        compile_element(x$annotated_sexp[[2L]]),
-        ", ",
-        compile_element(x$annotated_sexp[[3L]]),
-        " )"
-      )
-    } else {
-      stop(
-        "solve only accepts one or two arguments. Your call looks like this: \n",
-        paste0(deparse(x$original_sexp), collapse = "\n"),
-        call. = FALSE
-      )
-    }
-  }
-
-  make_operator_fun <- function(op) {
-    function(x) {
-      len <- length(x$annotated_sexp)
-      stopifnot(len %in% c(2L:3L))
-      if (len == 2L) {
-        paste0(
-          op,
-          compile_element(x$annotated_sexp[[2L]])
-        )
-      } else {
-        paste0(
-          compile_element(x$annotated_sexp[[2L]]),
-          " ",
-          op,
-          " ",
-          compile_element(x$annotated_sexp[[3L]])
-        )
-      }
-    }
-  }
-
-  compile_element.annotated_element_matmul <- make_operator_fun("*")
-
-  compile_element.annotated_element_mult <- function(x) {
-    # when we know no armadillo is involved, we will use
-    # the normal * operator
-    no_arma <- !is.null(x$meta_data$cpp_type) &&
-              x$meta_data$cpp_type == "auto"
-    op <- if (no_arma) {
-      "*"
-    } else {
-      "%"
-    }
-    paste0(
-      compile_element(x$annotated_sexp[[2L]]),
-      " ",
-      op,
-      " ",
-      compile_element(x$annotated_sexp[[3L]])
-    )
-  }
-
-  compile_element.annotated_element_div <- make_operator_fun("/")
-  compile_element.annotated_element_plus <- make_operator_fun("+")
-  compile_element.annotated_element_minus <- make_operator_fun("-")
-  compile_element.annotated_element_less <- make_operator_fun("<")
-  compile_element.annotated_element_greater <- make_operator_fun(">")
-  compile_element.annotated_element_geq <- make_operator_fun(">=")
-  compile_element.annotated_element_leq <- make_operator_fun("<=")
-  compile_element.annotated_element_equal <- make_operator_fun("==")
-  compile_element.annotated_element_nequal <- make_operator_fun("!=")
-
-  compile_element.annotated_element_simple_unary_function <- function(x) {
-    stopifnot(length(x$annotated_sexp) == 2L, !is.null(x$meta_data$mapping_fun))
-    fun_name <- get_explicit_cpp_function(x)
-    paste0(fun_name, "( ", compile_element(x$annotated_sexp[[2L]]), " )")
-  }
-
-  compile_element.annotated_element_backsolve <- function(x) {
-    paste0("arma::solve(arma::trimatu( ", compile_element(x$annotated_sexp[[2L]]), " ), ", compile_element(x$annotated_sexp[[3L]]), " )")
-  }
-
-  compile_element.annotated_element_forwardsolve <- function(x) {
-    paste0("arma::solve(arma::trimatl( ", compile_element(x$annotated_sexp[[2L]]), " ), ", compile_element(x$annotated_sexp[[3L]]), " )")
-  }
-
-  compile_element.annotated_element_qr_q <- function(x) {
-    paste0(compile_element(x$annotated_sexp[[2L]]), "__Q")
-  }
-
-  compile_element.annotated_element_qr_r <- function(x) {
-    paste0(compile_element(x$annotated_sexp[[2L]]), "__R")
-  }
-
-  compile_element.annotated_element_nrow <- function(x) {
-    paste0(compile_element(x$annotated_sexp[[2L]]), ".n_rows")
-  }
-
-  compile_element.annotated_element_ncol <- function(x) {
-    paste0(compile_element(x$annotated_sexp[[2L]]), ".n_cols")
-  }
-
-  compile_element.annotated_element_colsums <- function(x) {
-    paste0("arma::sum( ", compile_element(x$annotated_sexp[[2L]]), ", 0 )")
-  }
-
-  compile_element.annotated_element_rowsums <- function(x) {
-    paste0("arma::sum( ", compile_element(x$annotated_sexp[[2L]]), ", 1 )")
-  }
-
-  compile_element.annotated_element_colmeans <- function(x) {
-    paste0("arma::mean( ", compile_element(x$annotated_sexp[[2L]]), ", 0 )")
-  }
-
-  compile_element.annotated_element_rowmeans <- function(x) {
-    paste0("arma::mean( ", compile_element(x$annotated_sexp[[2L]]), ", 1 )")
-  }
-
-  compile_element.annotated_element_simple_binary_function <- function(x) {
-    stopifnot(length(x$annotated_sexp) == 3L, !is.null(x$meta_data$mapping_fun))
-    paste0(
-      x$meta_data$mapping_fun,
-      "( ",
-      compile_element(x$annotated_sexp[[2L]]),
-      ", ",
-      compile_element(x$annotated_sexp[[3L]]),
-      ")"
-    )
-  }
-
-  compile_element.annotated_element_namespaced_function_call <- function(x) {
-    fun_call <- deparse(x$annotated_sexp[[1L]])
-    compiled_args <- lapply(seq_along(x$annotated_sexp)[-1L], function(i) {
-      compile_element(x$annotated_sexp[[i]])
-    })
-    paste0(
-      fun_call, "( ",
-      paste0(compiled_args, collapse = " , "),
-      " )"
-    )
-  }
-
-  compile_element.annotated_element_not_supported <- function(x) {
-    stop("Sorry, but the expression:\n\n",
-      deparse(x$original_sexp),
-      "\n\ncannot be translated into a C++ construct.\n",
-      "Not all R functions are supported.",
-      call. = FALSE
-    )
-  }
-
-  compile_element.annotated_element_return <- function(x) {
-    # always return something
-    stopifnot(length(x$annotated_sexp) %in% c(2L, 3L))
-    if (length(x$annotated_sexp) == 3L) {
-      type_spec <- eval(x$annotated_sexp[[3]]$original_sexp)
-      if (is.null(return_type) || return_type == type_spec$cpp_type) {
-        return_type <<- type_spec$cpp_type
-      } else {
-        stop("You specified two different return types ",
-          return_type, " and ", type_spec$cpp_type,
-          ". In C++ a function can only have one return type.",
-          call. = FALSE
-        )
-      }
-    }
-    paste0(
-      "return ",
-      compile_element(x$annotated_sexp[[2L]]),
-      ";"
-    )
-  }
-
-  output <- list()
-  for (el in annotated_ast) {
-    output <- c(output, list(compile_element(el)))
-  }
+  return_cpp_type <- vapply(return_nodes, function(x) x$get_cpp_type(), character(1L))
+  stopifnot(
+    length(unique(return_cpp_type)) == 1L
+  )
+  return_cpp_type <- return_cpp_type[[1L]]
 
   # build the final function body string
   input_params <- vapply(
@@ -335,17 +60,12 @@ armacmp_compile <- function(fun, function_name) {
       }
     }, character(1L)
   )
-  if (is.null(return_type)) {
-    return_type <- "arma::mat"
-  }
   cpp_code <- paste0(
-    return_type, " ", function_name,
+    return_cpp_type, " ", function_name,
     "(",
     paste0(input_params, collapse = ", "),
     ")", "\n",
-    "{", "\n",
-    paste0(output, collapse = "\n"), "\n",
-    "}", "\n"
+    paste0(output, collapse = "\n"), "\n"
   )
   new_cpp_function(
     original_code = fun,
@@ -361,24 +81,6 @@ new_cpp_function <- function(original_code, cpp_code) {
     ),
     class = "armacmp_cpp_fun"
   )
-}
-
-has_explicit_cpp_function <- function(x) {
-  !is.null(x$meta_data$mapping_fun)
-}
-
-get_explicit_cpp_function <- function(x) {
-  # not pretty, but just a proof of concept
-  fun_name <- x$meta_data$mapping_fun
-  if (!is.character(fun_name)) {
-    fun_name <- if (expression_uses_arma_types(x)) {
-      x$meta_data$mapping_fun$arma
-    } else {
-      x$meta_data$mapping_fun$std
-    }
-  } else {
-    fun_name
-  }
 }
 
 #' @export

@@ -47,15 +47,12 @@ All functions need to return a value using the `return` function. The  `return` 
 
 ### Assignments
 
-* `<-` this assignment operator creates a new variable for the first time and assigns it a value. It cannot be used to reassign a value.
-* `=` the equal assignment operator is used to reassign a value to an already defined variable.
-
 Example:
 
 ```{r, eval = FALSE}
 armacmp(function(X) {
   X2 <- X + 1
-  X2 = X2 + 1
+  X2 <- X2 + 1
   return(X2)
 })
 ```
@@ -158,8 +155,7 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
   X_new <- X
   # only seq_len is currently supported
   for (i in seq_len(20)) {
-    # use = to update an existing variable
-    X_new = log(t(X_new) %*% X_new + i + offset)
+    X_new <- log(t(X_new) %*% X_new + i + offset)
   }
   return(X_new)
 })

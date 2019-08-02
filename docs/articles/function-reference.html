@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">armacmp</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2.9000</span>
       </span>
     </div>
 
@@ -118,16 +118,10 @@
 <div id="assignments" class="section level3">
 <h3 class="hasAnchor">
 <a href="#assignments" class="anchor"></a>Assignments</h3>
-<ul>
-<li>
-<code>&lt;-</code> this assignment operator creates a new variable for the first time and assigns it a value. It cannot be used to reassign a value.</li>
-<li>
-<code>=</code> the equal assignment operator is used to reassign a value to an already defined variable.</li>
-</ul>
 <p>Example:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb3-2" title="2">  X2 &lt;-<span class="st"> </span>X <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-3" title="3">  X2 =<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-3" title="3">  X2 &lt;-<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
 <a class="sourceLine" id="cb3-4" title="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X2)</a>
 <a class="sourceLine" id="cb3-5" title="5">})</a></code></pre></div>
 </div>
@@ -242,11 +236,10 @@
 <a class="sourceLine" id="cb6-2" title="2">  X_new &lt;-<span class="st"> </span>X</a>
 <a class="sourceLine" id="cb6-3" title="3">  <span class="co"># only seq_len is currently supported</span></a>
 <a class="sourceLine" id="cb6-4" title="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
-<a class="sourceLine" id="cb6-5" title="5">    <span class="co"># use = to update an existing variable</span></a>
-<a class="sourceLine" id="cb6-6" title="6">    X_new =<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
-<a class="sourceLine" id="cb6-7" title="7">  }</a>
-<a class="sourceLine" id="cb6-8" title="8">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
-<a class="sourceLine" id="cb6-9" title="9">})</a></code></pre></div>
+<a class="sourceLine" id="cb6-5" title="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
+<a class="sourceLine" id="cb6-6" title="6">  }</a>
+<a class="sourceLine" id="cb6-7" title="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb6-8" title="8">})</a></code></pre></div>
 </div>
 </div>
 </div>
