@@ -137,6 +137,14 @@ if_clause <- armacmp(function(X) {
 
 Just make sure all return statements return the same type.
 
+Also `if/else` cannot be used as an expression:
+
+```{r, eval=FALSE}
+# this is not possible
+x <- if (y) 1 else 2
+```
+
+
 ### For loops
 
 For loops are supported, but in a very constraint form:
