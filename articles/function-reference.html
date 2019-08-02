@@ -222,24 +222,27 @@
 <a class="sourceLine" id="cb4-10" data-line-number="10">  }</a>
 <a class="sourceLine" id="cb4-11" data-line-number="11">})</a></code></pre></div>
 <p>Just make sure all return statements return the same type.</p>
+<p>Also <code>if/else</code> cannot be used as an expression:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># this is not possible</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="cf">if</span> (y) <span class="dv">1</span> <span class="cf">else</span> <span class="dv">2</span></a></code></pre></div>
 </div>
 <div id="for-loops" class="section level3">
 <h3 class="hasAnchor">
 <a href="#for-loops" class="anchor"></a>For loops</h3>
 <p>For loops are supported, but in a very constraint form:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># the only thing you can change is the name of the counter variable and the parameter of seq_len.</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(n)) {</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">  ...</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># the only thing you can change is the name of the counter variable and the parameter of seq_len.</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(n)) {</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  ...</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">}</a></code></pre></div>
 <p>Example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">  }</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">})</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">  }</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb7-8" data-line-number="8">})</a></code></pre></div>
 </div>
 </div>
 </div>
