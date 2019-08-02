@@ -1,176 +1,76 @@
-#' @param is_not_bound_to_arma_datatype a function indicating if a symbol is not bound to an arma data type
-#' @noRd
-annotate_ast <- function(ast, is_not_bound_to_arma_datatype = function(x) FALSE) {
-  # here we have one S expression or a List of S expression
-  # a list of S expression is only assumed at the top level
-  is_list_of_sexps <- "{" %in% as.character(ast[[1L]])
-  if (is_list_of_sexps) {
-    annotated_ast <- list()
-    iterator <- seq_along(ast)[-1L]
-    for (i in iterator) {
-      annotated_ast <- c(annotated_ast, list(classify_sexp(ast[[i]], is_not_bound_to_arma_datatype)))
+#' @include ast-classes.R
+annotate_ast <- function(ast, symbol_bound_to_arma_type = function(x) TRUE) {
+
+  # TODO: a lot of small rules are here. Good candidate to further improve
+  annotate_ast_rec <- function(current_sexp, scope, parent) {
+    if (length(current_sexp) <= 1L) {
+      if (is.name(current_sexp) && !is.null(scope)) {
+        if (scope$is_name_defined(current_sexp)) {
+          return(scope$get_node_by_name(current_sexp))
+        }
+      }
+      node <- ast_node_terminal$new(sexp = current_sexp, head = current_sexp)
+      node$set_parent(parent)
+      node$set_scope(scope)
+      # false positives might occur
+      if (is.numeric(current_sexp) ||
+        is.name(current_sexp) && !symbol_bound_to_arma_type(current_sexp)) {
+        node$set_cpp_type("auto")
+      }
+      return(node)
     }
-    annotated_ast
-  } else {
-    # here we only assume one SEXP
-    list(classify_sexp(ast, is_not_bound_to_arma_datatype))
-  }
-}
 
-classify_sexp <- function(sexp, is_not_bound_to_arma_datatype = function(x) FALSE) {
-  if (length(sexp) <= 1L) {
-    sexp_chr <- as.character(sexp)
-    type_name <- "terminal"
-    meta_data <- list()
-    if (is.numeric(sexp) || is_not_bound_to_arma_datatype(sexp_chr)) {
-      meta_data$cpp_type <- "auto"
+    first_element <- current_sexp[[1L]]
+    is_namespaced_function <- is.call(first_element)
+    if (is_namespaced_function) {
+      # is namespaced function
+      first_element_chr <- deparse(first_element)
+    } else {
+      first_element_chr <- as.character(first_element)
     }
-    return(new_element_type(type_name, sexp, meta_data = meta_data))
-  }
-  first_element <- sexp[[1L]]
-  is_namespaced_function <- is.call(first_element)
-  if (is_namespaced_function) {
-    # is namespaced function
-    first_element_chr <- deparse(first_element)
-  } else {
-    first_element_chr <- as.character(first_element)
-  }
-  annotated_sexp <- as.list(sexp)
-
-  # some type deduction heuristic
-  # all experimental and hacky :)
-  meta_data <- list()
-  non_mat_types <- c("sum")
-  if (first_element_chr %in% non_mat_types) {
-    meta_data$cpp_type <- "auto"
-  }
-  has_arma_type <- function(x) {
-    x$type != "scalar" && (
-      is.null(x$meta_data$cpp_type) ||
-        grepl("^arma", x$meta_data$cpp_type)
-    )
-  }
-  any_arma_type <- FALSE
-
-  # this needs to be done more specific for certain types of
-  # expression. E.g. with assignments, only the right hand side
-  # determines the type
-  for (i in seq_along(annotated_sexp)[-1L]) {
-    el <- classify_sexp(annotated_sexp[[i]], is_not_bound_to_arma_datatype)
-    annotated_sexp[[i]] <- el
-    if (has_arma_type(el)) {
-      any_arma_type <- TRUE
+    current_node <- new_node_by_chr(first_element_chr)$new(sexp = current_sexp, head = first_element)
+    current_node$set_scope(scope)
+    current_node$set_parent(parent)
+    is_block <- first_element_chr == "{"
+    if (is_block) {
+      scope <- current_node
     }
+    is_assigment <- first_element_chr == "<-"
+    tail_elements <- lapply(seq_along(current_sexp)[-1L], function(i) {
+      annotate_ast_rec(current_sexp[[i]], scope, current_node)
+    })
+    # for assignments we really want to check rhs
+    # and then also assign cpp type to LHS as well as expression
+    # for later symbol lookup
+    if (is_assigment) {
+      tail_elements[[1L]]$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
+      current_node$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
+      # can be NULL but only if it should throw an error. Fix later
+      if (!scope$is_name_defined(tail_elements[[1L]]$get_sexp())) {
+        current_node$set_initial_assignment(TRUE)
+      }
+      scope$register_new_name(tail_elements[[1L]])
+    } else {
+      all_auto <- all(vapply(tail_elements, function(x) x$has_auto_cpp_type(), logical(1L)))
+      if (all_auto) {
+        current_node$set_cpp_type("auto")
+      }
+    }
+
+    current_node$set_tail_elements(tail_elements)
+    current_node
   }
-  if (!any_arma_type) {
-    meta_data$cpp_type <- "auto"
+  tree <- annotate_ast_rec(ast, NULL, NULL)
+
+  # annotated_ast might not have brackets if the inital function
+  # was a one liner.
+  # we then add a new parent bracket node
+  if (!("ast_node_block" %in% class(tree))) {
+    new_root <- ast_node_block$new(sexp = `{`, head = `{`)
+    new_root$set_tail_elements(list(tree))
+    tree$set_scope(new_root)
+    tree$set_parent(new_root)
+    tree <- new_root
   }
-  element_type <- "not_supported"
-
-  if (is_namespaced_function) {
-    element_type <- "namespaced_function_call"
-  }
-
-  element_type_map <- new.env(parent = emptyenv())
-  element_type_map[["<-"]] <- "assignment"
-  element_type_map[["{"]] <- "curley_bracket"
-  element_type_map[["="]] <- "reassign"
-  element_type_map[["+"]] <- "plus"
-  element_type_map[["-"]] <- "minus"
-  element_type_map[["^"]] <- "pow"
-  element_type_map[["*"]] <- "mult"
-  element_type_map[["/"]] <- "div"
-  element_type_map[["<"]] <- "less"
-  element_type_map[[">"]] <- "greater"
-  element_type_map[["<="]] <- "leq"
-  element_type_map[[">="]] <- "geq"
-  element_type_map[["=="]] <- "equal"
-  element_type_map[["!="]] <- "nequal"
-  element_type_map[["%*%"]] <- "matmul"
-  element_type_map[["("]] <- "bracket"
-  element_type_map[["qr"]] <- "qr_init"
-  element_type_map[["qr.Q"]] <- "qr_q"
-  element_type_map[["qr.R"]] <- "qr_r"
-  element_type_map[["solve"]] <- "solve"
-  element_type_map[["nrow"]] <- "nrow"
-  element_type_map[["ncol"]] <- "ncol"
-  element_type_map[["colSums"]] <- "colsums"
-  element_type_map[["rowSums"]] <- "rowsums"
-  element_type_map[["colMeans"]] <- "colmeans"
-  element_type_map[["rowMeans"]] <- "rowmeans"
-  element_type_map[["return"]] <- "return"
-  element_type_map[["backsolve"]] <- "backsolve"
-  element_type_map[["forwardsolve"]] <- "forwardsolve"
-  element_type_map[["if"]] <- "if"
-  element_type_map[["for"]] <- "for"
-  if (!is.null(element_type_map[[first_element_chr]])) {
-    element_type <- element_type_map[[first_element_chr]]
-  }
-  if (!is.null(unary_function_mapping[[first_element_chr]])) {
-    element_type <- "simple_unary_function"
-    meta_data$mapping_fun <- unary_function_mapping[[first_element_chr]]
-  }
-  if (!is.null(binary_function_mapping[[first_element_chr]])) {
-    element_type <- "simple_binary_function"
-    meta_data$mapping_fun <- binary_function_mapping[[first_element_chr]]
-  }
-  new_element_type(element_type, sexp, annotated_sexp, meta_data)
-}
-
-new_element_type <- function(type, original_sexp, annotated_sexp = original_sexp, meta_data = list()) {
-  structure(list(
-    original_sexp = original_sexp,
-    annotated_sexp = annotated_sexp,
-    type = type,
-    meta_data = meta_data
-  ),
-  class = paste0("annotated_element_", type)
-  )
-}
-
-# functions that we simply translate to armadillo
-
-binary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
-# no simple binary functions
-
-multi_dispatch_fun <- function(arma, std) {
-  structure(
-    list(arma = arma, std = std),
-    class = "multi_dispatch_fun"
-  )
-}
-
-# TODO: concrete cpp function should only be defined in the compiler, not here
-
-unary_function_mapping <- new.env(hash = TRUE, parent = emptyenv())
-unary_function_mapping$t <- "arma::trans"
-unary_function_mapping$`!` <- "!"
-unary_function_mapping$exp <- multi_dispatch_fun(arma = "arma::exp", std = "std::exp")
-unary_function_mapping$abs <- multi_dispatch_fun(arma = "arma::abs", std = "std::abs")
-unary_function_mapping$log <- multi_dispatch_fun(arma = "arma::log", std = "std::log")
-unary_function_mapping$sum <- "arma::accu"
-unary_function_mapping$chol <- "arma::chol"
-unary_function_mapping$cumsum <- "arma::cumsum"
-unary_function_mapping$diag <- "arma::diagmat"
-unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
-unary_function_mapping$sort <- "arma::sort"
-unary_function_mapping$unique <- "arma::unique"
-unary_function_mapping$pnorm <- "arma::normcdf"
-unary_function_mapping$cos <- "arma::cos"
-unary_function_mapping$acos <- "arma::acos"
-unary_function_mapping$cosh <- "arma::cosh"
-unary_function_mapping$acosh <- "arma::acosh"
-unary_function_mapping$sin <- "arma::sin"
-unary_function_mapping$asin <- "arma::asin"
-unary_function_mapping$sinh <- "arma::sinh"
-unary_function_mapping$asinh <- "arma::asinh"
-unary_function_mapping$tan <- "arma::tan"
-unary_function_mapping$atan <- "arma::atan"
-unary_function_mapping$tanh <- "arma::tanh"
-unary_function_mapping$atanh <- "arma::atanh"
-unary_function_mapping$cumsum <- "arma::cumsum"
-unary_function_mapping$cumprod <- "arma::cumprod"
-
-expression_uses_arma_types <- function(x) {
-  is.null(x$meta_data$cpp_type) || grepl("^arma::", x$meta_data$cpp_type, fixed = TRUE)
+  tree
 }

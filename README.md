@@ -118,9 +118,9 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>              expr     min       lq     mean   median       uq       max
-#>  crossprod2(x, x) 418.475 1002.610 1264.750 1078.998 1182.119  6055.312
-#>   crossprod(x, x) 516.125 1104.085 1528.402 1206.463 1380.613 10128.096
-#>        t(x) %*% x 844.030 1623.602 2159.336 1709.040 1937.041 15640.536
+#>  crossprod2(x, x) 417.136  996.070 1369.474 1143.693 1301.532  7955.491
+#>   crossprod(x, x) 519.849 1108.329 1631.169 1285.713 1493.992  9646.383
+#>        t(x) %*% x 884.382 1725.086 2328.397 1825.255 2171.855 11674.032
 #>  neval
 #>    100
 #>    100
@@ -201,8 +201,7 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
   X_new <- X
   # only seq_len is currently supported
   for (i in seq_len(10 + 10)) {
-    # use = to update an existing variable
-    X_new = log(t(X_new) %*% X_new + i + offset)
+    X_new <- log(t(X_new) %*% X_new + i + offset)
   }
   return(X_new)
 })
@@ -227,11 +226,11 @@ microbenchmark::microbenchmark(
 )
 #> Unit: microseconds
 #>                                                expr     min       lq
-#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 118.739 134.7415
-#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.637  39.4065
-#>       mean   median      uq     max neval
-#>  161.00728 137.9355 156.767 418.402   100
-#>   44.97587  40.4965  44.452 129.472   100
+#>  for_loop_r(matrix(1:1000, ncol = 10), offset = 10) 119.404 135.7745
+#>    for_loop(matrix(1:1000, ncol = 10), offset = 10)  37.181  39.5540
+#>       mean   median       uq      max neval
+#>  205.02421 148.7340 188.4990 2093.689   100
+#>   60.89587  43.4835  55.3215  511.544   100
 ```
 
 ### A faster `cumprod`
@@ -249,8 +248,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression                   min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>              <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 cumprod(x)              131.26ms 143.83ms      6.88   15.26MB     2.29
-#> 2 as.numeric(cumprod2(x))   4.21ms   8.47ms     88.2     7.63MB    32.7
+#> 1 cumprod(x)               124.3ms    128ms      7.87   15.26MB     2.62
+#> 2 as.numeric(cumprod2(x))    4.1ms    4.7ms    180.      7.63MB    84.4
 ```
 
 ### Return type
@@ -324,9 +323,10 @@ armacmp_compile(function(new_X, coef = type_colvec()) {
 #> arma::colvec log_predict(const arma::mat& new_X, const arma::colvec& coef)
 #> {
 #> arma::mat res = new_X * coef;
-#> arma::mat score = 1 / ( 1 + arma::exp( -res ) );
+#> arma::mat score = 1 / (1 + arma::exp(-res));
 #> return score;
 #> }
+#> 
 #> 
 ```
 
@@ -368,9 +368,9 @@ microbenchmark::microbenchmark(
   if_clause(X)
 )
 #> Unit: microseconds
-#>            expr     min       lq     mean  median       uq      max neval
-#>  if_clause_r(X) 295.927 319.4940 519.2377 334.348 454.8045 6718.922   100
-#>    if_clause(X) 123.221 135.9265 177.1595 143.549 187.2870  949.770   100
+#>            expr     min      lq     mean   median       uq      max neval
+#>  if_clause_r(X) 293.200 319.275 481.2335 334.6615 378.2785 6519.597   100
+#>    if_clause(X) 133.376 137.351 161.4604 140.4580 151.2910  894.740   100
 ```
 
 ### QR decomposition
@@ -397,4 +397,5 @@ all.equal(
 ### Related projects
 
   - [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
-    C++ from R. Inspired the approach to compile R functions directly.
+    C++ from R. Inspired the approach to compile R functions directly
+    instead of just a code block as in the initial version.

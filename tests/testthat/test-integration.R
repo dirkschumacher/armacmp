@@ -22,7 +22,7 @@ test_that("for loop", {
     # only seq_len is currently supported
     for (i in seq_len(10 + 10)) {
       # use = to update an existing variable
-      X_new = log(t(X_new) %*% X_new + i + offset)
+      X_new <- log(t(X_new) %*% X_new + i + offset)
     }
     return(X_new)
   })
@@ -102,12 +102,45 @@ test_that("nrow and ncol", {
   expect_equal(nrc(X), 20)
 })
 
-test_that("namespaced functions work", {
-  fun <- armacmp(function(X, y = type_scalar_numeric()) {
-    return(arma::sqrt(X) + std::sqrt(y))
-  })
+test_that("scoping works", {
+  expect_silent(
+    fun <- armacmp(function(X) {
+      x <- X
+      y <- 10
+      test <- 5 < 10
+      if (test) {
+        offset <- 20
+        y <- offset
+      }
+      {
+        offset <- 40
+        y <- offset
+      }
+      offset <- 30
+      y <- offset
+      x <- (x %*% 2) + 1
+      return(x + y)
+    })
+  )
+  fun2 <- function(X) {
+    x <- X
+    y <- 10
+    test <- 5 < 10
+    if (test) {
+      offset <- 20
+      y <- offset
+    }
+    {
+      offset <- 40
+      y <- offset
+    }
+    offset <- 30
+    y <- offset
+    x <- (x %*% 2) + 1
+    return(x + y)
+  }
   expect_equal(
-    fun(matrix(1:10), 4),
-    sqrt(matrix(1:10)) + sqrt(4)
+    fun(matrix(1:10)),
+    fun2(matrix(1:10))
   )
 })
