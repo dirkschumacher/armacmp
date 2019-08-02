@@ -39,6 +39,9 @@ ast_node <- R6::R6Class("ast_node",
     set_cpp_type = function(type) {
       private$cpp_type <- type
     },
+    emit = function(...) {
+      do.call(paste0, list(...))
+    },
     compile = function() {
       stop("Sorry, but the expression:\n\n",
         paste0(deparse(self$get_sexp()), collapse = "\n"),
@@ -99,7 +102,7 @@ ast_node_assignment <- R6::R6Class(
       } else {
         ""
       }
-      paste0(
+      self$emit(
         type,
         as.character(symbol),
         " = ",
@@ -130,7 +133,7 @@ ast_node_return <- R6::R6Class(
         type_spec <- eval(operands[[2]]$get_sexp())
         self$set_cpp_type(type_spec$cpp_type)
       }
-      paste0(
+      self$emit(
         "return ",
         operands[[1L]]$compile(),
         ";"
@@ -148,9 +151,9 @@ make_binary_operator_class <- function(name, op) {
         operands <- self$get_tail_elements()
         stopifnot(length(operands) %in% c(1:2))
         if (length(operands) == 1L) {
-          paste0(op, operands[[1L]]$compile())
+          self$emit(op, operands[[1L]]$compile())
         } else {
-          paste0(
+          self$emit(
             operands[[1L]]$compile(),
             " ", op, " ",
             operands[[2L]]$compile()
@@ -179,7 +182,7 @@ ast_node_block <- R6::R6Class(
       private$name_store <- new.env(parent = emptyenv())
     },
     compile = function() {
-      paste0(
+      self$emit(
         "{\n",
         paste0(lapply(self$get_tail_elements(), function(x) x$compile()), collapse = "\n"),
         "\n}\n"
@@ -217,7 +220,7 @@ ast_node_ncol <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0(
+      self$emit(
         self$get_tail_elements()[[1L]]$compile(), ".n_cols"
       )
     },
@@ -233,7 +236,7 @@ ast_node_nrow <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0(
+      self$emit(
         self$get_tail_elements()[[1L]]$compile(), ".n_rows"
       )
     },
@@ -250,7 +253,7 @@ ast_node_if <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) %in% c(2L, 3L))
       elements <- self$get_tail_elements()
-      paste0(
+      self$emit(
         "\nif ( ", elements[[1L]]$compile(), " ) \n",
         elements[[2L]]$compile(),
         if (length(elements) > 2L && !is.null(elements[[3L]])) {
@@ -274,7 +277,7 @@ ast_node_mult <- R6::R6Class(
       } else {
         "%"
       }
-      paste0(
+      self$emit(
         elements[[1L]]$compile(),
         " ",
         op,
@@ -292,7 +295,7 @@ ast_node_matmul <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      paste0(
+      self$emit(
         elements[[1L]]$compile(),
         " * ",
         elements[[2L]]$compile()
@@ -314,7 +317,7 @@ ast_node_pow <- R6::R6Class(
       } else {
         "arma::pow"
       }
-      paste0(
+      self$emit(
         fun, "( ",
         elements[[1L]]$compile(),
         ", ",
@@ -331,7 +334,7 @@ ast_node_bracket <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0(
+      self$emit(
         "(",
         self$get_tail_elements()[[1L]]$compile(),
         ")"
@@ -346,7 +349,7 @@ ast_node_colsums <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
+      self$emit("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
     },
     get_cpp_type = function() {
       "arma::rowvec"
@@ -360,7 +363,7 @@ ast_node_rowsums <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
+      self$emit("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
     },
     get_cpp_type = function() {
       "arma::colvec"
@@ -374,7 +377,7 @@ ast_node_colmeans <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
+      self$emit("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
     },
     get_cpp_type = function() {
       "arma::colvec"
@@ -388,7 +391,7 @@ ast_node_rowmeans <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
+      self$emit("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
     },
     get_cpp_type = function() {
       "arma::rowvec"
@@ -403,7 +406,7 @@ ast_node_forwardsolve <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      paste0(
+      self$emit(
         "arma::solve(arma::trimatl(",
         elements[[1L]]$compile(), "), ",
         elements[[2L]]$compile(),
@@ -423,7 +426,7 @@ ast_node_backsolve <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      paste0(
+      self$emit(
         "arma::solve(arma::trimatu(",
         elements[[1L]]$compile(), "), ",
         elements[[2L]]$compile(),
@@ -444,9 +447,9 @@ ast_node_solve <- R6::R6Class(
       stopifnot(length(self$get_tail_elements()) %in% 1:2)
       elements <- self$get_tail_elements()
       if (length(elements) == 1L) {
-        paste0("arma::inv(", elements[[1L]]$compile(), ")")
+        self$emit("arma::inv(", elements[[1L]]$compile(), ")")
       } else {
-        paste0(
+        self$emit(
           "arma::solve(",
           elements[[1L]]$compile(),
           ", ",
@@ -475,7 +478,7 @@ ast_node_for <- R6::R6Class(
       # TODO: be defensive here
       n <- elements[[2L]]$get_tail_elements()[[1L]]
       body <- elements[[3L]]
-      paste0(
+      self$emit(
         "for (const int ", iter_var_name$compile(),
         " : Rcpp::seq_len(", n$compile(), ")) { \n",
         body$compile(),
@@ -495,7 +498,7 @@ ast_node_qr_init <- R6::R6Class(
       rhs <- self$get_tail_elements()[[1L]]$compile()
       var_name_q <- paste0(var_name, "__Q")
       var_name_r <- paste0(var_name, "__R")
-      paste0(
+      self$emit(
         "arma::mat ", var_name_q, ", ", var_name_r, ";\n",
         "arma::qr_econ( ", var_name_q, ", ", var_name_r, ", ", rhs, " );\n"
       )
@@ -509,7 +512,7 @@ ast_node_qr_q <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0(self$get_tail_elements()[[1L]]$compile(), "__Q")
+      self$emit(self$get_tail_elements()[[1L]]$compile(), "__Q")
     }
   )
 )
@@ -520,7 +523,7 @@ ast_node_qr_r <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0(self$get_tail_elements()[[1L]]$compile(), "__R")
+      self$emit(self$get_tail_elements()[[1L]]$compile(), "__R")
     }
   )
 )
@@ -542,7 +545,7 @@ make_generic_unary_function_class <- function(class_name, fun) {
             fun$arma
           }
         }
-        paste0(fun_type, "(", self$get_tail_elements()[[1L]]$compile(), ")")
+        self$emit(fun_type, "(", self$get_tail_elements()[[1L]]$compile(), ")")
       }
     )
   )
@@ -554,7 +557,7 @@ ast_node_sum <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
-      paste0("arma::accu(", self$get_tail_elements()[[1L]]$compile(), ")")
+      self$emit("arma::accu(", self$get_tail_elements()[[1L]]$compile(), ")")
     },
     get_cpp_type = function() {
       "auto"
