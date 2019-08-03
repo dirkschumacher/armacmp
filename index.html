@@ -160,7 +160,7 @@
 <p>To showcase that I took an algorithm from a great book called “A Computational Approach to Statistical Learning” that involves a lot of linear algebra code in a for loop. The C++ version is significantly faster.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># From Arnold, T., Kane, M., &amp; Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># Logistic regression using the Newton-Raphson</span></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># Logistic regression using the Newton-Raphson algorithm</span></a>
 <a class="sourceLine" id="cb6-4" data-line-number="4">log_reg &lt;-<span class="st"> </span><span class="kw"><a href="reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()) {</a>
 <a class="sourceLine" id="cb6-5" data-line-number="5">  beta &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/rep">rep.int</a></span>(<span class="dv">0</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/nrow">ncol</a></span>(X))</a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">25</span>)) {</a>
@@ -191,31 +191,32 @@
 <a class="sourceLine" id="cb6-31" data-line-number="31">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(beta)</a>
 <a class="sourceLine" id="cb6-32" data-line-number="32">}</a>
 <a class="sourceLine" id="cb6-33" data-line-number="33"></a>
-<a class="sourceLine" id="cb6-34" data-line-number="34">n &lt;-<span class="st"> </span><span class="dv">1000</span> ; p &lt;-<span class="st"> </span><span class="dv">50</span></a>
-<a class="sourceLine" id="cb6-35" data-line-number="35">true_beta &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(p)</a>
-<a class="sourceLine" id="cb6-36" data-line-number="36">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(<span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>(p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)), <span class="dt">ncol =</span> p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb6-37" data-line-number="37">y &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(n) <span class="op">&lt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Logistic">plogis</a></span>(X <span class="op">%*%</span><span class="st"> </span>true_beta)</a>
-<a class="sourceLine" id="cb6-38" data-line-number="38"></a>
-<a class="sourceLine" id="cb6-39" data-line-number="39"><span class="co"># to see that it actually does logistic regression</span></a>
-<a class="sourceLine" id="cb6-40" data-line-number="40"><span class="co"># there can be a small difference to the glm.fit result</span></a>
-<a class="sourceLine" id="cb6-41" data-line-number="41"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(</a>
-<a class="sourceLine" id="cb6-42" data-line-number="42">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">log_reg</span>(X, y)),</a>
-<a class="sourceLine" id="cb6-43" data-line-number="43">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">log_reg_r</span>(X, y)),</a>
-<a class="sourceLine" id="cb6-44" data-line-number="44">  <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/glm">glm.fit</a></span>(X, y, <span class="dt">family =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/family">binomial</a></span>()))</a>
-<a class="sourceLine" id="cb6-45" data-line-number="45">)</a>
-<a class="sourceLine" id="cb6-46" data-line-number="46"><span class="co">#&gt; [1] "Mean relative difference: 2.447561e-16"</span></a>
-<a class="sourceLine" id="cb6-47" data-line-number="47"></a>
-<a class="sourceLine" id="cb6-48" data-line-number="48">bench<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/bench/topics/mark">mark</a></span>(</a>
-<a class="sourceLine" id="cb6-49" data-line-number="49">  <span class="kw">log_reg</span>(X, y),</a>
-<a class="sourceLine" id="cb6-50" data-line-number="50">  <span class="kw">log_reg_r</span>(X, y)</a>
-<a class="sourceLine" id="cb6-51" data-line-number="51">)</a>
-<a class="sourceLine" id="cb6-52" data-line-number="52"><span class="co">#&gt; Warning: Some expressions had a GC in every iteration; so filtering is</span></a>
-<a class="sourceLine" id="cb6-53" data-line-number="53"><span class="co">#&gt; disabled.</span></a>
-<a class="sourceLine" id="cb6-54" data-line-number="54"><span class="co">#&gt; # A tibble: 2 x 6</span></a>
-<a class="sourceLine" id="cb6-55" data-line-number="55"><span class="co">#&gt;   expression           min   median `itr/sec` mem_alloc `gc/sec`</span></a>
-<a class="sourceLine" id="cb6-56" data-line-number="56"><span class="co">#&gt;   &lt;bch:expr&gt;      &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></a>
-<a class="sourceLine" id="cb6-57" data-line-number="57"><span class="co">#&gt; 1 log_reg(X, y)    57.42ms  57.73ms    17.3      10.8KB     0   </span></a>
-<a class="sourceLine" id="cb6-58" data-line-number="58"><span class="co">#&gt; 2 log_reg_r(X, y)    1.26s    1.26s     0.793   211.8MB     3.96</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-34" data-line-number="34"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Random">set.seed</a></span>(<span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb6-35" data-line-number="35">n &lt;-<span class="st"> </span><span class="dv">1000</span> ; p &lt;-<span class="st"> </span><span class="dv">50</span></a>
+<a class="sourceLine" id="cb6-36" data-line-number="36">true_beta &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(p)</a>
+<a class="sourceLine" id="cb6-37" data-line-number="37">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(<span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>(p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>)), <span class="dt">ncol =</span> p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb6-38" data-line-number="38">y &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(n) <span class="op">&lt;</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Logistic">plogis</a></span>(X <span class="op">%*%</span><span class="st"> </span>true_beta)</a>
+<a class="sourceLine" id="cb6-39" data-line-number="39"></a>
+<a class="sourceLine" id="cb6-40" data-line-number="40"><span class="co"># to see that it actually does logistic regression</span></a>
+<a class="sourceLine" id="cb6-41" data-line-number="41"><span class="co"># there can be a small difference to the glm.fit result</span></a>
+<a class="sourceLine" id="cb6-42" data-line-number="42"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(</a>
+<a class="sourceLine" id="cb6-43" data-line-number="43">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">log_reg</span>(X, y)),</a>
+<a class="sourceLine" id="cb6-44" data-line-number="44">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">log_reg_r</span>(X, y)),</a>
+<a class="sourceLine" id="cb6-45" data-line-number="45">  <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/glm">glm.fit</a></span>(X, y, <span class="dt">family =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/family">binomial</a></span>()))</a>
+<a class="sourceLine" id="cb6-46" data-line-number="46">)</a>
+<a class="sourceLine" id="cb6-47" data-line-number="47"><span class="co">#&gt; [1] TRUE</span></a>
+<a class="sourceLine" id="cb6-48" data-line-number="48"></a>
+<a class="sourceLine" id="cb6-49" data-line-number="49">bench<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/bench/topics/mark">mark</a></span>(</a>
+<a class="sourceLine" id="cb6-50" data-line-number="50">  <span class="kw">log_reg</span>(X, y),</a>
+<a class="sourceLine" id="cb6-51" data-line-number="51">  <span class="kw">log_reg_r</span>(X, y)</a>
+<a class="sourceLine" id="cb6-52" data-line-number="52">)</a>
+<a class="sourceLine" id="cb6-53" data-line-number="53"><span class="co">#&gt; Warning: Some expressions had a GC in every iteration; so filtering is</span></a>
+<a class="sourceLine" id="cb6-54" data-line-number="54"><span class="co">#&gt; disabled.</span></a>
+<a class="sourceLine" id="cb6-55" data-line-number="55"><span class="co">#&gt; # A tibble: 2 x 6</span></a>
+<a class="sourceLine" id="cb6-56" data-line-number="56"><span class="co">#&gt;   expression           min   median `itr/sec` mem_alloc `gc/sec`</span></a>
+<a class="sourceLine" id="cb6-57" data-line-number="57"><span class="co">#&gt;   &lt;bch:expr&gt;      &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;</span></a>
+<a class="sourceLine" id="cb6-58" data-line-number="58"><span class="co">#&gt; 1 log_reg(X, y)    57.39ms  58.18ms    17.2      10.8KB     0   </span></a>
+<a class="sourceLine" id="cb6-59" data-line-number="59"><span class="co">#&gt; 2 log_reg_r(X, y)    1.15s    1.15s     0.867   211.8MB     4.34</span></a></code></pre></div>
 </div>
 <div id="related-projects" class="section level3">
 <h3 class="hasAnchor">
