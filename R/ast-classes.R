@@ -471,7 +471,7 @@ ast_node_for <- R6::R6Class(
       # we currently allow just one pattern
       # for (i in seq_len(10)) { ... }
       # will be translated to
-      # for (const int i : Rcpp::seq_len(10)) {
+      # for (const auto& i : Rcpp::seq_len(10)) {
       #   ...
       # }
       iter_var_name <- elements[[1L]]
@@ -479,7 +479,7 @@ ast_node_for <- R6::R6Class(
       n <- elements[[2L]]$get_tail_elements()[[1L]]
       body <- elements[[3L]]
       self$emit(
-        "for (const int ", iter_var_name$compile(),
+        "for (const auto& ", iter_var_name$compile(),
         " : Rcpp::seq_len(", n$compile(), ")) { \n",
         body$compile(),
         "}\n"
