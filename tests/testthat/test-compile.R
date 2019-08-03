@@ -102,7 +102,7 @@ test_that("generic range-based for loops work", {
     iter <- seq_len(y)
     x <- 1
     for (i in iter) {
-      x <- x + 1
+      x <- x + i
     }
     return(x, type = type_scalar_numeric())
   }, "wat")$cpp_code

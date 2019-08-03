@@ -9,9 +9,14 @@ annotate_ast <- function(ast, symbol_bound_to_arma_type = function(x) TRUE) {
           return(scope$get_node_by_name(current_sexp))
         }
       }
-      node <- ast_node_terminal$new(sexp = current_sexp, head = current_sexp)
+      class_type <- ast_node_terminal
+      if (is.name(current_sexp)) {
+        class_type <- ast_node_name
+      }
+      node <- class_type$new(sexp = current_sexp, head = current_sexp)
       node$set_parent(parent)
       node$set_scope(scope)
+
       # false positives might occur
       if (is.numeric(current_sexp) ||
         is.name(current_sexp) && !symbol_bound_to_arma_type(current_sexp)) {

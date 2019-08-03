@@ -51,13 +51,10 @@ ast_node <- R6::R6Class("ast_node",
       )
     },
     find_all_returns = function() {
-      find_returns_rec <- function(node) {
-        if ("ast_node_return" %in% class(node)) {
-          return(list(node))
-        }
-        lapply(node$get_tail_elements(), find_returns_rec)
-      }
-      unlist(find_returns_rec(self))
+      private$find_nodes("ast_node_return")
+    },
+    find_all_names = function() {
+      private$find_nodes("ast_node_name")
     }
   ),
   private = list(
@@ -66,7 +63,16 @@ ast_node <- R6::R6Class("ast_node",
     tail_elements = list(),
     scope = NULL,
     parent = NULL,
-    cpp_type = "arma::mat"
+    cpp_type = "arma::mat",
+    find_nodes = function(node_type) {
+      find_elements_rec <- function(node) {
+        if (node_type %in% class(node)) {
+          return(list(node))
+        }
+        lapply(node$get_tail_elements(), find_elements_rec)
+      }
+      unlist(find_elements_rec(self))
+    }
   )
 )
 
@@ -78,6 +84,11 @@ ast_node_terminal <- R6::R6Class(
       as.character(self$get_head())
     }
   )
+)
+
+ast_node_name <- R6::R6Class(
+  classname = "ast_node_name",
+  inherit = ast_node_terminal
 )
 
 ast_node_assignment <- R6::R6Class(
@@ -474,15 +485,44 @@ ast_node_for <- R6::R6Class(
       # for (const auto& i : X) {
       #   ...
       # }
-      iter_var_name <- elements[[1L]]
+      stopifnot("ast_node_name" %in% class(elements[[1L]]))
+      iter_var_name <- elements[[1L]]$compile()
       container <- elements[[2L]]
       body <- elements[[3L]]
-      self$emit(
-        "for (const auto& ", iter_var_name$compile(),
-        " : ", container$compile(), ")\n",
-        body$compile(),
-        "\n"
-      )
+      is_iter_var_used <- private$is_loop_var_used(iter_var_name, body)
+      if (is_iter_var_used) {
+        self$emit(
+          "for (const auto& ", iter_var_name,
+          " : ", container$compile(), ")\n",
+          body$compile(),
+          "\n"
+        )
+      } else {
+        container_var_name <- random_var_name()
+        iter_var_name <- random_var_name()
+        # TODO: this creates non-deterministic source code
+        # might not be a good idea ...
+        self$emit(
+          "\nauto&& ", container_var_name, " = ", container$compile(), ";\n",
+          "for (auto ",
+          iter_var_name, " = ",container_var_name,".begin();",
+          iter_var_name, " != ",container_var_name,".end();",
+          "++", iter_var_name, ")\n",
+          body$compile(),
+          "\n"
+        )
+      }
+    }
+  ),
+  private = list(
+    is_loop_var_used = function(var_name, body) {
+      all_names <- body$find_all_names()
+      for (name_node in all_names) {
+        if (var_name == name_node$get_head()) {
+          return(TRUE)
+        }
+      }
+      FALSE
     }
   )
 )
@@ -662,4 +702,8 @@ new_node_by_chr <- function(head_chr) {
     return(make_generic_unary_function_class(head_chr, unary_function_mapping[[head_chr]]))
   }
   ast_node
+}
+
+random_var_name <- function() {
+  paste0("__armacmp_", substr(digest::sha1(runif(1)), 1, 6))
 }
