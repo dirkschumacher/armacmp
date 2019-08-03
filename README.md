@@ -11,6 +11,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://travis-ci.org/dirkschumacher/armacmp.svg?branch=master)](https://travis-ci.org/dirkschumacher/armacmp)
 [![Codecov test
 coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/dirkschumacher/armacmp?branch=master&svg=true)](https://ci.appveyor.com/project/dirkschumacher/armacmp)
 <!-- badges: end -->
 
 The goal of `armacmp` is to create a DSL to formulate linear algebra

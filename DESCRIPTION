@@ -18,7 +18,8 @@ Imports:
     methods,
     R6,
     utils,
-    stats
+    stats,
+    digest
 Suggests: 
     testthat (>= 2.1.0),
     covr,
