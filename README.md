@@ -128,7 +128,7 @@ faster.
 ``` r
 # From Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
 
-# Logistic regression using the Newton-Raphson
+# Logistic regression using the Newton-Raphson algorithm
 log_reg <- armacmp(function(X, y = type_colvec()) {
   beta <- rep.int(0, ncol(X))
   for (i in seq_len(25)) {
@@ -159,6 +159,7 @@ log_reg_r <- function(X, y) {
   return(beta)
 }
 
+set.seed(10)
 n <- 1000 ; p <- 50
 true_beta <- rnorm(p)
 X <- cbind(1, matrix(rnorm(n * (p - 1)), ncol = p - 1))
@@ -171,7 +172,6 @@ all.equal(
   as.numeric(log_reg_r(X, y)),
   coef(glm.fit(X, y, family = binomial()))
 )
-#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
 #> [1] TRUE
 
 bench::mark(
@@ -183,8 +183,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 log_reg(X, y)    54.98ms  60.87ms    16.7      10.8KB     0   
-#> 2 log_reg_r(X, y)    1.76s    1.76s     0.567   211.8MB     3.40
+#> 1 log_reg(X, y)    74.66ms  98.77ms    10.7      10.8KB     0   
+#> 2 log_reg_r(X, y)    1.67s    1.67s     0.598   211.8MB     3.59
 ```
 
 ### Related projects

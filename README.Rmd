@@ -109,7 +109,7 @@ To showcase that I took an algorithm from a great book called "A Computational A
 ```{r}
 # From Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
 
-# Logistic regression using the Newton-Raphson
+# Logistic regression using the Newton-Raphson algorithm
 log_reg <- armacmp(function(X, y = type_colvec()) {
   beta <- rep.int(0, ncol(X))
   for (i in seq_len(25)) {
@@ -140,6 +140,7 @@ log_reg_r <- function(X, y) {
   return(beta)
 }
 
+set.seed(10)
 n <- 1000 ; p <- 50
 true_beta <- rnorm(p)
 X <- cbind(1, matrix(rnorm(n * (p - 1)), ncol = p - 1))
