@@ -21,7 +21,6 @@ test_that("for loop", {
     X_new <- X
     # only seq_len is currently supported
     for (i in seq_len(10 + 10)) {
-      # use = to update an existing variable
       X_new <- log(t(X_new) %*% X_new + i + offset)
     }
     return(X_new)
@@ -154,4 +153,67 @@ test_that("for loops only create loop variable if used", {
     return(x, type = type_scalar_numeric())
   }))
   expect_equal(fun(), 20)
+})
+
+test_that("back and forwardsolve", {
+  backsolve2 <- armacmp(function(x, y = type_colvec()) {
+    return(backsolve(x, y))
+  })
+  forwardsolve2 <- armacmp(function(x, y = type_colvec()) {
+    return(forwardsolve(x, y))
+  })
+
+  # example from the docs of backsolve
+  r <- rbind(
+    c(1, 2, 3),
+    c(0, 1, 1),
+    c(0, 0, 2)
+  )
+  x <- matrix(c(8, 4, 2))
+  expect_equal(backsolve(r, x), backsolve2(r, x))
+  expect_equal(forwardsolve(r, x), forwardsolve2(r, x))
+})
+
+test_that("cum* functions work", {
+  cumprod_sum <- armacmp(function(x = type_colvec()) {
+    return(cumprod(x) + cumsum(x))
+  })
+
+  x <- as.numeric(1:10)
+  expect_equal(
+    cumprod(x) + cumsum(x),
+    as.numeric(cumprod_sum(x))
+  )
+})
+
+test_that("colsums et al. work", {
+  colSums2 <- armacmp(function(X) return(colSums(X)))
+  rowSums2 <- armacmp(function(X) return(rowSums(X)))
+  colMeans2 <- armacmp(function(X) return(colMeans(X)))
+  rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
+
+  X <- matrix(1:100, ncol = 10)
+  expect_equal(colSums(X), as.numeric(colSums2(X)))
+  expect_equal(rowSums(X), as.numeric(rowSums2(X)))
+  expect_equal(colMeans(X), as.numeric(colMeans2(X)))
+  expect_equal(rowMeans(X), as.numeric(rowMeans2(X)))
+})
+
+test_that("QR decompositions", {
+  qr2 <- armacmp(function(X) {
+    qr_res <- qr(X)
+    return(qr.Q(qr_res) %*% qr.R(qr_res))
+  })
+
+  qr_r <- function(X) {
+    qr_res <- qr(X)
+    return(qr.Q(qr_res) %*% qr.R(qr_res))
+  }
+
+  # example from the R docs of lm.fit
+  X <- matrix(1:1000, ncol = 10)
+  expect_equal(
+    qr2(X),
+    qr_r(X)
+  )
 })
