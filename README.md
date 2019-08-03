@@ -21,10 +21,9 @@ code in R that is compiled to C++ using the Armadillo Template Library.
 The scope of the package is linear algebra and Armadillo. It is not
 meant to evolve into a general purpose R to C++ transpiler.
 
-This is currently an *experimental prototype* with most certainly a lot
-of bugs and the appropriate code quality ;). However I would be happy
-for any type of feedback, alpha testers, feature requests and potential
-use cases.
+This is currently an *experimental prototype* with most certainly bugs
+or unexpected behaviour. However I would be happy for any type of
+feedback, alpha testers, feature requests and potential use cases.
 
 Potential use cases:
 
@@ -76,6 +75,7 @@ trans(matrix(1:10))
 Or a slightly larger example using QR decomposition
 
 ``` r
+# from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
 lm_cpp <- armacmp(function(X, y = type_colvec()) {
   qr_res <- qr(X)
   qty <- t(qr.Q(qr_res)) %*% y
