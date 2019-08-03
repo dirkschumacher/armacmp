@@ -88,7 +88,7 @@
 
 <p>The goal of <code>armacmp</code> is to create a DSL to formulate linear algebra code in R that is compiled to C++ using the Armadillo Template Library.</p>
 <p>The scope of the package is linear algebra and Armadillo. It is not meant to evolve into a general purpose R to C++ transpiler.</p>
-<p>This is currently an <em>experimental prototype</em> with most certainly a lot of bugs and the appropriate code quality ;). However I would be happy for any type of feedback, alpha testers, feature requests and potential use cases.</p>
+<p>This is currently an <em>experimental prototype</em> with most certainly bugs or unexpected behaviour. However I would be happy for any type of feedback, alpha testers, feature requests and potential use cases.</p>
 <p>Potential use cases:</p>
 <ul>
 <li>Speed up your code :)</li>
@@ -126,22 +126,23 @@
 <a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]</span></a>
 <a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt; [1,]    1    2    3    4    5    6    7    8    9    10</span></a></code></pre></div>
 <p>Or a slightly larger example using QR decomposition</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">lm_cpp &lt;-<span class="st"> </span><span class="kw"><a href="reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()) {</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">  qr_res &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qr">qr</a></span>(X)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  qty &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.Q</a></span>(qr_res)) <span class="op">%*%</span><span class="st"> </span>y</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  beta_hat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/backsolve">backsolve</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.R</a></span>(qr_res), qty)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(beta_hat, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">})</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># example from the R docs of lm.fit</span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">n &lt;-<span class="st"> </span><span class="dv">70000</span> ; p &lt;-<span class="st"> </span><span class="dv">20</span></a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>p), n, p) </a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">y &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n)</a>
-<a class="sourceLine" id="cb4-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/lmfit">lm.fit</a></span>(X, y))),</a>
-<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">lm_cpp</span>(X, y))</a>
-<a class="sourceLine" id="cb4-15" data-line-number="15">)</a>
-<a class="sourceLine" id="cb4-16" data-line-number="16"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># from Arnold, T., Kane, M., &amp; Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">lm_cpp &lt;-<span class="st"> </span><span class="kw"><a href="reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()) {</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  qr_res &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qr">qr</a></span>(X)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  qty &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.Q</a></span>(qr_res)) <span class="op">%*%</span><span class="st"> </span>y</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  beta_hat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/backsolve">backsolve</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.R</a></span>(qr_res), qty)</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(beta_hat, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">})</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># example from the R docs of lm.fit</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">n &lt;-<span class="st"> </span><span class="dv">70000</span> ; p &lt;-<span class="st"> </span><span class="dv">20</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>p), n, p) </a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">y &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n)</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/lmfit">lm.fit</a></span>(X, y))),</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">lm_cpp</span>(X, y))</a>
+<a class="sourceLine" id="cb4-16" data-line-number="16">)</a>
+<a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
 </div>
 <div id="api" class="section level2">
 <h2 class="hasAnchor">
