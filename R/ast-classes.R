@@ -593,13 +593,11 @@ ast_node_seq_len <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(
-        "arma::vec(Rcpp::seq_len(",
-        self$get_tail_elements()[[1L]]$compile(),
-        "))"
+        "Rcpp::seq_len(", self$get_tail_elements()[[1L]]$compile(), ")"
       )
     },
     get_cpp_type = function() {
-      "arma::colvec"
+      "auto"
     }
   )
 )
