@@ -151,35 +151,7 @@
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())) {</a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">}</a></code></pre></div>
-<div id="inputs" class="section level3">
-<h3 class="hasAnchor">
-<a href="#inputs" class="anchor"></a>Inputs</h3>
-<p>You can define your inputs using the standard function syntax. By default paramters are of type <code>type_matrix</code>. But they can have other types such as:</p>
-<ul>
-<li>
-<code>type_colvec</code> - a column vector</li>
-<li>
-<code>type_rowvec</code> - a row vector</li>
-<li>
-<code>type_scalar_integer</code> - a single int value</li>
-<li>
-<code>type_scalar_numeric</code> - a single double value</li>
-</ul>
-</div>
-<div id="body" class="section level3">
-<h3 class="hasAnchor">
-<a href="#body" class="anchor"></a>Body</h3>
-<ul>
-<li>
-<code>&lt;-</code> you can use assignments that cause a C++ copy. As most operations return armadillo expressions, this is often not a problem. Usually assignments create new matrix variables, unless all operands on the right hand side can be assumed to not be any matrix code. Then <code>armacmp</code> and the C++11 compiler will figure out the concrete type.</li>
-</ul>
-<p>Take a look at the <code>Function reference</code> vignette to get an overview of all supported functions and expressions.</p>
-</div>
-<div id="return" class="section level3">
-<h3 class="hasAnchor">
-<a href="#return" class="anchor"></a>Return</h3>
-<p>All functions need to return a value using the <code>return</code> function.</p>
-</div>
+<p>A lot of linear algebra functions/operators are defined as well some control flow (for loops and if/else). Please take a look at the <a href="https://dirkschumacher.github.io/armacmp/articles/function-reference.html">function referece article</a> for more details what can be expressed.</p>
 <div id="related-projects" class="section level3">
 <h3 class="hasAnchor">
 <a href="#related-projects" class="anchor"></a>Related projects</h3>
