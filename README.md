@@ -107,7 +107,7 @@ my_fun <- armacmp(function(X, y = type_colvec())) {
 
 A lot of linear algebra functions/operators are defined as well some
 control flow (for loops and if/else). Please take a look at the
-[function referece
+[function reference
 article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html)
 for more details what can be expressed.
 
@@ -183,8 +183,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression           min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 log_reg(X, y)    74.66ms  98.77ms    10.7      10.8KB     0   
-#> 2 log_reg_r(X, y)    1.67s    1.67s     0.598   211.8MB     3.59
+#> 1 log_reg(X, y)    65.48ms  72.12ms    13.3      10.8KB     0   
+#> 2 log_reg_r(X, y)    1.54s    1.54s     0.649   211.8MB     3.89
 ```
 
 ### Related projects

@@ -96,7 +96,7 @@ my_fun <- armacmp(function(X, y = type_colvec())) {
 ```
 
 A lot of linear algebra functions/operators are defined as well some control flow (for loops and if/else).
-Please take a look at the [function referece article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html) for more details what can be expressed.
+Please take a look at the [function reference article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html) for more details what can be expressed.
 
 ### A complex example where `armacmp` improves performance
 
