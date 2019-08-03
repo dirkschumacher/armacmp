@@ -127,3 +127,12 @@ test_that("generic range-based for loops work", {
     grepl("arma::trans(X) * X2", code, fixed = TRUE)
   )
 })
+
+test_that("determinants work", {
+  code <- armacmp_compile(function(X = type_matrix()) {
+    return(det(X))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::det(X)", code, fixed = TRUE)
+  )
+})

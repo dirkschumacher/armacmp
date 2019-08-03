@@ -107,6 +107,8 @@ The following operators are translated to their C++ counter-part.
 * `solve`
 * `ncol`
 * `nrow`
+* `crossprod`
+* `det`
 
 ### Rest
 

@@ -699,6 +699,7 @@ unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "st
 unary_function_mapping$sort <- "arma::sort"
 unary_function_mapping$unique <- "arma::unique"
 unary_function_mapping$pnorm <- "arma::normcdf"
+unary_function_mapping$det <- "arma::det"
 unary_function_mapping$cos <- "arma::cos"
 unary_function_mapping$acos <- "arma::acos"
 unary_function_mapping$cosh <- "arma::cosh"
