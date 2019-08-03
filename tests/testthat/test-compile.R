@@ -113,3 +113,17 @@ test_that("generic range-based for loops work", {
     grepl("auto iter = Rcpp::seq_len(y)", code, fixed = TRUE)
   )
 })
+
+test_that("generic range-based for loops work", {
+  code <- armacmp_compile(function(X = type_matrix()) {
+    X2 <- crossprod(X)
+    X3 <- crossprod(X, X2)
+    return(X3)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::trans(X) * X", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::trans(X) * X2", code, fixed = TRUE)
+  )
+})

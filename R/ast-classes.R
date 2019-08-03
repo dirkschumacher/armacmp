@@ -472,6 +472,25 @@ ast_node_solve <- R6::R6Class(
   )
 )
 
+ast_node_crossprod <- R6::R6Class(
+  classname = "ast_node_crossprod",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) %in% 1:2)
+      elements <- self$get_tail_elements()
+      if (length(elements) == 1L) {
+        expr1 <- elements[[1L]]$compile()
+        expr2 <- expr1
+      } else {
+        expr1 <- elements[[1L]]$compile()
+        expr2 <- elements[[2L]]$compile()
+      }
+      self$emit("arma::trans(", expr1, ") * ", expr2)
+    }
+  )
+)
+
 ast_node_for <- R6::R6Class(
   classname = "ast_node_for",
   inherit = ast_node,
@@ -648,6 +667,7 @@ element_type_map[["sum"]] <- ast_node_sum
 element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
 element_type_map[["seq_len"]] <- ast_node_seq_len
+element_type_map[["crossprod"]] <- ast_node_crossprod
 element_type_map[["colSums"]] <- ast_node_colsums
 element_type_map[["rowSums"]] <- ast_node_rowsums
 element_type_map[["colMeans"]] <- ast_node_colmeans
