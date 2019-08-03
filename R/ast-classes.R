@@ -705,5 +705,5 @@ new_node_by_chr <- function(head_chr) {
 }
 
 random_var_name <- function() {
-  paste0("__armacmp_", substr(digest::sha1(runif(1)), 1, 6))
+  paste0("__armacmp_", substr(digest::sha1(stats::runif(1)), 1, 6))
 }

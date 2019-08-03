@@ -17,7 +17,8 @@ Imports:
     RcppArmadillo,
     methods,
     R6,
-    utils
+    utils,
+    stats
 Suggests: 
     testthat (>= 2.1.0),
     covr,
