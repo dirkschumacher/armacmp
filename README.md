@@ -105,32 +105,11 @@ my_fun <- armacmp(function(X, y = type_colvec())) {
 }
 ```
 
-### Inputs
-
-You can define your inputs using the standard function syntax. By
-default paramters are of type `type_matrix`. But they can have other
-types such as:
-
-  - `type_colvec` - a column vector
-  - `type_rowvec` - a row vector
-  - `type_scalar_integer` - a single int value
-  - `type_scalar_numeric` - a single double value
-
-### Body
-
-  - `<-` you can use assignments that cause a C++ copy. As most
-    operations return armadillo expressions, this is often not a
-    problem. Usually assignments create new matrix variables, unless all
-    operands on the right hand side can be assumed to not be any matrix
-    code. Then `armacmp` and the C++11 compiler will figure out the
-    concrete type.
-
-Take a look at the `Function reference` vignette to get an overview of
-all supported functions and expressions.
-
-### Return
-
-All functions need to return a value using the `return` function.
+A lot of linear algebra functions/operators are defined as well some
+control flow (for loops and if/else). Please take a look at the
+[function referece
+article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html)
+for more details what can be expressed.
 
 ### Related projects
 
