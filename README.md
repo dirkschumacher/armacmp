@@ -111,6 +111,82 @@ control flow (for loops and if/else). Please take a look at the
 article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html)
 for more details what can be expressed.
 
+### A complex example where `armacmp` improves performance
+
+Armadillo can combine linear algebra operations. For example the
+addition of 4 matrices `A + B + C + D` can be done in a single for loop.
+Armadillo can detect that and generates efficient code.
+
+So whenever you combine many different operations, `armacmp` *might* be
+helpful in speeding things up.
+
+To showcase that I took an algorithm from a great book called “A
+Computational Approach to Statistical Learning” that involves a lot of
+linear algebra code in a for loop. The C++ version is significantly
+faster.
+
+``` r
+# From Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
+
+# Logistic regression using the Newton-Raphson
+log_reg <- armacmp(function(X, y = type_colvec()) {
+  beta <- rep.int(0, ncol(X))
+  for (i in seq_len(25)) {
+    b_old <- beta
+    alpha <- X %*% beta
+    p <- 1 / (1 + exp(-alpha))
+    W <- p * (1 - p)
+    XtX <- crossprod(X, diag(W) %*% X)
+    score <- t(X) %*% (y - p)
+    delta <- solve(XtX, score)
+    beta <- beta + delta
+  }
+  return(beta, type = type_colvec())
+})
+
+log_reg_r <- function(X, y) {
+  beta <- rep.int(0, ncol(X))
+  for (i in seq_len(25)) {
+    b_old <- beta
+    alpha <- X %*% beta
+    p <- 1 / (1 + exp(-alpha))
+    W <- as.numeric(p * (1 - p))
+    XtX <- crossprod(X, diag(W) %*% X)
+    score <- t(X) %*% (y - p)
+    delta <- solve(XtX, score)
+    beta <- beta + delta
+  }
+  return(beta)
+}
+
+n <- 1000 ; p <- 50
+true_beta <- rnorm(p)
+X <- cbind(1, matrix(rnorm(n * (p - 1)), ncol = p - 1))
+y <- runif(n) < plogis(X %*% true_beta)
+
+# to see that it actually does logistic regression
+# there can be a small difference to the glm.fit result
+all.equal(
+  as.numeric(log_reg(X, y)),
+  as.numeric(log_reg_r(X, y)),
+  coef(glm.fit(X, y, family = binomial()))
+)
+#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+#> [1] TRUE
+
+bench::mark(
+  log_reg(X, y),
+  log_reg_r(X, y)
+)
+#> Warning: Some expressions had a GC in every iteration; so filtering is
+#> disabled.
+#> # A tibble: 2 x 6
+#>   expression           min   median `itr/sec` mem_alloc `gc/sec`
+#>   <bch:expr>      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
+#> 1 log_reg(X, y)    54.98ms  60.87ms    16.7      10.8KB     0   
+#> 2 log_reg_r(X, y)    1.76s    1.76s     0.567   211.8MB     3.40
+```
+
 ### Related projects
 
   - [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
