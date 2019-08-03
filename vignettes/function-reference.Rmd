@@ -79,7 +79,7 @@ The following operators are translated to their C++ counter-part.
 
 ### General math functions
 
-* ```x ^ y`
+* `x ^ y`
 * `exp`
 * `abs`
 * `log`
@@ -105,6 +105,8 @@ The following operators are translated to their C++ counter-part.
 * `diag`
 * `QR`
 * `solve`
+* `ncol`
+* `nrow`
 
 ### Rest
 
@@ -114,6 +116,7 @@ The following operators are translated to their C++ counter-part.
 * `cumsum`
 * `cumprod`
 * `pnorm`
+* `seq_len`
 
 ## Control Flow
 
@@ -147,11 +150,12 @@ x <- if (y) 1 else 2
 
 ### For loops
 
-For loops are supported, but in a very constraint form:
+For loops are supported:
 
 ```{r, eval=FALSE}
-# the only thing you can change is the name of the counter variable and the parameter of seq_len.
-for (i in seq_len(n)) {
+# currently only seq_len is available to create sequences of ints
+x <- seq_len(n)
+for (i in x) {
   ...
 }
 ```
