@@ -217,3 +217,14 @@ test_that("QR decompositions", {
     qr_r(X)
   )
 })
+
+test_that("rep.int generates a colvec", {
+  fun <- armacmp(function() {
+    x <- rep.int(1, 10)
+    return(x + 10, type = type_colvec())
+  })
+  expect_equal(
+    fun(),
+    matrix(rep.int(1, 10), ncol = 1) + 10
+  )
+})

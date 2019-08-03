@@ -118,7 +118,8 @@ The following operators are translated to their C++ counter-part.
 * `cumsum`
 * `cumprod`
 * `pnorm`
-* `seq_len`
+* `seq_len` returns a colvec
+* `rep.int` returns a colvec
 
 ## Control Flow
 
