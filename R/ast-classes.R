@@ -469,20 +469,19 @@ ast_node_for <- R6::R6Class(
       elements <- self$get_tail_elements()
       stopifnot(length(elements) == 3L)
       # we currently allow just one pattern
-      # for (i in seq_len(10)) { ... }
+      # for (i in X) { ... }
       # will be translated to
-      # for (const auto& i : Rcpp::seq_len(10)) {
+      # for (const auto& i : X) {
       #   ...
       # }
       iter_var_name <- elements[[1L]]
-      # TODO: be defensive here
-      n <- elements[[2L]]$get_tail_elements()[[1L]]
+      container <- elements[[2L]]
       body <- elements[[3L]]
       self$emit(
         "for (const auto& ", iter_var_name$compile(),
-        " : Rcpp::seq_len(", n$compile(), ")) { \n",
+        " : ", container$compile(), ")\n",
         body$compile(),
-        "}\n"
+        "\n"
       )
     }
   )
@@ -524,6 +523,22 @@ ast_node_qr_r <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(self$get_tail_elements()[[1L]]$compile(), "__R")
+    }
+  )
+)
+
+ast_node_seq_len <- R6::R6Class(
+  classname = "ast_node_seq_len",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      self$emit("Rcpp::seq_len(",
+                self$get_tail_elements()[[1L]]$compile(),
+                ")")
+    },
+    get_cpp_type = function() {
+      "auto"
     }
   )
 )
@@ -592,6 +607,7 @@ element_type_map[["solve"]] <- ast_node_solve
 element_type_map[["sum"]] <- ast_node_sum
 element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
+element_type_map[["seq_len"]] <- ast_node_seq_len
 element_type_map[["colSums"]] <- ast_node_colsums
 element_type_map[["rowSums"]] <- ast_node_rowsums
 element_type_map[["colMeans"]] <- ast_node_colmeans

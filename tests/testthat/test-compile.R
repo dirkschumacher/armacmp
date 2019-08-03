@@ -96,3 +96,20 @@ test_that("multi dispatch of arma and std functions", {
     grepl("arma::mat X = arma::exp(x)", code, fixed = TRUE)
   )
 })
+
+test_that("generic range-based for loops work", {
+  code <- armacmp_compile(function(y = type_scalar_numeric()) {
+    iter <- seq_len(y)
+    x <- 1
+    for (i in iter) {
+      x <- x + 1
+    }
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("for (const auto& i : iter)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto iter = Rcpp::seq_len(y)", code, fixed = TRUE)
+  )
+})
