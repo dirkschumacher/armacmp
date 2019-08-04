@@ -19,3 +19,16 @@ arma_optim(data = list(), evaluate, gradient,
 \description{
 The function compiles the code to C++ and uses Armadillo and ensmallen to optimize it.
 }
+\examples{
+optimize <- arma_optim(
+  data = list(),
+  evaluate = function(x) {
+    return(2 * norm(x)^2)
+  },
+  optimizer = optimizer_SA()
+)
+
+# should be roughly c(0, 0, 0)
+result <- optimize(matrix(c(1, -1, 1), ncol = 1))
+
+}

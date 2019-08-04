@@ -8,7 +8,7 @@
 #' @param optimizer one of the many optimizers
 #' @include optimizers.R
 #'
-#' @example
+#' @examples
 #' optimize <- arma_optim(
 #'   data = list(),
 #'   evaluate = function(x) {
