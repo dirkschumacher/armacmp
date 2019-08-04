@@ -4,7 +4,22 @@
 \alias{optimizer_CNE}
 \title{Conventional Neural Evolution Optimizer}
 \usage{
-optimizer_CNE()
+optimizer_CNE(populationSize = 500, maxGenerations = 5000,
+  mutationProb = 0.1, mutationSize = 0.02, selectPercent = 0.2,
+  tolerance = 1e-05)
+}
+\arguments{
+\item{populationSize}{The number of candidates in the population. This should be at least 4 in size     500}
+
+\item{maxGenerations}{The maximum number of generations allowed for CNE     5000}
+
+\item{mutationProb}{Probability that a weight will get mutated     0.1}
+
+\item{mutationSize}{The range of mutation noise to be added. This range is between 0 and mutationSize    0.02}
+
+\item{selectPercent}{The percentage of candidates to select to become the the next generation    0.2}
+
+\item{tolerance}{The final value of the objective function for termination. If set to negative value, tolerance is not considered     1e-5}
 }
 \description{
 Conventional Neural Evolution Optimizer

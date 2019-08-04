@@ -4,7 +4,29 @@
 \alias{optimizer_L_BFGS}
 \title{L-BFGS Optimizer}
 \usage{
-optimizer_L_BFGS()
+optimizer_L_BFGS(numBasis = 10, maxIterations = 10000,
+  armijoConstant = 1e-04, wolfe = 0.9, minGradientNorm = 1e-06,
+  factr = 1e-15, maxLineSearchTrials = 50, minStep = 1e-20,
+  maxStep = 1e+20)
+}
+\arguments{
+\item{numBasis}{Number of memory points to be stored (default 10)}
+
+\item{maxIterations}{Maximum number of iterations for the optimization (0 means no limit and may run indefinitely)}
+
+\item{armijoConstant}{Controls the accuracy of the line search routine for determining the Armijo condition}
+
+\item{wolfe}{Parameter for detecting the Wolfe condition}
+
+\item{minGradientNorm}{Minimum gradient norm required to continue the optimization}
+
+\item{factr}{Minimum relative function value decrease to continue the optimization}
+
+\item{maxLineSearchTrials}{The maximum number of trials for the line search (before giving up)}
+
+\item{minStep}{The minimum step of the line search}
+
+\item{maxStep}{The maximum step of the line search}
 }
 \description{
 L-BFGS Optimizer

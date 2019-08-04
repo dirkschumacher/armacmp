@@ -140,9 +140,9 @@ optimize <- arma_optim(
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
 #>               [,1]
-#> [1,]  7.747596e-05
-#> [2,] -1.284524e-03
-#> [3,] -3.899552e-05
+#> [1,] -0.0014143145
+#> [2,] -0.0002712769
+#> [3,] -0.0003427564
 ```
 
 Optimizers:
@@ -182,11 +182,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -2.000413
-#> [2,]  1.500768
-#> [3,]  3.001110
-#> [4,]  8.201170
-#> [5,]  6.600589
+#> [1,] -1.999494
+#> [2,]  1.497021
+#> [3,]  2.998242
+#> [4,]  8.198832
+#> [5,]  6.602705
 ```
 
 Optimizers:
@@ -225,3 +225,13 @@ package with your specific use-case.
 Please note that the ‘armacmp’ project is released with a [Contributor
 Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project,
 you agree to abide by its terms.
+
+### References
+
+  - Conrad Sanderson and Ryan Curtin. Armadillo: a template-based C++
+    library for linear algebra. Journal of Open Source Software, Vol. 1,
+    pp. 26, 2016.
+  - S. Bhardwaj, R. Curtin, M. Edel, Y. Mentekidis, C. Sanderson.
+    ensmallen: a flexible C++ library for efficient function
+    optimization. Workshop on Systems for ML and Open Source Software at
+    NIPS 2018.
