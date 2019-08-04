@@ -11,6 +11,19 @@ test_that("SA works", {
   expect_true(sum(result) < 0.1)
 })
 
+test_that("CNE works", {
+  optimize <- arma_optim(
+    data = list(),
+    evaluate = function(x) {
+      return(2 * norm(x)^2)
+    },
+    optimizer = optimizer_CNE()
+  )
+
+  result <- optimize(matrix(c(1, -1, 1), ncol = 1))
+  expect_true(sum(result) < 0.1)
+})
+
 test_that("L_BFGS works", {
   optimize_lbfgs <- arma_optim(
     data = list(design_matrix = type_matrix(), response = type_colvec()),

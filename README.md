@@ -139,15 +139,16 @@ optimize <- arma_optim(
 
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
-#>               [,1]
-#> [1,] -1.260576e-04
-#> [2,] -1.435112e-03
-#> [3,]  8.970853e-05
+#>              [,1]
+#> [1,] 0.0001066099
+#> [2,] 0.0006063035
+#> [3,] 0.0010245885
 ```
 
 Optimizers:
 
   - Simulated Annealing through `optimizer_SA`
+  - Conventional Neural Evolution `optimizer_CNE`
   - …
 
 #### Differentiable functions
@@ -181,11 +182,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -1.998173
-#> [2,]  1.500000
-#> [3,]  2.996221
-#> [4,]  8.197079
-#> [5,]  6.600184
+#> [1,] -1.997206
+#> [2,]  1.497824
+#> [3,]  2.997528
+#> [4,]  8.203049
+#> [5,]  6.598259
 ```
 
 Optimizers:

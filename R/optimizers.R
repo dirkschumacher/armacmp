@@ -1,4 +1,3 @@
-
 #' Simulated-Annealing with exponential schedule
 #'
 #' @export
@@ -22,4 +21,11 @@ optimizer_L_BFGS <- function() {
 #' @export
 optimizer_GradientDescent <- function() {
   "ens::GradientDescent optimizer;\n"
+}
+
+#' Conventional Neural Evolution Optimizer
+#'
+#' @export
+optimizer_CNE <- function() {
+  "ens::CNE optimizer;\n"
 }

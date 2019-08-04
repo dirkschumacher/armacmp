@@ -5,7 +5,7 @@
 \title{Optimize arbitrary and differentiable functions}
 \usage{
 arma_optim(data = list(), evaluate, gradient,
-  optimizer = optimzer_SA())
+  optimizer = optimizer_SA())
 }
 \arguments{
 \item{data}{a named list of prior data you would like to supply to the evaluate function.}
