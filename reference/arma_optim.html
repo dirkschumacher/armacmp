@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • armacmp</title>
+<title>Optimize arbitrary and differentiable functions — arma_optim • armacmp</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,10 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Optimize arbitrary and differentiable functions — arma_optim" />
+
+<meta property="og:description" content="The function compiles the code to C++ and uses Armadillo and ensmallen to optimize it." />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -47,7 +50,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -106,108 +109,64 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Optimize arbitrary and differentiable functions</h1>
+    <small class="dont-index">Source: <a href='https://github.com/dirkschumacher/armacmp/blob/master/R/optim.R'><code>R/optim.R</code></a></small>
+    <div class="hidden name"><code>arma_optim.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    
+    <p>The function compiles the code to C++ and uses Armadillo and ensmallen to optimize it.</p>
+    
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
-
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="arma_optim.html">arma_optim()</a></code> </p>
-        </td>
-        <td><p>Optimize arbitrary and differentiable functions</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="armacmp.html">armacmp()</a></code> </p>
-        </td>
-        <td><p>Compile Linear Algebra Code to C++</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="armacmp_compile.html">armacmp_compile()</a></code> </p>
-        </td>
-        <td><p>Compile a function to C++</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="optimizer_CNE.html">optimizer_CNE()</a></code> </p>
-        </td>
-        <td><p>Conventional Neural Evolution Optimizer</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="optimizer_GradientDescent.html">optimizer_GradientDescent()</a></code> </p>
-        </td>
-        <td><p>Gradient Descent Optimizer</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="optimizer_L_BFGS.html">optimizer_L_BFGS()</a></code> </p>
-        </td>
-        <td><p>L-BFGS Optimizer</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="optimizer_SA.html">optimizer_SA()</a></code> </p>
-        </td>
-        <td><p>Simulated-Annealing with exponential schedule</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="type_colvec.html">type_colvec()</a></code> </p>
-        </td>
-        <td><p>Type colvec</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="type_matrix.html">type_matrix()</a></code> </p>
-        </td>
-        <td><p>Type matrix</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="type_rowvec.html">type_rowvec()</a></code> </p>
-        </td>
-        <td><p>Type rowvec</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="type_scalar_int.html">type_scalar_int()</a></code> </p>
-        </td>
-        <td><p>Type int</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="type_scalar_numeric.html">type_scalar_numeric()</a></code> </p>
-        </td>
-        <td><p>Type numeric</p></td>
-      </tr>
-    </tbody>
+    <pre class="usage"><span class='fu'>arma_optim</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(), <span class='no'>evaluate</span>, <span class='no'>gradient</span>,
+  <span class='kw'>optimizer</span> <span class='kw'>=</span> <span class='fu'><a href='optimizer_SA.html'>optimizer_SA</a></span>())</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>data</th>
+      <td><p>a named list of prior data you would like to supply to the evaluate function.</p></td>
+    </tr>
+    <tr>
+      <th>evaluate</th>
+      <td><p>a function that is to be minimized. It should return a single numeric.</p></td>
+    </tr>
+    <tr>
+      <th>gradient</th>
+      <td><p>optional, a function computing the gradient of <code>evaluate</code></p></td>
+    </tr>
+    <tr>
+      <th>optimizer</th>
+      <td><p>one of the many optimizers</p></td>
+    </tr>
     </table>
-  </div>
+    
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='no'>optimize</span> <span class='kw'>&lt;-</span> <span class='fu'>arma_optim</span>(
+  <span class='kw'>data</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(),
+  <span class='kw'>evaluate</span> <span class='kw'>=</span> <span class='kw'>function</span>(<span class='no'>x</span>) {
+    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/function'>return</a></span>(<span class='fl'>2</span> * <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/norm'>norm</a></span>(<span class='no'>x</span>)^<span class='fl'>2</span>)
+  },
+  <span class='kw'>optimizer</span> <span class='kw'>=</span> <span class='fu'><a href='optimizer_SA.html'>optimizer_SA</a></span>()
+)
+
+<span class='co'># should be roughly c(0, 0, 0)</span>
+<span class='no'>result</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/stats/topics/optimize'>optimize</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, -<span class='fl'>1</span>, <span class='fl'>1</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>1</span>))</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+            
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 
