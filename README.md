@@ -111,81 +111,18 @@ control flow (for loops and if/else). Please take a look at the
 article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html)
 for more details what can be expressed.
 
-### A complex example where `armacmp` improves performance
+### When does `armacmp` improve performance?
 
-Armadillo can combine linear algebra operations. For example the
-addition of 4 matrices `A + B + C + D` can be done in a single for loop.
-Armadillo can detect that and generates efficient code.
+It really depends on the use-case and your code. In general Armadillo
+can combine linear algebra operations. For example the addition of 4
+matrices `A + B + C + D` can be done in a single for loop. Armadillo can
+detect that and generates efficient code.
 
 So whenever you combine many different operations, `armacmp` *might* be
 helpful in speeding things up.
 
-To showcase that I took an algorithm from a great book called “A
-Computational Approach to Statistical Learning” that involves a lot of
-linear algebra code in a for loop. The C++ version is significantly
-faster.
-
-``` r
-# From Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
-
-# Logistic regression using the Newton-Raphson algorithm
-log_reg <- armacmp(function(X, y = type_colvec()) {
-  beta <- rep.int(0, ncol(X))
-  for (i in seq_len(25)) {
-    b_old <- beta
-    alpha <- X %*% beta
-    p <- 1 / (1 + exp(-alpha))
-    W <- p * (1 - p)
-    XtX <- crossprod(X, diag(W) %*% X)
-    score <- t(X) %*% (y - p)
-    delta <- solve(XtX, score)
-    beta <- beta + delta
-  }
-  return(beta, type = type_colvec())
-})
-
-log_reg_r <- function(X, y) {
-  beta <- rep.int(0, ncol(X))
-  for (i in seq_len(25)) {
-    b_old <- beta
-    alpha <- X %*% beta
-    p <- 1 / (1 + exp(-alpha))
-    W <- as.numeric(p * (1 - p))
-    XtX <- crossprod(X, diag(W) %*% X)
-    score <- t(X) %*% (y - p)
-    delta <- solve(XtX, score)
-    beta <- beta + delta
-  }
-  return(beta)
-}
-
-set.seed(10)
-n <- 1000 ; p <- 50
-true_beta <- rnorm(p)
-X <- cbind(1, matrix(rnorm(n * (p - 1)), ncol = p - 1))
-y <- runif(n) < plogis(X %*% true_beta)
-
-# to see that it actually does logistic regression
-# there can be a small difference to the glm.fit result
-all.equal(
-  as.numeric(log_reg(X, y)),
-  as.numeric(log_reg_r(X, y)),
-  coef(glm.fit(X, y, family = binomial()))
-)
-#> [1] TRUE
-
-bench::mark(
-  log_reg(X, y),
-  log_reg_r(X, y)
-)
-#> Warning: Some expressions had a GC in every iteration; so filtering is
-#> disabled.
-#> # A tibble: 2 x 6
-#>   expression           min   median `itr/sec` mem_alloc `gc/sec`
-#>   <bch:expr>      <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 log_reg(X, y)    65.48ms  72.12ms    13.3      10.8KB     0   
-#> 2 log_reg_r(X, y)    1.54s    1.54s     0.649   211.8MB     3.89
-```
+We gather some examples on the wiki to further explore if compiling
+linear algebra code to C++ actually makes sense for pure speed reasons.
 
 ### Related projects
 
