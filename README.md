@@ -34,7 +34,7 @@ Potential use cases:
   - Learn how R linear algebra code can be expressed in C++ using
     `armacmp_compile` and use the code as a starting point for further
     development.
-  - Mathematical optimization functions with `arma_optim`
+  - Mathematical optimization with `arma_optim`
   - …
 
 ## Installation
@@ -139,10 +139,10 @@ optimize <- arma_optim(
 
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
-#>              [,1]
-#> [1,] 0.0001066099
-#> [2,] 0.0006063035
-#> [3,] 0.0010245885
+#>               [,1]
+#> [1,]  7.747596e-05
+#> [2,] -1.284524e-03
+#> [3,] -3.899552e-05
 ```
 
 Optimizers:
@@ -182,11 +182,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -1.997206
-#> [2,]  1.497824
-#> [3,]  2.997528
-#> [4,]  8.203049
-#> [5,]  6.598259
+#> [1,] -2.000413
+#> [2,]  1.500768
+#> [3,]  3.001110
+#> [4,]  8.201170
+#> [5,]  6.600589
 ```
 
 Optimizers:

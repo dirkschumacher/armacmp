@@ -34,7 +34,7 @@ Potential use cases:
 * Speed up your code :)
 * Quickly estimate `Rcpp` speedup gain for linear algebra code
 * Learn how R linear algebra code can be expressed in C++ using `armacmp_compile` and use the code as a starting point for further development.
-* Mathematical optimization functions with `arma_optim`
+* Mathematical optimization with `arma_optim`
 * ...
 
 
