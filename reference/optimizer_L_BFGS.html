@@ -122,13 +122,58 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>optimizer_L_BFGS</span>()</pre>
-        
+    <pre class="usage"><span class='fu'>optimizer_L_BFGS</span>(<span class='kw'>numBasis</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>maxIterations</span> <span class='kw'>=</span> <span class='fl'>10000</span>,
+  <span class='kw'>armijoConstant</span> <span class='kw'>=</span> <span class='fl'>1e-04</span>, <span class='kw'>wolfe</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>minGradientNorm</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>,
+  <span class='kw'>factr</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>, <span class='kw'>maxLineSearchTrials</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>minStep</span> <span class='kw'>=</span> <span class='fl'>1e-20</span>,
+  <span class='kw'>maxStep</span> <span class='kw'>=</span> <span class='fl'>1e+20</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>numBasis</th>
+      <td><p>Number of memory points to be stored (default 10)</p></td>
+    </tr>
+    <tr>
+      <th>maxIterations</th>
+      <td><p>Maximum number of iterations for the optimization (0 means no limit and may run indefinitely)</p></td>
+    </tr>
+    <tr>
+      <th>armijoConstant</th>
+      <td><p>Controls the accuracy of the line search routine for determining the Armijo condition</p></td>
+    </tr>
+    <tr>
+      <th>wolfe</th>
+      <td><p>Parameter for detecting the Wolfe condition</p></td>
+    </tr>
+    <tr>
+      <th>minGradientNorm</th>
+      <td><p>Minimum gradient norm required to continue the optimization</p></td>
+    </tr>
+    <tr>
+      <th>factr</th>
+      <td><p>Minimum relative function value decrease to continue the optimization</p></td>
+    </tr>
+    <tr>
+      <th>maxLineSearchTrials</th>
+      <td><p>The maximum number of trials for the line search (before giving up)</p></td>
+    </tr>
+    <tr>
+      <th>minStep</th>
+      <td><p>The minimum step of the line search</p></td>
+    </tr>
+    <tr>
+      <th>maxStep</th>
+      <td><p>The maximum step of the line search</p></td>
+    </tr>
+    </table>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
                 </ul>
 
   </div>

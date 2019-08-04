@@ -177,9 +177,9 @@
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co"># should be roughly 0</span></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/optimize">optimize</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</a>
 <a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;              [,1]</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] 0.0009899100</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,] 0.0005081547</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,] 0.0004760178</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] 0.0002599225</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,] 0.0006152267</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,] 0.0002669577</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>Simulated Annealing through <code>optimizer_SA</code>
@@ -219,11 +219,11 @@
 <a class="sourceLine" id="cb7-24" data-line-number="24">  <span class="dt">beta =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(p), <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb7-25" data-line-number="25">)</a>
 <a class="sourceLine" id="cb7-26" data-line-number="26"><span class="co">#&gt;           [,1]</span></a>
-<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -2.001050</span></a>
-<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.496407</span></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  2.999948</span></a>
-<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.201112</span></a>
-<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.601023</span></a></code></pre></div>
+<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -1.997844</span></a>
+<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.499680</span></a>
+<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  2.998696</span></a>
+<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.201241</span></a>
+<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.599326</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>L-BFGS through <code>optimizer_L_BFGS</code>
@@ -258,6 +258,14 @@
 <h3 class="hasAnchor">
 <a href="#code-of-conduct" class="anchor"></a>Code of conduct</h3>
 <p>Please note that the ‘armacmp’ project is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+</div>
+<div id="references" class="section level3">
+<h3 class="hasAnchor">
+<a href="#references" class="anchor"></a>References</h3>
+<ul>
+<li>Conrad Sanderson and Ryan Curtin. Armadillo: a template-based C++ library for linear algebra. Journal of Open Source Software, Vol. 1, pp. 26, 2016.</li>
+<li>S. Bhardwaj, R. Curtin, M. Edel, Y. Mentekidis, C. Sanderson. ensmallen: a flexible C++ library for efficient function optimization. Workshop on Systems for ML and Open Source Software at NIPS 2018.</li>
+</ul>
 </div>
 </div>
 </div>
