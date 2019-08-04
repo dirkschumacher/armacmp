@@ -17,6 +17,8 @@ status](https://ci.appveyor.com/api/projects/status/github/dirkschumacher/armacm
 
 The goal of `armacmp` is to create a DSL to formulate linear algebra
 code in R that is compiled to C++ using the Armadillo Template Library.
+It also offers an mathematical optimization that uses `RcppEnsmallen` to
+optimize functions in C++.
 
 The scope of the package is linear algebra and Armadillo. It is not
 meant to evolve into a general purpose R to C++ transpiler.
@@ -32,6 +34,7 @@ Potential use cases:
   - Learn how R linear algebra code can be expressed in C++ using
     `armacmp_compile` and use the code as a starting point for further
     development.
+  - Mathematical optimization functions with `arma_optim`
   - …
 
 ## Installation
@@ -110,6 +113,86 @@ control flow (for loops and if/else). Please take a look at the
 [function reference
 article](https://dirkschumacher.github.io/armacmp/articles/function-reference.html)
 for more details what can be expressed.
+
+### Optimization of arbitrary and differentiable functions using `ensmallen`
+
+The package now also supports optimization of functions using
+`RcppEnsmallen`. Find out more at
+[ensmallen.org](https://ensmallen.org/).
+
+All code is compiled to C++. During the optimization there is no context
+switch back to R.
+
+#### Arbitrary function
+
+Here we minimize `2 * norm(x)^2` using simulated annealing.
+
+``` r
+# taken from the docs of ensmallen.org
+optimize <- arma_optim(
+  data = list(),
+  evaluate = function(x) {
+    return(2 * norm(x)^2)
+  },
+  optimizer = optimizer_SA()
+)
+
+# should be roughly 0
+optimize(matrix(c(1, -1, 1), ncol = 1))
+#>               [,1]
+#> [1,] -1.260576e-04
+#> [2,] -1.435112e-03
+#> [3,]  8.970853e-05
+```
+
+Optimizers:
+
+  - Simulated Annealing through `optimizer_SA`
+  - …
+
+#### Differentiable functions
+
+Here solve a linear regression problem using L-BFGS.
+
+``` r
+optimize_lbfgs <- arma_optim(
+  data = list(design_matrix = type_matrix(), response = type_colvec()),
+  evaluate = function(beta) {
+    return(norm(response - design_matrix %*% beta)^2)
+  },
+  gradient = function(beta) {
+    return(-2 %*% t(design_matrix) %*% (response - design_matrix %*% beta))
+  },
+  optimizer = optimizer_L_BFGS()
+)
+
+# this example is taken from the RcppEnsmallen package
+# https://github.com/coatless/rcppensmallen/blob/master/src/example-linear-regression-lbfgs.cpp
+n <- 1e6
+beta <- c(-2, 1.5, 3, 8.2, 6.6)
+p <- length(beta)
+X <- cbind(1, matrix(rnorm(n), ncol = p - 1))
+y <- X %*% beta + rnorm(n / (p - 1))
+
+# Run optimization with lbfgs fullly in C++
+optimize_lbfgs(
+  design_matrix = X,
+  response = y,
+  beta = matrix(runif(p), ncol = 1)
+)
+#>           [,1]
+#> [1,] -1.998173
+#> [2,]  1.500000
+#> [3,]  2.996221
+#> [4,]  8.197079
+#> [5,]  6.600184
+```
+
+Optimizers:
+
+  - L-BFGS through `optimizer_L_BFGS`
+  - Gradient Descent through `optimizer_GradientDescent`
+  - …
 
 ### When does `armacmp` improve performance?
 

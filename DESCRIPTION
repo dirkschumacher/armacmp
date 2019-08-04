@@ -1,12 +1,13 @@
 Package: armacmp
 Title: Translate R Linear Algebra Code to Armadillo C++
-Version: 0.0.2.9000
+Version: 0.0.3.9000
 Authors@R: 
     person(given = "Dirk",
            family = "Schumacher",
            role = c("aut", "cre"),
            email = "mail@dirk-schumacher.net")
-Description: Compile R code to Armadillo Cpp code.
+Description: Compile linear algebra R code to C++ using the Armadillo Template Library.
+    The package further supports mathematical optimization purely in C++.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -15,6 +16,7 @@ RoxygenNote: 6.1.1
 Imports: 
     Rcpp,
     RcppArmadillo,
+    RcppEnsmallen,
     methods,
     R6,
     utils,
@@ -35,4 +37,6 @@ Collate:
     'armacmp-package.R'
     'armacmp.R'
     'compiler.R'
+    'optimizers.R'
+    'optim.R'
     'types.R'

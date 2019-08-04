@@ -602,6 +602,22 @@ ast_node_seq_len <- R6::R6Class(
   )
 )
 
+ast_node_norm <- R6::R6Class(
+  classname = "ast_node_norm",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      self$emit(
+        "arma::norm(", self$get_tail_elements()[[1L]]$compile(), ")"
+      )
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_rep_int <- R6::R6Class(
   classname = "ast_node_rep_int",
   inherit = ast_node,
@@ -688,6 +704,7 @@ element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
 element_type_map[["seq_len"]] <- ast_node_seq_len
 element_type_map[["rep.int"]] <- ast_node_rep_int
+element_type_map[["norm"]] <- ast_node_norm
 element_type_map[["crossprod"]] <- ast_node_crossprod
 element_type_map[["colSums"]] <- ast_node_colsums
 element_type_map[["rowSums"]] <- ast_node_rowsums

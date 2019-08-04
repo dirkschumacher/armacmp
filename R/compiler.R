@@ -6,6 +6,10 @@
 #' @return a list of type "armacmp_cpp_fun"
 #' @export
 armacmp_compile <- function(fun, function_name) {
+  armacmp_compile_internal(fun, function_name)
+}
+
+armacmp_compile_internal <- function(fun, function_name, overwrite_return) {
   stopifnot(
     is.function(fun),
     is.character(function_name),
@@ -47,19 +51,12 @@ armacmp_compile <- function(fun, function_name) {
   )
   return_cpp_type <- return_cpp_type[[1L]]
 
+  if (!missing(overwrite_return)) {
+    return_cpp_type <- overwrite_return
+  }
+
   # build the final function body string
-  input_params <- vapply(
-    seq_along(fun_args),
-    function(i) {
-      x <- fun_args[[i]]
-      name <- names(fun_args)[[i]]
-      if (x$cpp_type %in% c("double", "int")) {
-        paste0(x$cpp_type, " ", name)
-      } else {
-        paste0("const ", x$cpp_type, "& ", name)
-      }
-    }, character(1L)
-  )
+  input_params <- generate_cpp_input_parameters_code(fun_args)
   cpp_code <- paste0(
     return_cpp_type, " ", function_name,
     "(",
@@ -97,4 +94,19 @@ format.armacmp_cpp_fun <- function(x, ...) {
 #' @export
 print.armacmp_cpp_fun <- function(x, ...) {
   cat(format(x, ...), "\n")
+}
+
+generate_cpp_input_parameters_code <- function(fun_args) {
+  vapply(
+    seq_along(fun_args),
+    function(i) {
+      x <- fun_args[[i]]
+      name <- names(fun_args)[[i]]
+      if (x$cpp_type %in% c("double", "int")) {
+        paste0(x$cpp_type, " ", name)
+      } else {
+        paste0("const ", x$cpp_type, "& ", name)
+      }
+    }, character(1L)
+  )
 }
