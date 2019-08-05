@@ -51,10 +51,12 @@ annotate_ast <- function(ast, symbol_bound_to_arma_type = function(x) TRUE) {
     tail_elements <- lapply(seq_along(current_sexp)[-1L], function(i) {
       annotate_ast_rec(current_sexp[[i]], scope, current_node)
     })
+    lhs_is_name <- "ast_node_name" %in% class(tail_elements[[1L]])
+
     # for assignments we really want to check rhs
     # and then also assign cpp type to LHS as well as expression
     # for later symbol lookup
-    if (is_assigment) {
+    if (is_assigment && lhs_is_name) {
       tail_elements[[1L]]$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
       current_node$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
       # can be NULL but only if it should throw an error. Fix later

@@ -99,9 +99,6 @@ ast_node_assignment <- R6::R6Class(
       operands <- self$get_tail_elements()
       stopifnot(length(operands) == 2L)
 
-      symbol <- operands[[1L]]$get_sexp()
-      stopifnot(is.name(symbol))
-
       # check if assignment is a QR decomposition
       rhs <- operands[[2L]]
       if ("ast_node_qr_init" %in% class(rhs)) {
@@ -115,7 +112,7 @@ ast_node_assignment <- R6::R6Class(
       }
       self$emit(
         type,
-        as.character(symbol),
+        operands[[1L]]$compile(),
         " = ",
         operands[[2L]]$compile(),
         ";"

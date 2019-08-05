@@ -151,6 +151,22 @@ test_that("access individual elements", {
     grepl("std::pow(x(1 - 1, 1 - 1), 2)", code, fixed = TRUE)
   )
 })
+
+test_that("set individual elements", {
+  code <- armacmp_compile(function(X) {
+    X2 <- X
+    X2[1] <- 5
+    X2[1, 2] <- 10
+    return(X2)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("X2(1 - 1) = 5", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("X2(1 - 1, 2 - 1) = 10", code, fixed = TRUE)
+  )
+})
+
 test_that("access individual elements", {
   code <- armacmp_compile(function(x) {
     i <- 0
