@@ -98,11 +98,12 @@ ast_node_assignment <- R6::R6Class(
     compile = function() {
       operands <- self$get_tail_elements()
       stopifnot(length(operands) == 2L)
+      lhs_compiled <- operands[[1L]]$compile()
 
       # check if assignment is a QR decomposition
       rhs <- operands[[2L]]
       if ("ast_node_qr_init" %in% class(rhs)) {
-        return(rhs$compile(as.character(symbol)))
+        return(rhs$compile(lhs_compiled))
       }
 
       type <- if (self$is_initial_assignment()) {
@@ -112,7 +113,7 @@ ast_node_assignment <- R6::R6Class(
       }
       self$emit(
         type,
-        operands[[1L]]$compile(),
+        lhs_compiled,
         " = ",
         operands[[2L]]$compile(),
         ";"
