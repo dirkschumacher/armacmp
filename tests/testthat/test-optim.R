@@ -52,3 +52,17 @@ test_that("L_BFGS works", {
   )
   expect_equal(as.numeric(result), beta, tolerance = 0.1)
 })
+
+test_that("rosenbrock works", {
+  rosenbrock <- arma_optim(
+    data = list(),
+    evaluate = function(x) {
+      return(100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2)
+    },
+    optimizer = optimizer_SA()
+  )
+
+  result <- rosenbrock(matrix(c(-23, 50), nrow = 1))
+  #optimal value at 1,1
+  expect_equal(abs(sum(result) - 2) < 0.2)
+})

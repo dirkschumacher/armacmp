@@ -109,6 +109,8 @@ The following operators are translated to their C++ counter-part.
 * `nrow`
 * `crossprod`
 * `det`
+* `[i, j]`
+* `[i]`
 
 ### Rest
 

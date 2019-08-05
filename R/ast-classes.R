@@ -329,11 +329,11 @@ ast_node_pow <- R6::R6Class(
         "arma::pow"
       }
       self$emit(
-        fun, "( ",
+        fun, "(",
         elements[[1L]]$compile(),
         ", ",
         elements[[2L]]$compile(),
-        " )"
+        ")"
       )
     }
   )
@@ -602,6 +602,29 @@ ast_node_seq_len <- R6::R6Class(
   )
 )
 
+ast_node_element_access <- R6::R6Class(
+  classname = "ast_node_element_access",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) %in% 2:3)
+      args <- self$get_tail_elements()[[2L]]$compile()
+      if (length(self$get_tail_elements()) == 3L) {
+        args <- c(args, self$get_tail_elements()[[3L]]$compile())
+      }
+      # counting starts at 0
+      args <- paste0(args, " - 1")
+      self$emit(
+        self$get_tail_elements()[[1L]]$compile(),
+        "(", paste0(args, collapse = ", "), ")"
+      )
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_norm <- R6::R6Class(
   classname = "ast_node_norm",
   inherit = ast_node,
@@ -682,6 +705,7 @@ ast_node_sum <- R6::R6Class(
 element_type_map <- new.env(parent = emptyenv())
 element_type_map[["<-"]] <- ast_node_assignment
 element_type_map[["{"]] <- ast_node_block
+element_type_map[["["]] <- ast_node_element_access
 element_type_map[["+"]] <- ast_node_plus
 element_type_map[["-"]] <- ast_node_minus
 element_type_map[["^"]] <- ast_node_pow

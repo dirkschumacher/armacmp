@@ -136,3 +136,18 @@ test_that("determinants work", {
     grepl("arma::det(X)", code, fixed = TRUE)
   )
 })
+
+test_that("access individual elements", {
+  code <- armacmp_compile(function(x) {
+    return(x[1, 2] - x[1]^2 - x[1, 1]^2)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("x(1 - 1, 2 - 1)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("std::pow(x(1 - 1), 2)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("std::pow(x(1 - 1, 1 - 1), 2)", code, fixed = TRUE)
+  )
+})
