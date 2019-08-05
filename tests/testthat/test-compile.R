@@ -62,18 +62,6 @@ test_that("solve accepts 1 and 2 arguments", {
   )
 })
 
-# test_that("namespaced functions", {
-#   code <- armacmp_compile(function(X, y = type_scalar_numeric()) {
-#     return(arma::sqrt(X) + std::pow(y, 2))
-#   }, "wat")$cpp_code
-#   expect_true(
-#     grepl("std::pow(y, 2)", code, fixed = TRUE)
-#   )
-#   expect_true(
-#     grepl("arma::sqrt(X)", code, fixed = TRUE)
-#   )
-# })
-
 test_that("arma element wise mult only when arma is used", {
   code <- armacmp_compile(function(x = type_scalar_numeric(), y = type_scalar_numeric()) {
     return(x * y, type = type_scalar_numeric())

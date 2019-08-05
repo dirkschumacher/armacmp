@@ -33,13 +33,8 @@ annotate_ast <- function(ast, symbol_bound_to_arma_type = function(x) TRUE) {
     }
 
     first_element <- current_sexp[[1L]]
-    is_namespaced_function <- is.call(first_element)
-    if (is_namespaced_function) {
-      # is namespaced function
-      first_element_chr <- deparse(first_element)
-    } else {
-      first_element_chr <- as.character(first_element)
-    }
+    first_element_chr <- as.character(first_element)
+
     current_node <- new_node_by_chr(first_element_chr)$new(sexp = current_sexp, head = first_element)
     current_node$set_scope(scope)
     current_node$set_parent(parent)
