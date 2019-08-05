@@ -151,3 +151,22 @@ test_that("access individual elements", {
     grepl("std::pow(x(1 - 1, 1 - 1), 2)", code, fixed = TRUE)
   )
 })
+test_that("access individual elements", {
+  code <- armacmp_compile(function(x) {
+    i <- 0
+    for (i in seq_len(10)) {
+      if (i < 5) {
+        next
+      }
+      if (i > 8) break
+      i <- i + 1
+    }
+    return(i, type = type_scalar_int())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("break;", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("continue;", code, fixed = TRUE)
+  )
+})

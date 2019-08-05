@@ -602,6 +602,28 @@ ast_node_seq_len <- R6::R6Class(
   )
 )
 
+ast_node_break <- R6::R6Class(
+  classname = "ast_node_break",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 0L)
+      self$emit("break;\n")
+    }
+  )
+)
+
+ast_node_next <- R6::R6Class(
+  classname = "ast_node_next",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 0L)
+      self$emit("continue;\n")
+    }
+  )
+)
+
 ast_node_element_access <- R6::R6Class(
   classname = "ast_node_element_access",
   inherit = ast_node,

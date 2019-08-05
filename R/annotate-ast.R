@@ -10,6 +10,13 @@ annotate_ast <- function(ast, symbol_bound_to_arma_type = function(x) TRUE) {
         }
       }
       class_type <- ast_node_terminal
+      if (is.call(current_sexp)) {
+        if (current_sexp == "next") {
+          class_type <- ast_node_next
+        } else if (current_sexp == "break") {
+          class_type <- ast_node_break
+        }
+      }
       if (is.name(current_sexp)) {
         class_type <- ast_node_name
       }
