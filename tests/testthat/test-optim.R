@@ -64,5 +64,5 @@ test_that("rosenbrock works", {
 
   result <- rosenbrock(matrix(c(-23, 50), nrow = 1))
   #optimal value at 1,1
-  expect_equal(abs(sum(result) - 2) < 0.2)
+  expect_equal(abs(sum(result) - 2) < 0.5)
 })

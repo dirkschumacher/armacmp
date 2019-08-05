@@ -23,7 +23,8 @@
 #' @export
 arma_optim <- function(data = list(), evaluate, gradient, optimizer = optimizer_SA()) {
   stopifnot(is.function(evaluate))
-  eval_fun_argname <- names(substitute(evaluate)[[2L]])
+  fun_args <- Filter(function(x) !is.null(x), as.list(args(evaluate)))
+  eval_fun_argname <- names(fun_args)
   stopifnot(length(eval_fun_argname) == 1L)
   eval_fun_code <- armacmp_compile_internal(evaluate, "Evaluate", overwrite_return = "double")
   gradient_fun_code <- NULL
