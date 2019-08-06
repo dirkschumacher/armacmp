@@ -81,7 +81,14 @@ ast_node_terminal <- R6::R6Class(
   inherit = ast_node,
   public = list(
     compile = function() {
-      as.character(self$get_head())
+      val <- self$get_head()
+      # val %% 1 == 0, TRUE if val is integer like otherwise FALSE
+      # see https://stackoverflow.com/a/3477158/2798441
+      if (is.numeric(val) && !is.integer(val) && val %% 1 == 0 ) {
+        paste0(val, ".0")
+      } else {
+        as.character(val)
+      }
     }
   )
 )
