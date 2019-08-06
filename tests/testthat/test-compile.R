@@ -174,3 +174,21 @@ test_that("access individual elements", {
     grepl("continue;", code, fixed = TRUE)
   )
 })
+
+test_that("proper double representation for integer like numerics", {
+  code <- armacmp_compile(function(x) {
+    y1 <- 2
+    y2 <- 2.1
+    y3 <- 2L
+    return(y)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("y1 = 2.0;", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("y2 = 2.1;", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("y3 = 2;", code, fixed = TRUE)
+  )
+})
