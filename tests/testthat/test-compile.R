@@ -130,13 +130,13 @@ test_that("access individual elements", {
     return(x[1, 2] - x[1]^2 - x[1, 1]^2)
   }, "wat")$cpp_code
   expect_true(
-    grepl("x(1 - 1, 2 - 1)", code, fixed = TRUE)
+    grepl("x(1.0 - 1, 2.0 - 1)", code, fixed = TRUE)
   )
   expect_true(
-    grepl("std::pow(x(1 - 1), 2)", code, fixed = TRUE)
+    grepl("std::pow(x(1.0 - 1), 2.0)", code, fixed = TRUE)
   )
   expect_true(
-    grepl("std::pow(x(1 - 1, 1 - 1), 2)", code, fixed = TRUE)
+    grepl("std::pow(x(1.0 - 1, 1.0 - 1), 2.0)", code, fixed = TRUE)
   )
 })
 
@@ -148,10 +148,10 @@ test_that("set individual elements", {
     return(X2)
   }, "wat")$cpp_code
   expect_true(
-    grepl("X2(1 - 1) = 5", code, fixed = TRUE)
+    grepl("X2(1.0 - 1) = 5.0", code, fixed = TRUE)
   )
   expect_true(
-    grepl("X2(1 - 1, 2 - 1) = 10", code, fixed = TRUE)
+    grepl("X2(1.0 - 1, 2.0 - 1) = 10.0", code, fixed = TRUE)
   )
 })
 

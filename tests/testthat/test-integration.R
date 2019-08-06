@@ -228,3 +228,15 @@ test_that("rep.int generates a colvec", {
     matrix(rep.int(1, 10), ncol = 1) + 10
   )
 })
+
+test_that("element access works with doubles", {
+  fun <- armacmp(function(X) {
+    X2 <- X
+    X2[2] <- X2[1] + 13
+    return(X2)
+  })
+  expect_equal(
+    fun(matrix(c(1, 2))),
+    matrix(c(1, 14))
+  )
+})
