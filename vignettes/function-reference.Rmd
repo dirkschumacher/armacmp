@@ -108,6 +108,7 @@ The following operators are translated to their C++ counter-part.
 * `ncol`
 * `nrow`
 * `crossprod`
+* `tcrossprod`
 * `det`
 * `[i, j]`
 * `[i]`
