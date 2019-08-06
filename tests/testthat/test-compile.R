@@ -192,7 +192,7 @@ test_that("proper double representation for integer like numerics", {
     grepl("y3 = 2;", code, fixed = TRUE)
   )
 })
-  
+
 test_that("tcrossprod is supported", {
   code <- armacmp_compile(function(x, y) {
     X <- tcrossprod(x)
@@ -204,5 +204,19 @@ test_that("tcrossprod is supported", {
   )
   expect_true(
     grepl("x * arma::trans(y)", code, fixed = TRUE)
+  )
+})
+
+test_that("element-wise multiplication only for arma types", {
+  code <- armacmp_compile(function(x, y) {
+    X <- x * 2
+    Y <- x * y
+    return(X)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("x * 2.0", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("x % y", code, fixed = TRUE)
   )
 })
