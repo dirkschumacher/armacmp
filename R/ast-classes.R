@@ -287,7 +287,9 @@ ast_node_mult <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      op <- if (elements[[1L]]$has_auto_cpp_type() &&
+      # only use armadillo element-wise multiplication
+      # if both operands are armadillo types
+      op <- if (elements[[1L]]$has_auto_cpp_type() ||
         elements[[2L]]$has_auto_cpp_type()) {
         "*"
       } else {
