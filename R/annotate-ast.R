@@ -25,7 +25,7 @@ annotate_ast <- function(ast) {
     if (is.function(current_sexp) || is_function_call) {
       current_sexp <- function_to_sexp(current_sexp)
     }
-    if (length(current_sexp) < 1L) {#empty element in pairlist
+    if (length(current_sexp) < 1L) { # empty element in pairlist
       return(ast_node_empty$new(current_sexp, current_sexp))
     }
     if (length(current_sexp) == 1L) {
@@ -58,7 +58,8 @@ annotate_ast <- function(ast) {
     first_element <- current_sexp[[1L]]
     first_element_chr <- as.character(first_element)
     current_node_class <- new_node_by_chr(first_element_chr,
-                                    is_call = is.call(current_sexp))
+      is_call = is.call(current_sexp)
+    )
     current_node <- current_node_class$new(sexp = current_sexp, head = first_element)
     current_node$set_scope(scope)
     current_node$set_parent(parent)

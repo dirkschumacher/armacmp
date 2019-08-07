@@ -42,8 +42,10 @@ armacmp_compile_internal <- function(fun, function_name, overwrite_return) {
   return_cpp_type <- if (!missing(overwrite_return)) {
     overwrite_return
   }
-  cpp_code <- annotated_ast$compile(fun_name = function_name,
-                                    overwrite_return = return_cpp_type)
+  cpp_code <- annotated_ast$compile(
+    fun_name = function_name,
+    overwrite_return = return_cpp_type
+  )
 
   # return_nodes <- annotated_ast$find_all_returns()
   # if (length(return_nodes) == 0L) {

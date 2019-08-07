@@ -78,10 +78,11 @@ ast_node <- R6::R6Class("ast_node",
 )
 
 error_msg_unkown_expr <- function(sexp) {
-  paste0("Sorry, but the expression:\n\n",
-      paste0(deparse(sexp), collapse = "\n"),
-      "\n\ncannot be translated into a C++ construct.\n",
-      "Not all R functions are supported."
+  paste0(
+    "Sorry, but the expression:\n\n",
+    paste0(deparse(sexp), collapse = "\n"),
+    "\n\ncannot be translated into a C++ construct.\n",
+    "Not all R functions are supported."
   )
 }
 
@@ -157,7 +158,9 @@ ast_node_function <- R6::R6Class(
       body <- self$get_function_body()
       is_block <- "ast_node_block" %in% class(body)
       if (!is_block) {
-        sexp <- bquote({.(body$get_sexp())})
+        sexp <- bquote({
+          .(body$get_sexp())
+        })
         new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
         new_block$set_tail_elements(list(body))
         new_block$set_scope(self$get_scope())
@@ -257,7 +260,7 @@ ast_node_terminal <- R6::R6Class(
       val <- self$get_head()
       # val %% 1 == 0, TRUE if val is integer like otherwise FALSE
       # see https://stackoverflow.com/a/3477158/2798441
-      if (is.numeric(val) && !is.integer(val) && val %% 1 == 0 ) {
+      if (is.numeric(val) && !is.integer(val) && val %% 1 == 0) {
         self$emit(val, ".0")
       } else {
         self$emit(as.character(val))
