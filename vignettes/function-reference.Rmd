@@ -179,3 +179,18 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
 })
 ```
 
+
+### Functions
+
+You can also define functions within your functions.
+
+```{r}
+fun <- armacmp(function(X) {
+  square <- function(y) {
+    return(y^2)
+  }
+  Y <- square(X)
+  return(Y)
+})
+fun(matrix(1:10))
+```

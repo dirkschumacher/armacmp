@@ -12,6 +12,9 @@ ast_node <- R6::R6Class("ast_node",
     set_scope = function(node) {
       private$scope <- node
     },
+    has_scope = function() {
+      !is.null(self$get_scope())
+    },
     set_parent = function(node) {
       private$parent <- node
     },
@@ -43,15 +46,10 @@ ast_node <- R6::R6Class("ast_node",
       do.call(paste0, list(...))
     },
     compile = function() {
-      stop("Sorry, but the expression:\n\n",
-        paste0(deparse(self$get_sexp()), collapse = "\n"),
-        "\n\ncannot be translated into a C++ construct.\n",
-        "Not all R functions are supported.",
-        call. = FALSE
-      )
+      stop(error_msg_unkown_expr(self$get_sexp()), call. = FALSE)
     },
     find_all_returns = function() {
-      private$find_nodes("ast_node_return")
+      private$find_nodes("ast_node_return", stop_at = "ast_node_function")
     },
     find_all_names = function() {
       private$find_nodes("ast_node_name")
@@ -64,14 +62,192 @@ ast_node <- R6::R6Class("ast_node",
     scope = NULL,
     parent = NULL,
     cpp_type = "arma::mat",
-    find_nodes = function(node_type) {
+    find_nodes = function(node_type, stop_at = NULL) {
       find_elements_rec <- function(node) {
+        if (!is.null(stop_at) && stop_at %in% class(node)) {
+          return(list())
+        }
         if (node_type %in% class(node)) {
           return(list(node))
         }
         lapply(node$get_tail_elements(), find_elements_rec)
       }
       unlist(find_elements_rec(self))
+    }
+  )
+)
+
+error_msg_unkown_expr <- function(sexp) {
+  paste0(
+    "Sorry, but the expression:\n\n",
+    paste0(deparse(sexp), collapse = "\n"),
+    "\n\ncannot be translated into a C++ construct.\n",
+    "Not all R functions are supported."
+  )
+}
+
+ast_node_arma_pairlist <- R6::R6Class(
+  classname = "ast_node_arma_pairlist",
+  inherit = ast_node,
+  public = list(
+    compile = function(fun_name = NULL, overwrite_return_type = NULL) {
+      fun_args <- self$get_parameter_types()
+      input_params <- generate_cpp_input_parameters_code(fun_args)
+      self$emit(
+        "(", paste0(input_params, collapse = ", "), ")"
+      )
+    },
+    get_parameter_types = function() {
+      fun_args <- as.list(self$get_sexp()[-1])
+      fun_args <- Filter(function(x) !is.null(x), fun_args)
+      lapply(fun_args, function(x) {
+        if (is.call(x)) {
+          eval(x) # leaks internal
+        } else {
+          # we overwrite by matrix type ... YOLO
+          type_matrix()
+        }
+      })
+    },
+    # needs to be done ones
+    update_parameter_types = function() {
+      tail <- self$get_tail_elements()
+      var_names <- self$get_parameter_names()
+      for (i in seq_along(tail)) {
+        param <- tail[[i]]
+        var_name <- as.name(var_names[[i]])
+        stopifnot(any(c("ast_node_function_call", "ast_node_terminal") %in% class(param)))
+        x <- param$get_sexp()
+        type <- if (!missing(x) && is.call(x)) {
+          eval(x) # leaks internal
+        } else {
+          # we overwrite by matrix type ... YOLO
+          type_matrix()
+        }
+        new_param <- ast_node_name$new(var_name, var_name)
+        new_param$set_cpp_type(type$cpp_type)
+        tail[[i]] <- new_param
+      }
+      self$set_tail_elements(tail)
+    },
+    get_parameter_names = function() {
+      names(self$get_sexp()[-1L])
+    }
+  )
+)
+
+ast_node_function <- R6::R6Class(
+  classname = "ast_node_function",
+  inherit = ast_node,
+  public = list(
+    register_input_variables_in_child_scope = function() {
+      arguments <- self$get_function_parameters()
+      parameters <- arguments$get_tail_elements()
+      body <- self$get_function_body()
+      stopifnot("ast_node_block" %in% class(body))
+      for (i in seq_along(parameters)) {
+        param <- parameters[[i]]
+        stopifnot("ast_node_name" %in% class(param))
+        dummy_value <- ast_node_dummy$new()
+        dummy_value$set_cpp_type(param$get_cpp_type())
+        # TODO: add method `get_name`
+        body$register_new_name(as.character(param$get_head()), dummy_value)
+      }
+    },
+    ensure_has_block = function() {
+      body <- self$get_function_body()
+      is_block <- "ast_node_block" %in% class(body)
+      if (!is_block) {
+        sexp <- bquote({
+          .(body$get_sexp())
+        })
+        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
+        new_block$set_tail_elements(list(body))
+        new_block$set_scope(self$get_scope())
+        new_block$set_parent(self)
+        self$set_tail_elements(
+          list(self$get_tail_elements()[[1L]], new_block)
+        )
+      }
+    },
+    get_function_body = function() {
+      self$get_tail_elements()[[2L]]
+    },
+    get_function_parameters = function() {
+      self$get_tail_elements()[[1L]]
+    },
+    update_return_type = function() {
+      body <- self$get_function_body()
+      return_types <- body$find_all_returns()
+      return_types <- lapply(return_types, function(x) x$get_cpp_type())
+      stopifnot(length(unique(return_types)) == 1L)
+      return_type <- return_types[[1L]]
+      self$set_cpp_type(return_type)
+    },
+    compile = function(fun_name = NULL, overwrite_return_type = NULL) {
+      stopifnot(length(self$get_tail_elements()) == 2L)
+      arguments <- self$get_function_parameters()
+      body <- self$get_function_body()
+      is_lambda <- is.null(fun_name)
+      return_type <- if (!is.null(overwrite_return_type)) {
+        overwrite_return_type
+      } else {
+        self$get_cpp_type()
+      }
+      if (is_lambda) {
+        function_prefix_code <- "[&]"
+        function_suffix_code <- if (grepl("^arma", return_type)) {
+          paste0(" -> ", return_type)
+        } else {
+          ""
+        }
+      } else {
+        function_prefix_code <- paste0(return_type, " ", fun_name)
+        function_suffix_code <- ""
+      }
+      self$emit(
+        function_prefix_code,
+        arguments$compile(),
+        function_suffix_code,
+        "\n",
+        body$compile()
+      )
+    }
+  )
+)
+
+ast_node_function_call <- R6::R6Class(
+  classname = "ast_node_function_call",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      val <- self$get_sexp()[[1L]]
+      if (self$has_scope()) {
+        if (!self$get_scope()$is_name_defined(val)) {
+          # this is an unknown function call
+          stop(error_msg_unkown_expr(self$get_sexp()), call. = FALSE)
+        }
+      }
+      arguments <- vapply(self$get_tail_elements(), function(x) {
+        x$compile()
+      }, character(1L))
+      self$emit(
+        as.character(val),
+        "(",
+        paste0(arguments, collapse = ", "),
+        ")"
+      )
+    },
+    update_return_type = function() {
+      # the type is the type of the function
+      if (self$has_scope() && is.call(self$get_sexp())) {
+        scope <- self$get_scope()
+        fun_name <- self$get_sexp()[[1L]]
+        if (scope$is_name_defined(fun_name)) {
+          fun <- scope$get_value_node_for_name(fun_name)
+          self$set_cpp_type(auto_or_arma_type(fun$get_cpp_type()))
+        }
+      }
     }
   )
 )
@@ -84,10 +260,10 @@ ast_node_terminal <- R6::R6Class(
       val <- self$get_head()
       # val %% 1 == 0, TRUE if val is integer like otherwise FALSE
       # see https://stackoverflow.com/a/3477158/2798441
-      if (is.numeric(val) && !is.integer(val) && val %% 1 == 0 ) {
-        paste0(val, ".0")
+      if (is.numeric(val) && !is.integer(val) && val %% 1 == 0) {
+        self$emit(val, ".0")
       } else {
-        as.character(val)
+        self$emit(as.character(val))
       }
     }
   )
@@ -95,7 +271,35 @@ ast_node_terminal <- R6::R6Class(
 
 ast_node_name <- R6::R6Class(
   classname = "ast_node_name",
+  inherit = ast_node_terminal,
+  public = list(
+    get_cpp_type = function() {
+      scope <- self$get_scope()
+      if (self$has_scope() && scope$is_name_defined(self$get_head())) {
+        value_node <- scope$get_value_node_for_name(as.character(self$get_head()))
+        if (!"ast_node_name" %in% class(value_node)) {
+          return(auto_or_arma_type(value_node$get_cpp_type()))
+        }
+      }
+      private$cpp_type
+    }
+  )
+)
+
+ast_node_empty <- R6::R6Class(
+  classname = "ast_node_empty",
   inherit = ast_node_terminal
+)
+
+# a dummy node is just used to store a type
+ast_node_dummy <- R6::R6Class(
+  classname = "ast_node_dummy",
+  inherit = ast_node_terminal,
+  public = list(
+    initialize = function() {
+      super$initialize(quote(`dummy`), quote(`dummy`))
+    }
+  )
 )
 
 ast_node_assignment <- R6::R6Class(
@@ -118,6 +322,11 @@ ast_node_assignment <- R6::R6Class(
       } else {
         ""
       }
+
+      # lambda
+      if ("ast_node_function" %in% class(rhs)) {
+        type <- paste0("auto", " ")
+      }
       self$emit(
         type,
         lhs_compiled,
@@ -125,6 +334,19 @@ ast_node_assignment <- R6::R6Class(
         operands[[2L]]$compile(),
         ";"
       )
+    },
+    check_and_register_assignment = function() {
+      tail_elements <- self$get_tail_elements()
+      stopifnot(length(tail_elements) == 2L)
+      tail_elements[[1L]]$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
+      self$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
+
+      if (self$has_scope()) {
+        if (!self$get_scope()$is_name_defined(tail_elements[[1L]]$get_sexp())) {
+          self$set_initial_assignment(TRUE)
+        }
+        self$get_scope()$register_new_name(as.character(tail_elements[[1L]]$get_head()), tail_elements[[2L]])
+      }
     },
     is_initial_assignment = function() {
       private$inital_assignment
@@ -142,13 +364,16 @@ ast_node_return <- R6::R6Class(
   classname = "ast_node_return",
   inherit = ast_node,
   public = list(
-    compile = function() {
+    update_return_type = function() {
       operands <- self$get_tail_elements()
-      stopifnot(length(operands) %in% c(1L, 2L))
       if (length(operands) == 2L) {
         type_spec <- eval(operands[[2]]$get_sexp())
         self$set_cpp_type(type_spec$cpp_type)
       }
+    },
+    compile = function() {
+      operands <- self$get_tail_elements()
+      stopifnot(length(operands) %in% c(1L, 2L))
       self$emit(
         "return ",
         operands[[1L]]$compile(),
@@ -195,7 +420,7 @@ ast_node_block <- R6::R6Class(
   public = list(
     initialize = function(...) {
       super$initialize(...)
-      private$name_store <- new.env(parent = emptyenv())
+      private$value_map <- new.env(parent = emptyenv())
     },
     compile = function() {
       self$emit(
@@ -204,29 +429,38 @@ ast_node_block <- R6::R6Class(
         "\n}\n"
       )
     },
-    register_new_name = function(node) {
-      # we assume it is always a name
-      stopifnot(is.name(node$get_sexp()))
+    register_new_name = function(name_chr, value_node) {
       # no reassignments, first one counts
-      if (is.null(private$name_store[[as.character(node$get_sexp())]])) {
-        private$name_store[[as.character(node$get_sexp())]] <- node
+      if (is.null(private$name_store[[name_chr]])) {
+        private$value_map[[name_chr]] <- value_node
       }
     },
     is_name_defined = function(name) {
-      !is.null(private$name_store[[as.character(name)]]) ||
+      if (nchar(name) == 0L) {
+        return(FALSE)
+      }
+      !is.null(private$value_map[[as.character(name)]]) ||
         (!is.null(self$get_scope()) && self$get_scope()$is_name_defined(name))
     },
-    get_node_by_name = function(name) {
-      el <- private$name_store[[as.character(name)]]
-      if (is.null(el)) {
-        self$get_scope()$get_node_by_name(name)
+    get_value_node_for_name = function(name) {
+      el <- private$value_map[[as.character(name)]]
+      if (is.null(el) && self$has_scope()) {
+        self$get_scope()$get_value_node_for_name(name)
       } else {
         el
       }
+    },
+    find_all_parent_names = function(name) {
+      unique(c(
+        names(private$name_store),
+        if (self$has_scope()) {
+          self$get_scope()$find_all_parent_names()
+        }
+      ))
     }
   ),
   private = list(
-    name_store = NULL
+    value_map = NULL
   )
 )
 
@@ -753,6 +987,8 @@ ast_node_sum <- R6::R6Class(
 element_type_map <- new.env(parent = emptyenv())
 element_type_map[["<-"]] <- ast_node_assignment
 element_type_map[["{"]] <- ast_node_block
+element_type_map[["function"]] <- ast_node_function
+element_type_map[["arma_pairlist"]] <- ast_node_arma_pairlist
 element_type_map[["["]] <- ast_node_element_access
 element_type_map[["+"]] <- ast_node_plus
 element_type_map[["-"]] <- ast_node_minus
@@ -826,16 +1062,28 @@ unary_function_mapping$atanh <- "arma::atanh"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$cumprod <- "arma::cumprod"
 
-new_node_by_chr <- function(head_chr) {
+new_node_by_chr <- function(head_chr, is_call = FALSE) {
   if (!is.null(element_type_map[[head_chr]])) {
     return(element_type_map[[head_chr]])
   }
   if (!is.null(unary_function_mapping[[head_chr]])) {
     return(make_generic_unary_function_class(head_chr, unary_function_mapping[[head_chr]]))
   }
+  if (is_call) {
+    return(ast_node_function_call)
+  }
   ast_node
 }
 
 random_var_name <- function() {
   paste0("__armacmp_", substr(digest::sha1(stats::runif(1)), 1, 6))
+}
+
+# our type system
+auto_or_arma_type <- function(type) {
+  if (grepl("^arma", type)) {
+    type
+  } else {
+    "auto"
+  }
 }

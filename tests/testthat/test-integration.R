@@ -240,3 +240,18 @@ test_that("element access works with doubles", {
     matrix(c(1, 14))
   )
 })
+
+test_that("lambdas work", {
+  expect_silent(
+    armacmp(function(X, y = type_scalar_numeric(), z = type_colvec()) {
+      log_fun <- function(el, e = type_scalar_numeric()) {
+        return(log(el)^log(e))
+      }
+      mod <- function(cv) {
+        offset <- function(o) return(o + 10, type = type_scalar_numeric())
+        return(X + cv + offset(z))
+      }
+      return(mod(z) + log_fun(X, y))
+    })
+  )
+})
