@@ -30,5 +30,4 @@ optimize <- arma_optim(
 
 # should be roughly c(0, 0, 0)
 result <- optimize(matrix(c(1, -1, 1), ncol = 1))
-
 }
