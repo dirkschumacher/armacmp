@@ -220,3 +220,74 @@ test_that("element-wise multiplication only for arma types", {
     grepl("x % y", code, fixed = TRUE)
   )
 })
+
+test_that("function can have 0 arguments", {
+  expect_silent(
+    armacmp_compile(function() {
+      return(5)
+    }, "wat")
+  )
+  fun <- function() {
+    return(5)
+  }
+  expect_silent(
+    armacmp_compile(fun, "wat")
+  )
+})
+
+test_that("test lambdas", {
+  code <- armacmp_compile(function(X) {
+    square <- function(y) {
+      return(y^2)
+    }
+    Y <- square(X)
+    return(Y)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("auto square = [&](const arma::mat& y) -> arma::mat", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat Y = square(X)", code, fixed = TRUE)
+  )
+})
+
+test_that("type decution works with lambdas", {
+  code <- armacmp_compile(function(x = type_scalar_numeric(), X) {
+    fun <- function(y = type_scalar_numeric()) {
+      x2 <- x + y
+      return(x2 + 10, type = type_scalar_numeric())
+    }
+    fun2 <- function() {
+      return(X + 1)
+    }
+    fun3 <- function() return(X + 1)
+    x3 <- fun(20)
+    x4 <- fun2()
+    x5 <- fun3()
+    return(fun(50))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("auto x2 = x + y", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat x5", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat x4", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto x3", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto fun3 = [&]() -> arma::mat", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto fun2 = [&]() -> arma::mat", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto fun = [&](double y)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto x3 = fun(20.0)", code, fixed = TRUE)
+  )
+})
