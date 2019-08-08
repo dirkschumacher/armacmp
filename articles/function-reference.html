@@ -55,6 +55,9 @@
 <li>
       <a href="../articles/function-reference.html">Function reference</a>
     </li>
+    <li>
+      <a href="../articles/mathematical-optimization.html">Mathematical optimization</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -194,6 +197,7 @@
 <li><code>det</code></li>
 <li><code>[i, j]</code></li>
 <li><code>[i]</code></li>
+<li><code>length</code></li>
 </ul>
 </div>
 <div id="rest" class="section level3">
@@ -218,21 +222,23 @@
 <div id="control-flow" class="section level2">
 <h2 class="hasAnchor">
 <a href="#control-flow" class="anchor"></a>Control Flow</h2>
-<p>Currently if/else and for loops are supported.</p>
+<p>Currently if/else, for and while loops are supported.</p>
 <div id="ifelse" class="section level3">
 <h3 class="hasAnchor">
 <a href="#ifelse" class="anchor"></a>if/else</h3>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="co"># infers that test needs to be bool (auto)</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="cf">if</span> (test) {</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X)</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">  }</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">})</a></code></pre></div>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  X_new &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="cf">if</span> (test) {</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">  }</a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13">})</a></code></pre></div>
 <p>Just make sure all return statements return the same type.</p>
 <p>Also <code>if/else</code> cannot be used as an expression:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># this is not possible</span></a>

@@ -3,4 +3,5 @@ pkgdown: 1.3.0
 pkgdown_sha: ~
 articles:
   function-reference: function-reference.html
+  mathematical-optimization: mathematical-optimization.html
 
