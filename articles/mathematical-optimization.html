@@ -90,9 +90,6 @@
 
     
     
-<div id="mathematical-optimization" class="section level1">
-<h1 class="hasAnchor">
-<a href="#mathematical-optimization" class="anchor"></a>Mathematical optimization</h1>
 <p>The package also supports optimization of functions using <code>RcppEnsmallen</code>. Find out more at <a href="https://ensmallen.org/">ensmallen.org</a>. All code is compiled to C++. During the optimization there is no context switch back to R.</p>
 <div id="arbitrary-function" class="section level2">
 <h2 class="hasAnchor">
@@ -110,9 +107,9 @@
 <a class="sourceLine" id="cb1-10" data-line-number="10"><span class="co"># should be roughly 0</span></a>
 <a class="sourceLine" id="cb1-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/optimize">optimize</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</a>
 <a class="sourceLine" id="cb1-12" data-line-number="12"><span class="co">#&gt;               [,1]</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt; [1,] -0.0002180547</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt; [2,]  0.0001174675</span></a>
-<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; [3,] -0.0004664467</span></a></code></pre></div>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co">#&gt; [1,] -0.0006434447</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="co">#&gt; [2,] -0.0004658922</span></a>
+<a class="sourceLine" id="cb1-15" data-line-number="15"><span class="co">#&gt; [3,]  0.0002232519</span></a></code></pre></div>
 <div id="optimizers" class="section level3">
 <h3 class="hasAnchor">
 <a href="#optimizers" class="anchor"></a>Optimizers:</h3>
@@ -155,11 +152,11 @@
 <a class="sourceLine" id="cb2-24" data-line-number="24">  <span class="dt">beta =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(p), <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb2-25" data-line-number="25">)</a>
 <a class="sourceLine" id="cb2-26" data-line-number="26"><span class="co">#&gt;           [,1]</span></a>
-<a class="sourceLine" id="cb2-27" data-line-number="27"><span class="co">#&gt; [1,] -2.001739</span></a>
-<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="co">#&gt; [2,]  1.499638</span></a>
-<a class="sourceLine" id="cb2-29" data-line-number="29"><span class="co">#&gt; [3,]  3.000783</span></a>
-<a class="sourceLine" id="cb2-30" data-line-number="30"><span class="co">#&gt; [4,]  8.196593</span></a>
-<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="co">#&gt; [5,]  6.595790</span></a></code></pre></div>
+<a class="sourceLine" id="cb2-27" data-line-number="27"><span class="co">#&gt; [1,] -2.002651</span></a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="co">#&gt; [2,]  1.495918</span></a>
+<a class="sourceLine" id="cb2-29" data-line-number="29"><span class="co">#&gt; [3,]  2.999705</span></a>
+<a class="sourceLine" id="cb2-30" data-line-number="30"><span class="co">#&gt; [4,]  8.200636</span></a>
+<a class="sourceLine" id="cb2-31" data-line-number="31"><span class="co">#&gt; [5,]  6.600921</span></a></code></pre></div>
 <div id="optimizers-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#optimizers-1" class="anchor"></a>Optimizers:</h3>
@@ -172,7 +169,6 @@
 </ul>
 </div>
 </div>
-</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -180,12 +176,8 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li>
-<a href="#mathematical-optimization">Mathematical optimization</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#arbitrary-function">Arbitrary function</a></li>
       <li><a href="#differentiable-functions">Differentiable functions</a></li>
-      </ul>
-</li>
       </ul>
 </div>
       </div>

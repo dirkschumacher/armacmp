@@ -90,18 +90,14 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(armacmp)</a></code></pre></div>
-<div id="function-reference" class="section level1">
-<h1 class="hasAnchor">
-<a href="#function-reference" class="anchor"></a>Function reference</h1>
 <p>This documents describes all language elements that can be compiled to Armadillo flavored C++ code.</p>
 <div id="function-signature" class="section level2">
 <h2 class="hasAnchor">
 <a href="#function-signature" class="anchor"></a>Function signature</h2>
 <p><code>armacmp</code> always compiles functions. Every function needs to have a <code>return</code> statement with an optional type argument.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())) {</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">}</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())) {</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">}</a></code></pre></div>
 <p>You can define your inputs using the standard function syntax. By default paramters are of type <code>type_matrix</code>. But they can have other types such as:</p>
 <ul>
 <li>
@@ -122,11 +118,11 @@
 <h3 class="hasAnchor">
 <a href="#assignments" class="anchor"></a>Assignments</h3>
 <p>Example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">  X2 &lt;-<span class="st"> </span>X <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">  X2 &lt;-<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X2)</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">})</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">  X2 &lt;-<span class="st"> </span>X <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">  X2 &lt;-<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X2)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">})</a></code></pre></div>
 </div>
 <div id="multiplication" class="section level3">
 <h3 class="hasAnchor">
@@ -226,75 +222,74 @@
 <div id="ifelse" class="section level3">
 <h3 class="hasAnchor">
 <a href="#ifelse" class="anchor"></a>if/else</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="co"># infers that test needs to be bool (auto)</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  X_new &lt;-<span class="st"> </span>X</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="cf">if</span> (test) {</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">  }</a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13">})</a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="co"># infers that test needs to be bool (auto)</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  X_new &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="cf">if</span> (test) {</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">  }</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">})</a></code></pre></div>
 <p>Just make sure all return statements return the same type.</p>
 <p>Also <code>if/else</code> cannot be used as an expression:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># this is not possible</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="cf">if</span> (y) <span class="dv">1</span> <span class="cf">else</span> <span class="dv">2</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># this is not possible</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="cf">if</span> (y) <span class="dv">1</span> <span class="cf">else</span> <span class="dv">2</span></a></code></pre></div>
 </div>
 <div id="for-loops" class="section level3">
 <h3 class="hasAnchor">
 <a href="#for-loops" class="anchor"></a>For loops</h3>
 <p>For loops are supported:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># currently only seq_len is available to create sequences of ints</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(n)</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="cf">for</span> (i <span class="cf">in</span> x) {</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  ...</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># currently only seq_len is available to create sequences of ints</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(n)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="cf">for</span> (i <span class="cf">in</span> x) {</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  ...</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">}</a></code></pre></div>
 <p>Example:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
-<a class="sourceLine" id="cb7-6" data-line-number="6">  }</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
-<a class="sourceLine" id="cb7-8" data-line-number="8">})</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">  }</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">})</a></code></pre></div>
 </div>
 <div id="while-loops" class="section level3">
 <h3 class="hasAnchor">
 <a href="#while-loops" class="anchor"></a>While loops</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="cf">while</span> (x <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">  x &lt;-<span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="cf">while</span> (x <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">  x &lt;-<span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">}</a></code></pre></div>
 </div>
 <div id="functions-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#functions-1" class="anchor"></a>Functions</h3>
 <p>You can also define functions within your functions.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">  }</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">  Y &lt;-<span class="st"> </span><span class="kw">square</span>(X)</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(Y)</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7">})</a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt;       [,1]</span></a>
-<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt;  [1,]    1</span></a>
-<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt;  [2,]    4</span></a>
-<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt;  [3,]    9</span></a>
-<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt;  [4,]   16</span></a>
-<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;  [5,]   25</span></a>
-<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;  [6,]   36</span></a>
-<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt;  [7,]   49</span></a>
-<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt;  [8,]   64</span></a>
-<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt;  [9,]   81</span></a>
-<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt; [10,]  100</span></a></code></pre></div>
-</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">  }</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">  Y &lt;-<span class="st"> </span><span class="kw">square</span>(X)</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(Y)</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">})</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt;       [,1]</span></a>
+<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt;  [1,]    1</span></a>
+<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt;  [2,]    4</span></a>
+<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt;  [3,]    9</span></a>
+<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co">#&gt;  [4,]   16</span></a>
+<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co">#&gt;  [5,]   25</span></a>
+<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="co">#&gt;  [6,]   36</span></a>
+<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="co">#&gt;  [7,]   49</span></a>
+<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co">#&gt;  [8,]   64</span></a>
+<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co">#&gt;  [9,]   81</span></a>
+<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co">#&gt; [10,]  100</span></a></code></pre></div>
 </div>
 </div>
   </div>
@@ -304,14 +299,10 @@
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li>
-<a href="#function-reference">Function reference</a><ul class="nav nav-pills nav-stacked">
 <li><a href="#function-signature">Function signature</a></li>
       <li><a href="#operators">Operators</a></li>
       <li><a href="#functions">Functions</a></li>
       <li><a href="#control-flow">Control Flow</a></li>
-      </ul>
-</li>
       </ul>
 </div>
       </div>
