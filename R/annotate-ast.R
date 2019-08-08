@@ -83,7 +83,8 @@ annotate_ast <- function(ast) {
 
     is_for_loop <- "ast_node_for" %in% class(current_node)
     is_while_loop <- "ast_node_while" %in% class(current_node)
-    if (is_for_loop || is_while_loop) {
+    is_if <- "ast_node_if" %in% class(current_node)
+    if (is_for_loop || is_while_loop || is_if) {
       current_node$ensure_has_block()
     }
 

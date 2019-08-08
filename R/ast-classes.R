@@ -67,6 +67,9 @@ ast_node <- R6::R6Class("ast_node",
         })
         new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
         new_block$set_tail_elements(list(body))
+        for (el in tail_elements) {
+          el$set_parent(new_block)
+        }
         new_block$set_scope(self$get_scope())
         new_block$set_parent(self)
         tail_elements[[index_el_to_be_wrapped]] <- new_block
@@ -343,6 +346,13 @@ ast_node_assignment <- R6::R6Class(
       if ("ast_node_function" %in% class(rhs)) {
         type <- paste0("auto", " ")
       }
+
+      # TODO: modifies the AST
+      # Needs to be mangaged better
+      private$register_assignment()
+      deduce_types_rec(self$get_scope())
+
+      # something wrong here
       self$emit(
         type,
         lhs_compiled,
@@ -356,23 +366,31 @@ ast_node_assignment <- R6::R6Class(
       stopifnot(length(tail_elements) == 2L)
       tail_elements[[1L]]$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
       self$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
-
-      if (self$has_scope()) {
-        if (!self$get_scope()$is_name_defined(tail_elements[[1L]]$get_sexp())) {
-          self$set_initial_assignment(TRUE)
-        }
-        self$get_scope()$register_new_name(as.character(tail_elements[[1L]]$get_head()), tail_elements[[2L]])
-      }
     },
     is_initial_assignment = function() {
-      private$inital_assignment
-    },
-    set_initial_assignment = function(val) {
-      private$inital_assignment <- val
+      var_name <- paste0(deparse(self$get_tail_elements()[[1L]]$get_sexp()), collapse = "")
+      if (self$has_scope()) {
+        if (self$get_scope()$is_name_defined(var_name)) {
+          return(FALSE)
+        }
+        if (self$get_scope()$has_scope()) {
+          # maybe it was previously already defined
+          already_defined <- self$get_scope()$get_scope()$is_name_defined(var_name)
+          if (already_defined) {
+            return(FALSE)
+          }
+        }
+      }
+      TRUE
     }
   ),
   private = list(
-    inital_assignment = FALSE
+    register_assignment = function() {
+      if (self$has_scope()) {
+        var_name <- paste0(deparse(self$get_tail_elements()[[1L]]$get_sexp()), collapse = "")
+        self$get_scope()$register_new_name(var_name, self$get_tail_elements()[[2L]])
+      }
+    }
   )
 )
 
@@ -447,7 +465,8 @@ ast_node_block <- R6::R6Class(
     },
     register_new_name = function(name_chr, value_node) {
       # no reassignments, first one counts
-      if (is.null(private$name_store[[name_chr]])) {
+      name_still_free <- !self$has_scope() || !self$get_scope()$is_name_defined(name_chr)
+      if (is.null(private$value_map[[name_chr]]) && name_still_free) {
         private$value_map[[name_chr]] <- value_node
       }
     },
@@ -480,6 +499,24 @@ ast_node_block <- R6::R6Class(
   )
 )
 
+
+
+ast_node_length <- R6::R6Class(
+  classname = "ast_node_length",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      self$emit(
+        self$get_tail_elements()[[1L]]$compile(), ".n_elem"
+      )
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_ncol <- R6::R6Class(
   classname = "ast_node_ncol",
   inherit = ast_node,
@@ -491,7 +528,7 @@ ast_node_ncol <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "arma::mat"
+      "auto"
     }
   )
 )
@@ -507,7 +544,7 @@ ast_node_nrow <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "arma::mat"
+      "auto"
     }
   )
 )
@@ -526,6 +563,9 @@ ast_node_if <- R6::R6Class(
           paste0(" else ", elements[[3L]]$compile())
         }
       )
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(2L)
     }
   )
 )
@@ -1055,6 +1095,7 @@ element_type_map[["solve"]] <- ast_node_solve
 element_type_map[["sum"]] <- ast_node_sum
 element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
+element_type_map[["length"]] <- ast_node_length
 element_type_map[["seq_len"]] <- ast_node_seq_len
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
@@ -1089,6 +1130,8 @@ unary_function_mapping$chol <- "arma::chol"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$diag <- "arma::diagmat"
 unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
+unary_function_mapping$floor <- multi_dispatch_fun(arma = "arma::floor", std = "std::floor")
+unary_function_mapping$ceil <- multi_dispatch_fun(arma = "arma::ceil", std = "std::ceil")
 unary_function_mapping$sort <- "arma::sort"
 unary_function_mapping$unique <- "arma::unique"
 unary_function_mapping$pnorm <- "arma::normcdf"

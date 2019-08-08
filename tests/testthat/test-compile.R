@@ -351,3 +351,25 @@ test_that("lambdas are mutable by default and do not need to have a return", {
     grepl("fun();", code, fixed = TRUE)
   )
 })
+
+
+test_that("lambdas are mutable by default and do not need to have a return", {
+  code <- armacmp_compile(function() {
+    fun <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
+      i <- lo
+      j <- hi
+      while (0 == 0) {
+        i <- floor(lo/2)
+        lo <- j
+      }
+      i <- lo
+    }
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("\ni = std::floor(lo / 2.0);", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto i = lo;", code, fixed = TRUE)
+  )
+})
