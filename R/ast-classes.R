@@ -18,6 +18,9 @@ ast_node <- R6::R6Class("ast_node",
     set_parent = function(node) {
       private$parent <- node
     },
+    get_parent = function() {
+      private$parent
+    },
     get_head = function() {
       private$head
     },
@@ -183,8 +186,12 @@ ast_node_function <- R6::R6Class(
       body <- self$get_function_body()
       return_types <- body$find_all_returns()
       return_types <- lapply(return_types, function(x) x$get_cpp_type())
-      stopifnot(length(unique(return_types)) == 1L)
-      return_type <- return_types[[1L]]
+      return_type <- if (length(return_types) == 0L) {
+        "void"
+      } else {
+        stopifnot(length(unique(return_types)) == 1L)
+        return_types[[1L]]
+      }
       self$set_cpp_type(return_type)
     },
     compile = function(fun_name = NULL, overwrite_return_type = NULL) {
@@ -200,9 +207,9 @@ ast_node_function <- R6::R6Class(
       if (is_lambda) {
         function_prefix_code <- "[&]"
         function_suffix_code <- if (grepl("^arma", return_type)) {
-          paste0(" -> ", return_type)
+          paste0(" mutable -> ", return_type)
         } else {
-          ""
+          " mutable"
         }
       } else {
         function_prefix_code <- paste0(return_type, " ", fun_name)
@@ -234,11 +241,17 @@ ast_node_function_call <- R6::R6Class(
       arguments <- vapply(self$get_tail_elements(), function(x) {
         x$compile()
       }, character(1L))
+      suffix <- if ("ast_node_block" %in% class(self$get_parent())) {
+        ";\n"
+      } else {
+        ""
+      }
       self$emit(
         as.character(val),
         "(",
         paste0(arguments, collapse = ", "),
-        ")"
+        ")",
+        suffix
       )
     },
     update_return_type = function() {

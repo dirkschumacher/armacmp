@@ -244,7 +244,7 @@ test_that("test lambdas", {
     return(Y)
   }, "wat")$cpp_code
   expect_true(
-    grepl("auto square = [&](const arma::mat& y) -> arma::mat", code, fixed = TRUE)
+    grepl("auto square = [&](const arma::mat& y) mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
     grepl("arma::mat Y = square(X)", code, fixed = TRUE)
@@ -279,10 +279,10 @@ test_that("type decution works with lambdas", {
     grepl("auto x3", code, fixed = TRUE)
   )
   expect_true(
-    grepl("auto fun3 = [&]() -> arma::mat", code, fixed = TRUE)
+    grepl("auto fun3 = [&]() mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
-    grepl("auto fun2 = [&]() -> arma::mat", code, fixed = TRUE)
+    grepl("auto fun2 = [&]() mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
     grepl("auto fun = [&](double y)", code, fixed = TRUE)
@@ -332,5 +332,22 @@ test_that("while loops are supported", {
   )
   expect_true(
     grepl("while (x < 10.0)\n{", code, fixed = TRUE)
+  )
+})
+
+test_that("lambdas are mutable by default and do not need to have a return", {
+  code <- armacmp_compile(function() {
+    x <- 1
+    fun <- function(y = type_scalar_numeric()) {
+      x <- x + y
+    }
+    fun()
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("mutable", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("fun();", code, fixed = TRUE)
   )
 })
