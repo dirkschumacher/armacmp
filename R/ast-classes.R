@@ -18,6 +18,9 @@ ast_node <- R6::R6Class("ast_node",
     set_parent = function(node) {
       private$parent <- node
     },
+    get_parent = function() {
+      private$parent
+    },
     get_head = function() {
       private$head
     },
@@ -53,6 +56,25 @@ ast_node <- R6::R6Class("ast_node",
     },
     find_all_names = function() {
       private$find_nodes("ast_node_name")
+    },
+    ensure_has_block = function(index_el_to_be_wrapped) {
+      tail_elements <- self$get_tail_elements()
+      body <- tail_elements[[index_el_to_be_wrapped]]
+      is_block <- "ast_node_block" %in% class(body)
+      if (!is_block) {
+        sexp <- bquote({
+          .(body$get_sexp())
+        })
+        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
+        new_block$set_tail_elements(list(body))
+        for (el in tail_elements) {
+          el$set_parent(new_block)
+        }
+        new_block$set_scope(self$get_scope())
+        new_block$set_parent(self)
+        tail_elements[[index_el_to_be_wrapped]] <- new_block
+        self$set_tail_elements(tail_elements)
+      }
     }
   ),
   private = list(
@@ -154,21 +176,27 @@ ast_node_function <- R6::R6Class(
         body$register_new_name(as.character(param$get_head()), dummy_value)
       }
     },
-    ensure_has_block = function() {
-      body <- self$get_function_body()
-      is_block <- "ast_node_block" %in% class(body)
-      if (!is_block) {
-        sexp <- bquote({
-          .(body$get_sexp())
-        })
-        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
-        new_block$set_tail_elements(list(body))
-        new_block$set_scope(self$get_scope())
-        new_block$set_parent(self)
-        self$set_tail_elements(
-          list(self$get_tail_elements()[[1L]], new_block)
-        )
+    is_recursive = function(assigned_name) {
+      # check if the assigned name is used as a function call in the function
+      length(private$find_all_function_calls(of = assigned_name)) > 0L
+    },
+    get_cpp_function_type = function() {
+      return_type <- self$get_cpp_type()
+      if (return_type == "auto") {
+        stop("Recursive functions must have an explicit return type.", call. = FALSE)
       }
+      argument_types <- self$get_function_parameters()$get_parameter_types()
+      # TODO: the following line should be handled by the pairlist, not here
+      argument_types <- generate_cpp_input_types(argument_types)
+      paste0(
+        "std::function<", return_type,
+        "(",
+        paste0(argument_types, collapse = ", "),
+        ")>"
+      )
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(2L)
     },
     get_function_body = function() {
       self$get_tail_elements()[[2L]]
@@ -180,11 +208,15 @@ ast_node_function <- R6::R6Class(
       body <- self$get_function_body()
       return_types <- body$find_all_returns()
       return_types <- lapply(return_types, function(x) x$get_cpp_type())
-      stopifnot(length(unique(return_types)) == 1L)
-      return_type <- return_types[[1L]]
+      return_type <- if (length(return_types) == 0L) {
+        "void"
+      } else {
+        stopifnot(length(unique(return_types)) == 1L)
+        return_types[[1L]]
+      }
       self$set_cpp_type(return_type)
     },
-    compile = function(fun_name = NULL, overwrite_return_type = NULL) {
+    compile = function(fun_name = NULL, overwrite_return_type = NULL, is_recursive = FALSE) {
       stopifnot(length(self$get_tail_elements()) == 2L)
       arguments <- self$get_function_parameters()
       body <- self$get_function_body()
@@ -196,10 +228,10 @@ ast_node_function <- R6::R6Class(
       }
       if (is_lambda) {
         function_prefix_code <- "[&]"
-        function_suffix_code <- if (grepl("^arma", return_type)) {
-          paste0(" -> ", return_type)
+        function_suffix_code <- if (grepl("^arma", return_type) || is_recursive) {
+          paste0(" mutable -> ", return_type)
         } else {
-          ""
+          " mutable"
         }
       } else {
         function_prefix_code <- paste0(return_type, " ", fun_name)
@@ -212,6 +244,14 @@ ast_node_function <- R6::R6Class(
         "\n",
         body$compile()
       )
+    }
+  ),
+  private = list(
+    find_all_function_calls = function(of) {
+      # TODO: implement a get_name or something for function_calls
+      Filter(function(x) {
+        paste0(deparse(x$get_head()), collapse = "") == of
+      }, super$find_nodes("ast_node_function_call"))
     }
   )
 )
@@ -231,11 +271,17 @@ ast_node_function_call <- R6::R6Class(
       arguments <- vapply(self$get_tail_elements(), function(x) {
         x$compile()
       }, character(1L))
+      suffix <- if ("ast_node_block" %in% class(self$get_parent())) {
+        ";\n"
+      } else {
+        ""
+      }
       self$emit(
         as.character(val),
         "(",
         paste0(arguments, collapse = ", "),
-        ")"
+        ")",
+        suffix
       )
     },
     update_return_type = function() {
@@ -317,46 +363,79 @@ ast_node_assignment <- R6::R6Class(
         return(rhs$compile(lhs_compiled))
       }
 
-      type <- if (self$is_initial_assignment()) {
+      lhs_is_call <- "ast_node_function_call" %in% class(operands[[1L]]) ||
+        "ast_node_element_access" %in% class(operands[[1L]])
+      type <- if (self$is_initial_assignment() && !lhs_is_call) {
         paste0(operands[[2L]]$get_cpp_type(), " ")
       } else {
         ""
       }
 
       # lambda
-      if ("ast_node_function" %in% class(rhs)) {
-        type <- paste0("auto", " ")
+      is_lambda <- "ast_node_function" %in% class(rhs)
+      is_lambda_recursive <- FALSE
+      if (is_lambda) {
+        if (rhs$is_recursive(lhs_compiled)) {
+          is_lambda_recursive <- TRUE
+          type <- paste0(rhs$get_cpp_function_type(), " ")
+        } else {
+          type <- paste0("auto", " ")
+        }
       }
-      self$emit(
-        type,
-        lhs_compiled,
-        " = ",
-        operands[[2L]]$compile(),
-        ";"
-      )
+
+      # TODO: modifies the AST
+      # Needs to be mangaged better
+      private$register_assignment()
+      deduce_types_rec(self$get_scope())
+
+      # something wrong here
+      if (is_lambda && is_lambda_recursive) {
+        self$emit(
+          type, lhs_compiled, ";\n",
+          lhs_compiled, " = ",
+          operands[[2L]]$compile(is_recursive = TRUE),
+          ";"
+        )
+      } else {
+        self$emit(
+          type,
+          lhs_compiled,
+          " = ",
+          operands[[2L]]$compile(),
+          ";"
+        )
+      }
     },
     check_and_register_assignment = function() {
       tail_elements <- self$get_tail_elements()
       stopifnot(length(tail_elements) == 2L)
       tail_elements[[1L]]$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
       self$set_cpp_type(tail_elements[[2L]]$get_cpp_type())
-
-      if (self$has_scope()) {
-        if (!self$get_scope()$is_name_defined(tail_elements[[1L]]$get_sexp())) {
-          self$set_initial_assignment(TRUE)
-        }
-        self$get_scope()$register_new_name(as.character(tail_elements[[1L]]$get_head()), tail_elements[[2L]])
-      }
     },
     is_initial_assignment = function() {
-      private$inital_assignment
-    },
-    set_initial_assignment = function(val) {
-      private$inital_assignment <- val
+      var_name <- paste0(deparse(self$get_tail_elements()[[1L]]$get_sexp()), collapse = "")
+      if (self$has_scope()) {
+        if (self$get_scope()$is_name_defined(var_name)) {
+          return(FALSE)
+        }
+        if (self$get_scope()$has_scope()) {
+          # maybe it was previously already defined
+          already_defined <- self$get_scope()$get_scope()$is_name_defined(var_name)
+          if (already_defined) {
+            return(FALSE)
+          }
+        }
+      }
+      TRUE
     }
   ),
   private = list(
-    inital_assignment = FALSE
+    register_assignment = function() {
+      if (self$has_scope()) {
+        var_name <- paste0(deparse(self$get_tail_elements()[[1L]]$get_sexp()), collapse = "")
+        self$get_scope()$register_new_name(var_name, self$get_tail_elements()[[2L]])
+      }
+    }
   )
 )
 
@@ -431,7 +510,8 @@ ast_node_block <- R6::R6Class(
     },
     register_new_name = function(name_chr, value_node) {
       # no reassignments, first one counts
-      if (is.null(private$name_store[[name_chr]])) {
+      name_still_free <- !self$has_scope() || !self$get_scope()$is_name_defined(name_chr)
+      if (is.null(private$value_map[[name_chr]]) && name_still_free) {
         private$value_map[[name_chr]] <- value_node
       }
     },
@@ -464,6 +544,24 @@ ast_node_block <- R6::R6Class(
   )
 )
 
+
+
+ast_node_length <- R6::R6Class(
+  classname = "ast_node_length",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      self$emit(
+        self$get_tail_elements()[[1L]]$compile(), ".n_elem"
+      )
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_ncol <- R6::R6Class(
   classname = "ast_node_ncol",
   inherit = ast_node,
@@ -475,7 +573,7 @@ ast_node_ncol <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "arma::mat"
+      "auto"
     }
   )
 )
@@ -491,7 +589,7 @@ ast_node_nrow <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "arma::mat"
+      "auto"
     }
   )
 )
@@ -510,6 +608,9 @@ ast_node_if <- R6::R6Class(
           paste0(" else ", elements[[3L]]$compile())
         }
       )
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(2L)
     }
   )
 )
@@ -751,6 +852,23 @@ ast_node_tcrossprod <- R6::R6Class(
   )
 )
 
+ast_node_while <- R6::R6Class(
+  classname = "ast_node_while",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      elements <- self$get_tail_elements()
+      stopifnot(length(elements) == 2L)
+      self$emit(
+        "while (", elements[[1L]]$compile(), ")\n",
+        elements[[2L]]$compile()
+      )
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(2L)
+    }
+  )
+)
 ast_node_for <- R6::R6Class(
   classname = "ast_node_for",
   inherit = ast_node,
@@ -770,6 +888,15 @@ ast_node_for <- R6::R6Class(
       body <- elements[[3L]]
       is_iter_var_used <- private$is_loop_var_used(iter_var_name, body)
       if (is_iter_var_used) {
+        # TODO: this modifies the input tree during compilation mmmmh
+        # This means we now have to run the type deduction again for the body
+        # Think about creating the structure during construction of the ast
+        stopifnot("ast_node_block" %in% class(body))
+        body_scope <- self$get_scope()
+        dummy_iter_var <- ast_node_dummy$new()
+        dummy_iter_var$set_cpp_type("auto")
+        body_scope$register_new_name(iter_var_name, dummy_iter_var)
+        deduce_types_rec(body)
         self$emit(
           "for (const auto& ", iter_var_name,
           " : ", container$compile(), ")\n",
@@ -780,7 +907,7 @@ ast_node_for <- R6::R6Class(
         container_var_name <- random_var_name()
         iter_var_name <- random_var_name()
         # TODO: this creates non-deterministic source code
-        # might not be a good idea ...
+        # not a good thing!!
         self$emit(
           "\nauto&& ", container_var_name, " = ", container$compile(), ";\n",
           "for (auto ",
@@ -791,6 +918,9 @@ ast_node_for <- R6::R6Class(
           "\n"
         )
       }
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(3L)
     }
   ),
   private = list(
@@ -1010,6 +1140,7 @@ element_type_map[["solve"]] <- ast_node_solve
 element_type_map[["sum"]] <- ast_node_sum
 element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
+element_type_map[["length"]] <- ast_node_length
 element_type_map[["seq_len"]] <- ast_node_seq_len
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
@@ -1024,6 +1155,7 @@ element_type_map[["backsolve"]] <- ast_node_backsolve
 element_type_map[["forwardsolve"]] <- ast_node_forwardsolve
 element_type_map[["if"]] <- ast_node_if
 element_type_map[["for"]] <- ast_node_for
+element_type_map[["while"]] <- ast_node_while
 
 
 # TODO: not pretty
@@ -1043,6 +1175,8 @@ unary_function_mapping$chol <- "arma::chol"
 unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$diag <- "arma::diagmat"
 unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
+unary_function_mapping$floor <- multi_dispatch_fun(arma = "arma::floor", std = "std::floor")
+unary_function_mapping$ceil <- multi_dispatch_fun(arma = "arma::ceil", std = "std::ceil")
 unary_function_mapping$sort <- "arma::sort"
 unary_function_mapping$unique <- "arma::unique"
 unary_function_mapping$pnorm <- "arma::normcdf"

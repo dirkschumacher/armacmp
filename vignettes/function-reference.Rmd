@@ -179,6 +179,15 @@ for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
 })
 ```
 
+### While loops
+
+```{r, eval=FALSE}
+x <- 0
+while (x < 10) {
+  x <- x + 1
+}
+```
+
 
 ### Functions
 

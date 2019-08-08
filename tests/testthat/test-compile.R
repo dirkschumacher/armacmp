@@ -244,7 +244,7 @@ test_that("test lambdas", {
     return(Y)
   }, "wat")$cpp_code
   expect_true(
-    grepl("auto square = [&](const arma::mat& y) -> arma::mat", code, fixed = TRUE)
+    grepl("auto square = [&](const arma::mat& y) mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
     grepl("arma::mat Y = square(X)", code, fixed = TRUE)
@@ -279,15 +279,112 @@ test_that("type decution works with lambdas", {
     grepl("auto x3", code, fixed = TRUE)
   )
   expect_true(
-    grepl("auto fun3 = [&]() -> arma::mat", code, fixed = TRUE)
+    grepl("auto fun3 = [&]() mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
-    grepl("auto fun2 = [&]() -> arma::mat", code, fixed = TRUE)
+    grepl("auto fun2 = [&]() mutable -> arma::mat", code, fixed = TRUE)
   )
   expect_true(
     grepl("auto fun = [&](double y)", code, fixed = TRUE)
   )
   expect_true(
     grepl("auto x3 = fun(20.0)", code, fixed = TRUE)
+  )
+})
+
+test_that("element-wise multiplications only used for arma::types in loops", {
+  code <- armacmp_compile(function() {
+    for (k in seq_len(10L)) {
+      t <- k*k
+    }
+    return(1)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("auto t = k * k", code, fixed = TRUE)
+  )
+})
+
+test_that("for loops without blocks work", {
+  expect_silent(
+    armacmp_compile(function() {
+      x <- 0
+      for (k in seq_len(10L)) x <- k + 1
+      return(x, type = type_scalar_numeric())
+    }, "wat")
+  )
+})
+
+test_that("while loops are supported", {
+  code <- armacmp_compile(function() {
+    x <- 0
+    while (x < 10) {
+      y <- 5
+      while (y > 0.1) y <- y / 10
+      x <- x + y
+    }
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("y = y / 10.0", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("while (y > 0.1)\n{", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("while (x < 10.0)\n{", code, fixed = TRUE)
+  )
+})
+
+test_that("lambdas are mutable by default and do not need to have a return", {
+  code <- armacmp_compile(function() {
+    x <- 1
+    fun <- function(y = type_scalar_numeric()) {
+      x <- x + y
+    }
+    fun()
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("mutable", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("fun();", code, fixed = TRUE)
+  )
+})
+
+test_that("lambdas are mutable by default and do not need to have a return", {
+  code <- armacmp_compile(function() {
+    fun <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
+      i <- lo
+      j <- hi
+      while (0 == 0) {
+        i <- floor(lo/2)
+        lo <- j
+      }
+      i <- lo
+    }
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("\ni = std::floor(lo / 2.0);", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("auto i = lo;", code, fixed = TRUE)
+  )
+})
+
+test_that("recursive lambdas are detected and work", {
+  code <- armacmp_compile(function(X) {
+    fun <- function(x = type_scalar_numeric(), X) {
+      if (x == 0) {
+        return(0, type = type_scalar_numeric())
+      }
+      return(fun(x - 1, X), type = type_scalar_numeric())
+    }
+    return(fun(5, X), type = type_scalar_numeric())
+  }, "wat")$cpp_code
+
+  expect_true(
+    grepl("std::function<double(double, const arma::mat&)> fun;", code, fixed = TRUE)
   )
 })

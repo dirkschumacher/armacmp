@@ -56,6 +56,21 @@ print.armacmp_cpp_fun <- function(x, ...) {
   cat(format(x, ...), "\n")
 }
 
+generate_cpp_input_types <- function(fun_args) {
+  vapply(
+    seq_along(fun_args),
+    function(i) {
+      x <- fun_args[[i]]
+      name <- names(fun_args)[[i]]
+      if (x$cpp_type %in% c("double", "int")) {
+        x$cpp_type
+      } else {
+        paste0("const ", x$cpp_type, "&")
+      }
+    }, character(1L)
+  )
+}
+
 generate_cpp_input_parameters_code <- function(fun_args) {
   vapply(
     seq_along(fun_args),
