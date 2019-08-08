@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">armacmp</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.5.9000</span>
       </span>
     </div>
 
@@ -257,29 +257,37 @@
 <a class="sourceLine" id="cb7-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
 <a class="sourceLine" id="cb7-8" data-line-number="8">})</a></code></pre></div>
 </div>
+<div id="while-loops" class="section level3">
+<h3 class="hasAnchor">
+<a href="#while-loops" class="anchor"></a>While loops</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">x &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="cf">while</span> (x <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">  x &lt;-<span class="st"> </span>x <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">}</a></code></pre></div>
+</div>
 <div id="functions-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#functions-1" class="anchor"></a>Functions</h3>
 <p>You can also define functions within your functions.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">  }</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">  Y &lt;-<span class="st"> </span><span class="kw">square</span>(X)</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(Y)</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">})</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt;       [,1]</span></a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt;  [1,]    1</span></a>
-<a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt;  [2,]    4</span></a>
-<a class="sourceLine" id="cb8-12" data-line-number="12"><span class="co">#&gt;  [3,]    9</span></a>
-<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="co">#&gt;  [4,]   16</span></a>
-<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="co">#&gt;  [5,]   25</span></a>
-<a class="sourceLine" id="cb8-15" data-line-number="15"><span class="co">#&gt;  [6,]   36</span></a>
-<a class="sourceLine" id="cb8-16" data-line-number="16"><span class="co">#&gt;  [7,]   49</span></a>
-<a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co">#&gt;  [8,]   64</span></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co">#&gt;  [9,]   81</span></a>
-<a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co">#&gt; [10,]  100</span></a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">  }</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">  Y &lt;-<span class="st"> </span><span class="kw">square</span>(X)</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(Y)</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">})</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="co">#&gt;       [,1]</span></a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt;  [1,]    1</span></a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="co">#&gt;  [2,]    4</span></a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt;  [3,]    9</span></a>
+<a class="sourceLine" id="cb9-13" data-line-number="13"><span class="co">#&gt;  [4,]   16</span></a>
+<a class="sourceLine" id="cb9-14" data-line-number="14"><span class="co">#&gt;  [5,]   25</span></a>
+<a class="sourceLine" id="cb9-15" data-line-number="15"><span class="co">#&gt;  [6,]   36</span></a>
+<a class="sourceLine" id="cb9-16" data-line-number="16"><span class="co">#&gt;  [7,]   49</span></a>
+<a class="sourceLine" id="cb9-17" data-line-number="17"><span class="co">#&gt;  [8,]   64</span></a>
+<a class="sourceLine" id="cb9-18" data-line-number="18"><span class="co">#&gt;  [9,]   81</span></a>
+<a class="sourceLine" id="cb9-19" data-line-number="19"><span class="co">#&gt; [10,]  100</span></a></code></pre></div>
 </div>
 </div>
 </div>
