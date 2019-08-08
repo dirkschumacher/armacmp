@@ -754,6 +754,23 @@ ast_node_tcrossprod <- R6::R6Class(
   )
 )
 
+ast_node_while <- R6::R6Class(
+  classname = "ast_node_while",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      elements <- self$get_tail_elements()
+      stopifnot(length(elements) == 2L)
+      self$emit(
+        "while (", elements[[1L]]$compile(), ")\n",
+        elements[[2L]]$compile()
+      )
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(2L)
+    }
+  )
+)
 ast_node_for <- R6::R6Class(
   classname = "ast_node_for",
   inherit = ast_node,
@@ -1039,6 +1056,7 @@ element_type_map[["backsolve"]] <- ast_node_backsolve
 element_type_map[["forwardsolve"]] <- ast_node_forwardsolve
 element_type_map[["if"]] <- ast_node_if
 element_type_map[["for"]] <- ast_node_for
+element_type_map[["while"]] <- ast_node_while
 
 
 # TODO: not pretty

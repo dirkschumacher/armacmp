@@ -313,3 +313,24 @@ test_that("for loops without blocks work", {
     }, "wat")
   )
 })
+
+test_that("while loops are supported", {
+  code <- armacmp_compile(function() {
+    x <- 0
+    while (x < 10) {
+      y <- 5
+      while (y > 0.1) y <- y / 10
+      x <- x + y
+    }
+    return(x, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("y = y / 10.0", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("while (y > 0.1)\n{", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("while (x < 10.0)\n{", code, fixed = TRUE)
+  )
+})
