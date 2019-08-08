@@ -176,6 +176,25 @@ ast_node_function <- R6::R6Class(
         body$register_new_name(as.character(param$get_head()), dummy_value)
       }
     },
+    is_recursive = function(assigned_name) {
+      # check if the assigned name is used as a function call in the function
+      length(private$find_all_function_calls(of = assigned_name)) > 0L
+    },
+    get_cpp_function_type = function() {
+      return_type <- self$get_cpp_type()
+      if (return_type == "auto") {
+        stop("Recursive functions must have an explicit return type.", call. = FALSE)
+      }
+      argument_types <- self$get_function_parameters()$get_parameter_types()
+      # TODO: the following line should be handled by the pairlist, not here
+      argument_types <- generate_cpp_input_types(argument_types)
+      paste0(
+        "std::function<", return_type,
+        "(",
+        paste0(argument_types, collapse = ", "),
+        ")>"
+      )
+    },
     ensure_has_block = function() {
       super$ensure_has_block(2L)
     },
@@ -197,7 +216,7 @@ ast_node_function <- R6::R6Class(
       }
       self$set_cpp_type(return_type)
     },
-    compile = function(fun_name = NULL, overwrite_return_type = NULL) {
+    compile = function(fun_name = NULL, overwrite_return_type = NULL, is_recursive = FALSE) {
       stopifnot(length(self$get_tail_elements()) == 2L)
       arguments <- self$get_function_parameters()
       body <- self$get_function_body()
@@ -209,7 +228,7 @@ ast_node_function <- R6::R6Class(
       }
       if (is_lambda) {
         function_prefix_code <- "[&]"
-        function_suffix_code <- if (grepl("^arma", return_type)) {
+        function_suffix_code <- if (grepl("^arma", return_type) || is_recursive) {
           paste0(" mutable -> ", return_type)
         } else {
           " mutable"
@@ -225,6 +244,14 @@ ast_node_function <- R6::R6Class(
         "\n",
         body$compile()
       )
+    }
+  ),
+  private = list(
+    find_all_function_calls = function(of) {
+      # TODO: implement a get_name or something for function_calls
+      Filter(function(x) {
+        paste0(deparse(x$get_head()), collapse = "") == of
+      }, super$find_nodes("ast_node_function_call"))
     }
   )
 )
@@ -336,15 +363,24 @@ ast_node_assignment <- R6::R6Class(
         return(rhs$compile(lhs_compiled))
       }
 
-      type <- if (self$is_initial_assignment()) {
+      lhs_is_call <- "ast_node_function_call" %in% class(operands[[1L]]) ||
+        "ast_node_element_access" %in% class(operands[[1L]])
+      type <- if (self$is_initial_assignment() && !lhs_is_call) {
         paste0(operands[[2L]]$get_cpp_type(), " ")
       } else {
         ""
       }
 
       # lambda
-      if ("ast_node_function" %in% class(rhs)) {
-        type <- paste0("auto", " ")
+      is_lambda <- "ast_node_function" %in% class(rhs)
+      is_lambda_recursive <- FALSE
+      if (is_lambda) {
+        if (rhs$is_recursive(lhs_compiled)) {
+          is_lambda_recursive <- TRUE
+          type <- paste0(rhs$get_cpp_function_type(), " ")
+        } else {
+          type <- paste0("auto", " ")
+        }
       }
 
       # TODO: modifies the AST
@@ -353,13 +389,22 @@ ast_node_assignment <- R6::R6Class(
       deduce_types_rec(self$get_scope())
 
       # something wrong here
-      self$emit(
-        type,
-        lhs_compiled,
-        " = ",
-        operands[[2L]]$compile(),
-        ";"
-      )
+      if (is_lambda && is_lambda_recursive) {
+        self$emit(
+          type, lhs_compiled, ";\n",
+          lhs_compiled, " = ",
+          operands[[2L]]$compile(is_recursive = TRUE),
+          ";"
+        )
+      } else {
+        self$emit(
+          type,
+          lhs_compiled,
+          " = ",
+          operands[[2L]]$compile(),
+          ";"
+        )
+      }
     },
     check_and_register_assignment = function() {
       tail_elements <- self$get_tail_elements()

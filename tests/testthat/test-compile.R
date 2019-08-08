@@ -352,7 +352,6 @@ test_that("lambdas are mutable by default and do not need to have a return", {
   )
 })
 
-
 test_that("lambdas are mutable by default and do not need to have a return", {
   code <- armacmp_compile(function() {
     fun <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
@@ -371,5 +370,21 @@ test_that("lambdas are mutable by default and do not need to have a return", {
   )
   expect_true(
     grepl("auto i = lo;", code, fixed = TRUE)
+  )
+})
+
+test_that("recursive lambdas are detected and work", {
+  code <- armacmp_compile(function(X) {
+    fun <- function(x = type_scalar_numeric(), X) {
+      if (x == 0) {
+        return(0, type = type_scalar_numeric())
+      }
+      return(fun(x - 1, X), type = type_scalar_numeric())
+    }
+    return(fun(5, X), type = type_scalar_numeric())
+  }, "wat")$cpp_code
+
+  expect_true(
+    grepl("std::function<double(double, const arma::mat&)> fun;", code, fixed = TRUE)
   )
 })
