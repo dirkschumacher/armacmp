@@ -14,13 +14,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r setup}
 library(armacmp)
 ```
-
-# Function reference
 
 This documents describes all language elements that can be compiled to Armadillo flavored C++ code.
 

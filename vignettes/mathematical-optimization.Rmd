@@ -15,8 +15,6 @@ knitr::opts_chunk$set(
 library(armacmp)
 ```
 
-# Mathematical optimization
-
 The package also supports optimization of functions using `RcppEnsmallen`. Find out more at [ensmallen.org](https://ensmallen.org/).
 All code is compiled to C++. During the optimization there is no context switch back to R.
 
