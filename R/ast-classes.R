@@ -53,6 +53,22 @@ ast_node <- R6::R6Class("ast_node",
     },
     find_all_names = function() {
       private$find_nodes("ast_node_name")
+    },
+    ensure_has_block = function(index_el_to_be_wrapped) {
+      tail_elements <- self$get_tail_elements()
+      body <- tail_elements[[index_el_to_be_wrapped]]
+      is_block <- "ast_node_block" %in% class(body)
+      if (!is_block) {
+        sexp <- bquote({
+          .(body$get_sexp())
+        })
+        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
+        new_block$set_tail_elements(list(body))
+        new_block$set_scope(self$get_scope())
+        new_block$set_parent(self)
+        tail_elements[[index_el_to_be_wrapped]] <- new_block
+        self$set_tail_elements(tail_elements)
+      }
     }
   ),
   private = list(
@@ -155,20 +171,7 @@ ast_node_function <- R6::R6Class(
       }
     },
     ensure_has_block = function() {
-      body <- self$get_function_body()
-      is_block <- "ast_node_block" %in% class(body)
-      if (!is_block) {
-        sexp <- bquote({
-          .(body$get_sexp())
-        })
-        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
-        new_block$set_tail_elements(list(body))
-        new_block$set_scope(self$get_scope())
-        new_block$set_parent(self)
-        self$set_tail_elements(
-          list(self$get_tail_elements()[[1L]], new_block)
-        )
-      }
+      super$ensure_has_block(2L)
     },
     get_function_body = function() {
       self$get_tail_elements()[[2L]]
@@ -770,6 +773,15 @@ ast_node_for <- R6::R6Class(
       body <- elements[[3L]]
       is_iter_var_used <- private$is_loop_var_used(iter_var_name, body)
       if (is_iter_var_used) {
+        # TODO: this modifies the input tree during compilation mmmmh
+        # This means we now have to run the type deduction again for the body
+        # Think about creating the structure during construction of the ast
+        stopifnot("ast_node_block" %in% class(body))
+        body_scope <- self$get_scope()
+        dummy_iter_var <- ast_node_dummy$new()
+        dummy_iter_var$set_cpp_type("auto")
+        body_scope$register_new_name(iter_var_name, dummy_iter_var)
+        deduce_types_rec(body)
         self$emit(
           "for (const auto& ", iter_var_name,
           " : ", container$compile(), ")\n",
@@ -780,7 +792,7 @@ ast_node_for <- R6::R6Class(
         container_var_name <- random_var_name()
         iter_var_name <- random_var_name()
         # TODO: this creates non-deterministic source code
-        # might not be a good idea ...
+        # not a good thing!!
         self$emit(
           "\nauto&& ", container_var_name, " = ", container$compile(), ";\n",
           "for (auto ",
@@ -791,6 +803,9 @@ ast_node_for <- R6::R6Class(
           "\n"
         )
       }
+    },
+    ensure_has_block = function() {
+      super$ensure_has_block(3L)
     }
   ),
   private = list(

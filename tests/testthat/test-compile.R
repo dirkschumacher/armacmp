@@ -291,3 +291,25 @@ test_that("type decution works with lambdas", {
     grepl("auto x3 = fun(20.0)", code, fixed = TRUE)
   )
 })
+
+test_that("element-wise multiplications only used for arma::types in loops", {
+  code <- armacmp_compile(function() {
+    for (k in seq_len(10L)) {
+      t <- k*k
+    }
+    return(1)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("auto t = k * k", code, fixed = TRUE)
+  )
+})
+
+test_that("for loops without blocks work", {
+  expect_silent(
+    armacmp_compile(function() {
+      x <- 0
+      for (k in seq_len(10L)) x <- k + 1
+      return(x, type = type_scalar_numeric())
+    }, "wat")
+  )
+})

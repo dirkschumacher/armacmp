@@ -74,11 +74,18 @@ annotate_ast <- function(ast) {
     })
     current_node$set_tail_elements(tail_elements)
 
+    # TODO: create a function for all these %in% class calls
     is_function <- "ast_node_function" %in% class(current_node)
     if (is_function) {
       current_node$ensure_has_block()
       current_node$register_input_variables_in_child_scope()
     }
+
+    is_for_loop <- "ast_node_for" %in% class(current_node)
+    if (is_for_loop) {
+      current_node$ensure_has_block()
+    }
+
 
     is_pairlist <- "ast_node_arma_pairlist" %in% class(current_node)
     if (is_pairlist) {
@@ -96,38 +103,39 @@ annotate_ast <- function(ast) {
     current_node
   }
   tree <- annotate_ast_rec(ast, NULL, NULL)
-  deduce_types_rec <- function(current_node) {
-    tail_elements <- current_node$get_tail_elements()
-    is_assignment <- "ast_node_assignment" %in% class(current_node)
-    is_function <- "ast_node_function" %in% class(current_node)
-    is_function_call <- "ast_node_function_call" %in% class(current_node)
-    is_return <- "ast_node_return" %in% class(current_node)
-    is_name <- "ast_node_name" %in% class(current_node)
-
-    # first deduce type of children
-    for (el in tail_elements) {
-      deduce_types_rec(el)
-    }
-
-    if (is_function) {
-      current_node$update_return_type()
-    }
-    if (is_return) {
-      current_node$update_return_type()
-    }
-    if (is_function_call) {
-      current_node$update_return_type()
-    }
-
-    all_auto <- all(vapply(tail_elements, function(x) x$has_auto_cpp_type(), logical(1L)))
-    if (length(tail_elements) > 0L && all_auto && !is_assignment && !is_function && !is_name && !is_function_call) {
-      current_node$set_cpp_type("auto")
-    }
-  }
 
   deduce_types_rec(tree)
 
   tree
+}
+
+deduce_types_rec <- function(current_node) {
+  tail_elements <- current_node$get_tail_elements()
+  is_assignment <- "ast_node_assignment" %in% class(current_node)
+  is_function <- "ast_node_function" %in% class(current_node)
+  is_function_call <- "ast_node_function_call" %in% class(current_node)
+  is_return <- "ast_node_return" %in% class(current_node)
+  is_name <- "ast_node_name" %in% class(current_node)
+
+  # first deduce type of children
+  for (el in tail_elements) {
+    deduce_types_rec(el)
+  }
+
+  if (is_function) {
+    current_node$update_return_type()
+  }
+  if (is_return) {
+    current_node$update_return_type()
+  }
+  if (is_function_call) {
+    current_node$update_return_type()
+  }
+
+  all_auto <- all(vapply(tail_elements, function(x) x$has_auto_cpp_type(), logical(1L)))
+  if (length(tail_elements) > 0L && all_auto && !is_assignment && !is_function && !is_name && !is_function_call) {
+    current_node$set_cpp_type("auto")
+  }
 }
 
 function_to_sexp <- function(sexp) {
