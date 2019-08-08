@@ -31,6 +31,8 @@ annotate_ast <- function(ast) {
     if (length(current_sexp) == 1L) {
       class_type <- ast_node_terminal
       if (is.call(current_sexp)) {
+
+        # TODO: generalize
         if (current_sexp == "next") {
           class_type <- ast_node_next
         } else if (current_sexp == "break") {
@@ -43,7 +45,11 @@ annotate_ast <- function(ast) {
       }
 
       if (is.name(current_sexp)) {
-        class_type <- ast_node_name
+        if (current_sexp == "pi") {
+          class_type <- ast_node_pi
+        } else {
+          class_type <- ast_node_name
+        }
       }
       node <- class_type$new(sexp = current_sexp, head = current_sexp)
       node$set_parent(parent)

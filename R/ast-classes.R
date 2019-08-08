@@ -315,6 +315,19 @@ ast_node_terminal <- R6::R6Class(
   )
 )
 
+ast_node_pi <- R6::R6Class(
+  classname = "ast_node_pi",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      self$emit("arma::datum::pi")
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_name <- R6::R6Class(
   classname = "ast_node_name",
   inherit = ast_node_terminal,
@@ -492,6 +505,8 @@ ast_node_leq <- make_binary_operator_class("ast_node_leq", "<=")
 ast_node_geq <- make_binary_operator_class("ast_node_geq", ">=")
 ast_node_equal <- make_binary_operator_class("ast_node_equal", "==")
 ast_node_nequal <- make_binary_operator_class("ast_node_nequal", "!=")
+ast_node_logical_and <- make_binary_operator_class("ast_node_logical_and", "&&")
+ast_node_logical_or <- make_binary_operator_class("ast_node_logical_or", "||")
 
 ast_node_block <- R6::R6Class(
   classname = "ast_node_block",
@@ -982,12 +997,33 @@ ast_node_seq_len <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
+      until <- self$get_tail_elements()[[1L]]$compile()
       self$emit(
-        "Rcpp::seq_len(", self$get_tail_elements()[[1L]]$compile(), ")"
+        "arma::linspace(1, ", until, ", ", until, ")"
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "arma::colvec"
+    }
+  )
+)
+
+ast_node_seq <- R6::R6Class(
+  classname = "ast_node_seq",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 3L)
+      elements <- self$get_tail_elements()
+      from <- elements[[1L]]$compile()
+      to <- elements[[2L]]$compile()
+      len_out <- elements[[3L]]$compile()
+      self$emit(
+        "arma::linspace(", from, ", ", to, ", ", len_out, ")"
+      )
+    },
+    get_cpp_type = function() {
+      "arma::colvec"
     }
   )
 )
@@ -1131,6 +1167,8 @@ element_type_map[["<="]] <- ast_node_leq
 element_type_map[[">="]] <- ast_node_geq
 element_type_map[["=="]] <- ast_node_equal
 element_type_map[["!="]] <- ast_node_nequal
+element_type_map[["&&"]] <- ast_node_logical_and
+element_type_map[["||"]] <- ast_node_logical_or
 element_type_map[["%*%"]] <- ast_node_matmul
 element_type_map[["("]] <- ast_node_bracket
 element_type_map[["qr"]] <- ast_node_qr_init
@@ -1142,6 +1180,7 @@ element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
 element_type_map[["length"]] <- ast_node_length
 element_type_map[["seq_len"]] <- ast_node_seq_len
+element_type_map[["seq"]] <- ast_node_seq
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
 element_type_map[["crossprod"]] <- ast_node_crossprod
@@ -1176,20 +1215,20 @@ unary_function_mapping$cumsum <- "arma::cumsum"
 unary_function_mapping$diag <- "arma::diagmat"
 unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
 unary_function_mapping$floor <- multi_dispatch_fun(arma = "arma::floor", std = "std::floor")
-unary_function_mapping$ceil <- multi_dispatch_fun(arma = "arma::ceil", std = "std::ceil")
+unary_function_mapping$ceiling <- multi_dispatch_fun(arma = "arma::ceil", std = "std::ceil")
 unary_function_mapping$sort <- "arma::sort"
 unary_function_mapping$unique <- "arma::unique"
 unary_function_mapping$pnorm <- "arma::normcdf"
 unary_function_mapping$det <- "arma::det"
-unary_function_mapping$cos <- "arma::cos"
+unary_function_mapping$cos <- multi_dispatch_fun(arma = "arma::cos", std = "std::cos")
 unary_function_mapping$acos <- "arma::acos"
 unary_function_mapping$cosh <- "arma::cosh"
 unary_function_mapping$acosh <- "arma::acosh"
-unary_function_mapping$sin <- "arma::sin"
+unary_function_mapping$sin <- multi_dispatch_fun(arma = "arma::sin", std = "std::sin")
 unary_function_mapping$asin <- "arma::asin"
 unary_function_mapping$sinh <- "arma::sinh"
 unary_function_mapping$asinh <- "arma::asinh"
-unary_function_mapping$tan <- "arma::tan"
+unary_function_mapping$tan <- multi_dispatch_fun(arma = "arma::tan", std = "std::tan")
 unary_function_mapping$atan <- "arma::atan"
 unary_function_mapping$tanh <- "arma::tanh"
 unary_function_mapping$atanh <- "arma::atanh"
