@@ -98,7 +98,7 @@ test_that("generic range-based for loops work", {
     grepl("for (const auto& i : iter)", code, fixed = TRUE)
   )
   expect_true(
-    grepl("arma::colvec iter = arma::linspace(1, y, y)", code, fixed = TRUE)
+    grepl("arma::colvec iter = arma::linspace<arma::colvec>(1, y, y)", code, fixed = TRUE)
   )
 })
 

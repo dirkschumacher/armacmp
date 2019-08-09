@@ -999,7 +999,7 @@ ast_node_seq_len <- R6::R6Class(
       stopifnot(length(self$get_tail_elements()) == 1L)
       until <- self$get_tail_elements()[[1L]]$compile()
       self$emit(
-        "arma::linspace(1, ", until, ", ", until, ")"
+        "arma::linspace<arma::colvec>(1, ", until, ", ", until, ")"
       )
     },
     get_cpp_type = function() {
@@ -1019,7 +1019,7 @@ ast_node_seq <- R6::R6Class(
       to <- elements[[2L]]$compile()
       len_out <- elements[[3L]]$compile()
       self$emit(
-        "arma::linspace(", from, ", ", to, ", ", len_out, ")"
+        "arma::linspace<arma::colvec>(", from, ", ", to, ", ", len_out, ")"
       )
     },
     get_cpp_type = function() {
