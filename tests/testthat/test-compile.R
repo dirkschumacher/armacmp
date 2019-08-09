@@ -295,7 +295,7 @@ test_that("type decution works with lambdas", {
 test_that("element-wise multiplications only used for arma::types in loops", {
   code <- armacmp_compile(function() {
     for (k in seq_len(10L)) {
-      t <- k*k
+      t <- k * k
     }
     return(1)
   }, "wat")$cpp_code
@@ -358,7 +358,7 @@ test_that("lambdas are mutable by default and do not need to have a return", {
       i <- lo
       j <- hi
       while (0 == 0) {
-        i <- floor(lo/2)
+        i <- floor(lo / 2)
         lo <- j
       }
       i <- lo
