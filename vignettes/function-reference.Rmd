@@ -117,8 +117,9 @@ The following operators are translated to their C++ counter-part.
 * `cumsum`
 * `cumprod`
 * `pnorm`
-* `seq_len` returns a `Rcpp::NumericVector`
-* `rep.int` returns a `arma::colvec`
+* `seq_len` returns a `arma::colvec` (note that is corresponds to a sequence of numerics)
+* `a:b` returns an `arma::colvec` from `a` to `b` (note that is corresponds to a sequence of numerics)
+* `rep.int` returns a `arma::colvec` (note that is corresponds to a sequence of numerics)
 
 ## Control Flow
 
