@@ -147,7 +147,7 @@ test_that("scoping works", {
 test_that("for loops only create loop variable if used", {
   expect_silent(fun <- armacmp(function() {
     x <- 10
-    for (i in seq_len(10)) {
+    for (i in 1:10) {
       x <- x + 1
     }
     return(x, type = type_scalar_numeric())

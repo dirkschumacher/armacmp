@@ -383,8 +383,16 @@ test_that("recursive lambdas are detected and work", {
     }
     return(fun(5, X), type = type_scalar_numeric())
   }, "wat")$cpp_code
-
   expect_true(
     grepl("std::function<double(double, const arma::mat&)> fun;", code, fixed = TRUE)
+  )
+})
+
+test_that("sequences with the colon operator", {
+  code <- armacmp_compile(function(X) {
+    return(1L:10L)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("return arma::linspace<arma::colvec>(1, 10, 10 - 1 + 1);", code, fixed = TRUE)
   )
 })

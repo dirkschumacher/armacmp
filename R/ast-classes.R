@@ -1008,6 +1008,7 @@ ast_node_seq_len <- R6::R6Class(
   )
 )
 
+
 ast_node_seq <- R6::R6Class(
   classname = "ast_node_seq",
   inherit = ast_node,
@@ -1020,6 +1021,25 @@ ast_node_seq <- R6::R6Class(
       len_out <- elements[[3L]]$compile()
       self$emit(
         "arma::linspace<arma::colvec>(", from, ", ", to, ", ", len_out, ")"
+      )
+    },
+    get_cpp_type = function() {
+      "arma::colvec"
+    }
+  )
+)
+
+ast_node_colon <- R6::R6Class(
+  classname = "ast_node_colon",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 2L)
+      elements <- self$get_tail_elements()
+      from <- elements[[1L]]$compile()
+      to <- elements[[2L]]$compile()
+      self$emit(
+        "arma::linspace<arma::colvec>(", from, ", ", to, ", ", to, " - ", from, " + 1)"
       )
     },
     get_cpp_type = function() {
@@ -1181,6 +1201,7 @@ element_type_map[["ncol"]] <- ast_node_ncol
 element_type_map[["length"]] <- ast_node_length
 element_type_map[["seq_len"]] <- ast_node_seq_len
 element_type_map[["seq"]] <- ast_node_seq
+element_type_map[[":"]] <- ast_node_colon
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
 element_type_map[["crossprod"]] <- ast_node_crossprod
