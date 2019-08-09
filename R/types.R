@@ -43,3 +43,12 @@ type_scalar_numeric <- function() {
     class = "type_scalar_numeric"
   )
 }
+
+#' Type logical
+#' @export
+type_scalar_logical <- function() {
+  structure(
+    list(cpp_type = "bool"),
+    class = "type_scalar_logical"
+  )
+}

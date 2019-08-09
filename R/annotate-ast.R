@@ -51,6 +51,15 @@ annotate_ast <- function(ast) {
           class_type <- ast_node_name
         }
       }
+
+      if (is.logical(current_sexp)) {
+        class_type <- if (current_sexp) {
+          ast_node_true
+        } else {
+          ast_node_false
+        }
+      }
+
       node <- class_type$new(sexp = current_sexp, head = current_sexp)
       node$set_parent(parent)
       node$set_scope(scope)

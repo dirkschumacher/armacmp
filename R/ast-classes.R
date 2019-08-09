@@ -328,6 +328,32 @@ ast_node_pi <- R6::R6Class(
   )
 )
 
+ast_node_true <- R6::R6Class(
+  classname = "ast_node_true",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      self$emit("true")
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
+ast_node_false <- R6::R6Class(
+  classname = "ast_node_false",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      self$emit("false")
+    },
+    get_cpp_type = function() {
+      "auto"
+    }
+  )
+)
+
 ast_node_name <- R6::R6Class(
   classname = "ast_node_name",
   inherit = ast_node_terminal,

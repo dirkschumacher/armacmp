@@ -255,3 +255,15 @@ test_that("lambdas work", {
     })
   )
 })
+
+test_that("boolean integration test", {
+  fun <- armacmp(function(y = type_scalar_logical()) {
+    z <- TRUE
+    if (y) {
+      z <- FALSE
+    }
+    return(z, type = type_scalar_logical())
+  })
+  expect_true(fun(FALSE))
+  expect_false(fun(TRUE))
+})

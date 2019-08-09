@@ -35,8 +35,13 @@ You can define your inputs using the standard function syntax. By default paramt
 * `type_rowvec` - a row vector
 * `type_scalar_integer` - a single int value
 * `type_scalar_numeric` - a single double value
+* `type_scalar_bool` - a single boolean value
 
 All functions need to return a value using the `return` function. The  `return` function can have an optional return type argument with `return(value, type = type_rowvec())`
+
+## Type system
+
+The package supports only a very limited number of types. For scalar values these are `bool`, `int` and `double`. All matrices and vectors are of type `arma::mat/colvec/rowvec` for double matrices, and `arma::imat/icolvec/irowvec` for integer matrices. By default, it is assumed that a variable is of type `arma::mat` if nothing else is specified/can be deduced.
 
 ## Operators
 
