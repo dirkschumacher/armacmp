@@ -108,8 +108,15 @@
 <code>type_scalar_integer</code> - a single int value</li>
 <li>
 <code>type_scalar_numeric</code> - a single double value</li>
+<li>
+<code>type_scalar_bool</code> - a single boolean value</li>
 </ul>
 <p>All functions need to return a value using the <code>return</code> function. The <code>return</code> function can have an optional return type argument with <code><a href="https://www.rdocumentation.org/packages/base/topics/function">return(value, type = type_rowvec())</a></code></p>
+</div>
+<div id="type-system" class="section level2">
+<h2 class="hasAnchor">
+<a href="#type-system" class="anchor"></a>Type system</h2>
+<p>The package supports only a very limited number of types. For scalar values these are <code>bool</code>, <code>int</code> and <code>double</code>. All matrices and vectors are of type <code>arma::mat/colvec/rowvec</code> for double matrices, and <code>arma::imat/icolvec/irowvec</code> for integer matrices. By default, it is assumed that a variable is of type <code>arma::mat</code> if nothing else is specified/can be deduced.</p>
 </div>
 <div id="operators" class="section level2">
 <h2 class="hasAnchor">
@@ -300,6 +307,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#function-signature">Function signature</a></li>
+      <li><a href="#type-system">Type system</a></li>
       <li><a href="#operators">Operators</a></li>
       <li><a href="#functions">Functions</a></li>
       <li><a href="#control-flow">Control Flow</a></li>
