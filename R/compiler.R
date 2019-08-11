@@ -20,6 +20,12 @@ armacmp_compile_internal <- function(fun, function_name, overwrite_return) {
   return_cpp_type <- if (!missing(overwrite_return)) {
     overwrite_return
   }
+
+  cpp_code <- annotated_ast$compile(
+    fun_name = function_name,
+    overwrite_return = return_cpp_type
+  )
+
   if (is.null(return_cpp_type) && annotated_ast$get_cpp_type() == "auto") {
     function_body <- annotated_ast$get_function_body()$get_sexp()
     stop(
@@ -30,10 +36,7 @@ armacmp_compile_internal <- function(fun, function_name, overwrite_return) {
       call. = FALSE
     )
   }
-  cpp_code <- annotated_ast$compile(
-    fun_name = function_name,
-    overwrite_return = return_cpp_type
-  )
+
   new_cpp_function(
     original_code = fun,
     cpp_code = cpp_code

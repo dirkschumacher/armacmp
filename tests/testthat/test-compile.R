@@ -127,7 +127,7 @@ test_that("determinants work", {
 
 test_that("access individual elements", {
   code <- armacmp_compile(function(x) {
-    return(x[1, 2] - x[1]^2 - x[1, 1]^2)
+    return(x[1, 2] - x[1]^2 - x[1, 1]^2, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("x(1.0 - 1, 2.0 - 1)", code, fixed = TRUE)
@@ -180,7 +180,7 @@ test_that("proper double representation for integer like numerics", {
     y1 <- 2
     y2 <- 2.1
     y3 <- 2L
-    return(y)
+    return(y, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("y1 = 2.0;", code, fixed = TRUE)
@@ -264,7 +264,7 @@ test_that("type decution works with lambdas", {
     x3 <- fun(20)
     x4 <- fun2()
     x5 <- fun3()
-    return(fun(50))
+    return(fun(50), type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("auto x2 = x + y", code, fixed = TRUE)
@@ -461,4 +461,20 @@ test_that("errors if type annotation is needed", {
   expect_error(armacmp_compile(function(X) {
     return(1 + 1 + 1) # not yet possible
   }, "wat"), "annotation")
+})
+
+test_that("type of lambdas can be deduced: example #42", {
+  code <- armacmp_compile(function(X) {
+    square <- function(y) {
+      return(y^2)
+    }
+    Y <- square(X)
+    return(Y)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::mat Y = square(X)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat wat(", code, fixed = TRUE)
+  )
 })
