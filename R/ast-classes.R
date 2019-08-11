@@ -656,14 +656,15 @@ ast_node_block <- R6::R6Class(
       ))
     },
     count_assignments = function(of_name) {
-      assignments <- private$find_nodes(c("ast_node_assignment", "ast_node_element_access"))
+      assignments <- private$find_nodes("ast_node_assignment")
       assignments <- Filter(function(assignment) {
         elements <- assignment$get_tail_elements()
         lhs <- elements[[1L]]
-        "ast_node_name" %in% class(lhs) && lhs$get_name() == of_name ||
+        "ast_node_name" %in% class(lhs)  && lhs$get_name() == of_name ||
           (
             "ast_node_element_access" %in% class(lhs) &&
-              paste0(deparse(lhs$get_head()), collapse = "") == of_name
+              "ast_node_name" %in% class(lhs$get_tail_elements()[[1L]]) &&
+              lhs$get_tail_elements()[[1L]]$get_name() == of_name
           )
       }, assignments)
       length(assignments)

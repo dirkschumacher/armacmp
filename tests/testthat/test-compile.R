@@ -138,6 +138,9 @@ test_that("access individual elements", {
   expect_true(
     grepl("std::pow(x(1.0 - 1, 1.0 - 1), 2.0)", code, fixed = TRUE)
   )
+  expect_true(
+    grepl("wat(const arma::mat& x)", code, fixed = TRUE)
+  )
 })
 
 test_that("set individual elements", {
