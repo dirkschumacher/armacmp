@@ -491,3 +491,23 @@ test_that("lin reg example works", {
     }, "wat")
   )
 })
+
+test_that("reassignments of parameters trigger copys", {
+  code <- armacmp_compile(function(X, Y, Z) {
+    fun <- function() {
+      X <- X + 1
+    }
+    fun()
+    Y[5] <- 10
+    return(X, type = type_matrix())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::mat X", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat Y", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("const arma::mat& Z", code, fixed = TRUE)
+  )
+})

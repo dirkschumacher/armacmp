@@ -80,13 +80,14 @@ ast_node <- R6::R6Class("ast_node",
     cpp_type = "auto",
     find_nodes = function(node_type, stop_at = NULL) {
       find_elements_rec <- function(node) {
-        if (!is.null(stop_at) && stop_at %in% class(node)) {
+        if (!is.null(stop_at) && any(stop_at %in% class(node))) {
           return(list())
         }
-        if (node_type %in% class(node)) {
-          return(list(node))
+        found_node <- list()
+        if (any(node_type %in% class(node))) {
+          found_node <- list(node)
         }
-        lapply(node$get_tail_elements(), find_elements_rec)
+        c(found_node, lapply(node$get_tail_elements(), find_elements_rec))
       }
       unlist(find_elements_rec(self))
     }
@@ -108,7 +109,11 @@ ast_node_arma_pairlist <- R6::R6Class(
   public = list(
     compile = function(fun_name = NULL, overwrite_return_type = NULL) {
       fun_args <- self$get_parameter_types()
-      input_params <- generate_cpp_input_parameters_code(fun_args)
+      input_params <- generate_cpp_input_parameters_code(
+        fun_args, is_reassigned = function(param_name) {
+          self$get_scope()$count_assignments(param_name) > 0L
+        }
+      )
       self$emit(
         "(", paste0(input_params, collapse = ", "), ")"
       )
@@ -160,8 +165,10 @@ ast_node_function <- R6::R6Class(
   public = list(
     register_input_variables_in_child_scope = function() {
       arguments <- self$get_function_parameters()
-      parameters <- arguments$get_tail_elements()
+      # also set the function body as the scope of the function parameters
       body <- self$get_function_body()
+      arguments$set_scope(body)
+      parameters <- arguments$get_tail_elements()
       stopifnot("ast_node_block" %in% class(body))
       for (i in seq_along(parameters)) {
         param <- parameters[[i]]
@@ -228,8 +235,8 @@ ast_node_function <- R6::R6Class(
       is_lambda <- is.null(fun_name)
       # first compile arguments and body
       # currently the compilation can alter the scope
-      args_compiled <- arguments$compile()
       body_compiled <- body$compile()
+      args_compiled <- arguments$compile()
 
       return_type <- if (!is.null(overwrite_return_type)) {
         overwrite_return_type
@@ -270,8 +277,11 @@ ast_node_function_call <- R6::R6Class(
   classname = "ast_node_function_call",
   inherit = ast_node,
   public = list(
+    get_name = function() {
+      paste0(deparse(self$get_sexp()[[1L]]), collapse = "")
+    },
     compile = function() {
-      val <- self$get_sexp()[[1L]]
+      val <- self$get_name()
       if (self$has_scope()) {
         if (!self$get_scope()$is_name_defined(val)) {
           # this is an unknown function call
@@ -644,6 +654,19 @@ ast_node_block <- R6::R6Class(
           self$get_scope()$find_all_parent_names()
         }
       ))
+    },
+    count_assignments = function(of_name) {
+      assignments <- private$find_nodes(c("ast_node_assignment", "ast_node_element_access"))
+      assignments <- Filter(function(assignment) {
+        elements <- assignment$get_tail_elements()
+        lhs <- elements[[1L]]
+        "ast_node_name" %in% class(lhs) && lhs$get_name() == of_name ||
+          (
+            "ast_node_element_access" %in% class(lhs) &&
+              paste0(deparse(lhs$get_head()), collapse = "") == of_name
+          )
+      }, assignments)
+      length(assignments)
     }
   ),
   private = list(
