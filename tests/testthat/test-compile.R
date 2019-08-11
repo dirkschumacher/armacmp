@@ -430,3 +430,29 @@ test_that("type propagation for log reg", {
     grepl("auto", code, fixed = TRUE)
   )
 })
+
+test_that("type deduction works for scales", {
+  code <- armacmp_compile(function(X) {
+    x <- 1
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("double wat(", code, fixed = TRUE)
+  )
+
+  code <- armacmp_compile(function(X) {
+    x <- 1L
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
+  )
+
+  code <- armacmp_compile(function(X) {
+    x <- TRUE
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("bool wat(", code, fixed = TRUE)
+  )
+})

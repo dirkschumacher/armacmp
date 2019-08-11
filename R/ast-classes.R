@@ -400,7 +400,7 @@ ast_node_name <- R6::R6Class(
       if (self$has_scope() && scope$is_name_defined(self$get_name())) {
         value_node <- scope$get_value_node_for_name(self$get_name())
         # TODO: check for self reference
-        return(auto_or_arma_type(value_node$get_cpp_type()))
+        return(value_node$get_cpp_type())
       }
       private$cpp_type
     },
