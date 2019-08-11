@@ -399,11 +399,34 @@ test_that("sequences with the colon operator", {
 
 test_that("ncol and nrow have the right type", {
   code <- armacmp_compile(function(X) {
-    a <- ncol(X)
-    b <- nrow(X)
-    return(a + b + 20L)
+    return(ncol(X))
   }, "wat")$cpp_code
   expect_true(
     grepl("int wat(", code, fixed = TRUE)
+  )
+  code <- armacmp_compile(function(X) {
+    return(nrow(X))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
+  )
+})
+
+test_that("type propagation for log reg", {
+  code <- armacmp_compile(function(X, y = type_colvec()) {
+    beta <- rep.int(0, ncol(X))
+    b_old <- beta
+    alpha <- X %*% beta
+    p <- 1 / (1 + exp(-alpha))
+    W <- p * (1 - p)
+    XtX <- crossprod(X, diag(W) %*% X)
+    score <- t(X) %*% (y - p)
+    delta <- solve(XtX, score)
+    return(beta)
+  }, "wat")$cpp_code
+
+  # no auto
+  expect_false(
+    grepl("auto", code, fixed = TRUE)
   )
 })

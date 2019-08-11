@@ -569,7 +569,7 @@ make_binary_operator_class <- function(name, op) {
         operands <- self$get_tail_elements()
         arma_type <- if (operands[[1L]]$is_armadillo_cpp_type()) {
           operands[[1L]]
-        } else if (length(operands[[2L]]) == 2L && operands[[2L]]$is_armadillo_cpp_type()) {
+        } else if (length(operands) == 2L && operands[[2L]]$is_armadillo_cpp_type()) {
           operands[[2L]]
         }
         if (!is.null(arma_type)) {
@@ -672,7 +672,7 @@ ast_node_length <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -688,7 +688,7 @@ ast_node_ncol <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -704,7 +704,7 @@ ast_node_nrow <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -1000,6 +1000,13 @@ ast_node_solve <- R6::R6Class(
           ")"
         )
       }
+    },
+    get_cpp_type = function() {
+      if (length(self$get_tail_elements()) == 1L) {
+        "arma::mat"
+      } else {
+        "arma::colvec"
+      }
     }
   )
 )
@@ -1019,6 +1026,9 @@ ast_node_crossprod <- R6::R6Class(
         expr2 <- elements[[2L]]$compile()
       }
       self$emit("arma::trans(", expr1, ") * ", expr2)
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -1038,6 +1048,9 @@ ast_node_tcrossprod <- R6::R6Class(
         expr2 <- elements[[2L]]$compile()
       }
       self$emit(expr1, " * arma::trans(", expr2, ")")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -1056,6 +1069,7 @@ ast_node_while <- R6::R6Class(
     }
   )
 )
+
 ast_node_for <- R6::R6Class(
   classname = "ast_node_for",
   inherit = ast_node,
@@ -1256,6 +1270,7 @@ ast_node_element_access <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
+      # TODO: depends on matrix type
       "auto"
     }
   )
@@ -1272,7 +1287,7 @@ ast_node_norm <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "double"
     }
   )
 )
@@ -1334,6 +1349,7 @@ ast_node_sum <- R6::R6Class(
       self$emit("arma::accu(", self$get_tail_elements()[[1L]]$compile(), ")")
     },
     get_cpp_type = function() {
+      # TODO: depends on data type
       "auto"
     }
   )
