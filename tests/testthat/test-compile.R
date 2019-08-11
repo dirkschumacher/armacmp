@@ -127,7 +127,7 @@ test_that("determinants work", {
 
 test_that("access individual elements", {
   code <- armacmp_compile(function(x) {
-    return(x[1, 2] - x[1]^2 - x[1, 1]^2)
+    return(x[1, 2] - x[1]^2 - x[1, 1]^2, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("x(1.0 - 1, 2.0 - 1)", code, fixed = TRUE)
@@ -180,7 +180,7 @@ test_that("proper double representation for integer like numerics", {
     y1 <- 2
     y2 <- 2.1
     y3 <- 2L
-    return(y)
+    return(y, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("y1 = 2.0;", code, fixed = TRUE)
@@ -255,7 +255,7 @@ test_that("type decution works with lambdas", {
   code <- armacmp_compile(function(x = type_scalar_numeric(), X) {
     fun <- function(y = type_scalar_numeric()) {
       x2 <- x + y
-      return(x2 + 10, type = type_scalar_numeric())
+      return(x2 + 10)
     }
     fun2 <- function() {
       return(X + 1)
@@ -264,7 +264,7 @@ test_that("type decution works with lambdas", {
     x3 <- fun(20)
     x4 <- fun2()
     x5 <- fun3()
-    return(fun(50))
+    return(fun(50), type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
     grepl("auto x2 = x + y", code, fixed = TRUE)
@@ -394,5 +394,100 @@ test_that("sequences with the colon operator", {
   }, "wat")$cpp_code
   expect_true(
     grepl("return arma::linspace<arma::colvec>(1, 10, 10 - 1 + 1);", code, fixed = TRUE)
+  )
+})
+
+test_that("ncol and nrow have the right type", {
+  code <- armacmp_compile(function(X) {
+    return(ncol(X))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
+  )
+  code <- armacmp_compile(function(X) {
+    return(nrow(X))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
+  )
+})
+
+test_that("type propagation for log reg", {
+  # in parts from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
+  code <- armacmp_compile(function(X, y = type_colvec()) {
+    beta <- rep.int(0, ncol(X))
+    b_old <- beta
+    alpha <- X %*% beta
+    p <- 1 / (1 + exp(-alpha))
+    W <- p * (1 - p)
+    XtX <- crossprod(X, diag(W) %*% X)
+    score <- t(X) %*% (y - p)
+    delta <- solve(XtX, score)
+    return(beta)
+  }, "wat")$cpp_code
+
+  # no auto
+  expect_false(
+    grepl("auto", code, fixed = TRUE)
+  )
+})
+
+test_that("type deduction works for scales", {
+  code <- armacmp_compile(function(X) {
+    x <- 1
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("double wat(", code, fixed = TRUE)
+  )
+
+  code <- armacmp_compile(function(X) {
+    x <- 1L
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
+  )
+
+  code <- armacmp_compile(function(X) {
+    x <- TRUE
+    return(x)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("bool wat(", code, fixed = TRUE)
+  )
+})
+
+test_that("errors if type annotation is needed", {
+  expect_error(armacmp_compile(function(X) {
+    return(1 + 1 + 1) # not yet possible
+  }, "wat"), "annotation")
+})
+
+test_that("type of lambdas can be deduced: example #42", {
+  code <- armacmp_compile(function(X) {
+    square <- function(y) {
+      return(y^2)
+    }
+    Y <- square(X)
+    return(Y)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::mat Y = square(X)", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat wat(", code, fixed = TRUE)
+  )
+})
+
+test_that("lin reg example works", {
+  # from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
+  expect_silent(
+    armacmp_compile(function(X, y = type_colvec()) {
+      qr_res <- qr(X)
+      qty <- t(qr.Q(qr_res)) %*% y
+      beta_hat <- backsolve(qr.R(qr_res), qty)
+      return(beta_hat, type = type_colvec())
+    }, "wat")
   )
 })

@@ -8,12 +8,6 @@ annotate_ast <- function(ast) {
   # names do not have types but use the value_map to get the type of the value at first assignment
   # register function parameters in the scope and typemap
 
-  # second pass
-  # deduce types from the ground up.
-  # at assignment nodes, register the deduced type in the type map if not there already
-  # at function nodes, take the return value
-  # at call nodes, check if the call is a previously defined lambda, then take that call
-
   # TODO: a lot of small rules are here. Good candidate to further improve
   # will be fixed once the API converges to something stable
   annotate_ast_rec <- function(current_sexp, scope, parent) {
@@ -60,6 +54,14 @@ annotate_ast <- function(ast) {
         }
       }
 
+      if (is.numeric(current_sexp)) {
+        class_type <- if (is.integer(current_sexp)) {
+          ast_node_scalar_int
+        } else {
+          ast_node_scalar_double
+        }
+      }
+
       node <- class_type$new(sexp = current_sexp, head = current_sexp)
       node$set_parent(parent)
       node$set_scope(scope)
@@ -84,25 +86,30 @@ annotate_ast <- function(ast) {
       scope <- current_node
     }
 
+
+    # TODO: create a function for all these %in% class calls
+    is_function <- "ast_node_function" %in% class(current_node)
+    is_for_loop <- "ast_node_for" %in% class(current_node)
+    is_while_loop <- "ast_node_while" %in% class(current_node)
+    is_if <- "ast_node_if" %in% class(current_node)
+
+    if (is_function || is_while_loop || is_if) {
+      current_sexp <- ensure_has_block(current_sexp, 3L)
+      current_node$set_sexp(current_sexp)
+    }
+
+    if (is_for_loop) {
+      current_sexp <- ensure_has_block(current_sexp, 4L)
+      current_node$set_sexp(current_sexp)
+    }
     tail_elements <- lapply(seq_along(current_sexp)[-1L], function(i) {
       annotate_ast_rec(current_sexp[[i]], scope, current_node)
     })
     current_node$set_tail_elements(tail_elements)
 
-    # TODO: create a function for all these %in% class calls
-    is_function <- "ast_node_function" %in% class(current_node)
     if (is_function) {
-      current_node$ensure_has_block()
       current_node$register_input_variables_in_child_scope()
     }
-
-    is_for_loop <- "ast_node_for" %in% class(current_node)
-    is_while_loop <- "ast_node_while" %in% class(current_node)
-    is_if <- "ast_node_if" %in% class(current_node)
-    if (is_for_loop || is_while_loop || is_if) {
-      current_node$ensure_has_block()
-    }
-
 
     is_pairlist <- "ast_node_arma_pairlist" %in% class(current_node)
     if (is_pairlist) {
@@ -119,40 +126,13 @@ annotate_ast <- function(ast) {
     }
     current_node
   }
-  tree <- annotate_ast_rec(ast, NULL, NULL)
 
-  deduce_types_rec(tree)
+  scope <- ast_node_global_scope$new(ast)
+  parent <- scope
+
+  tree <- annotate_ast_rec(ast, scope, parent)
 
   tree
-}
-
-deduce_types_rec <- function(current_node) {
-  tail_elements <- current_node$get_tail_elements()
-  is_assignment <- "ast_node_assignment" %in% class(current_node)
-  is_function <- "ast_node_function" %in% class(current_node)
-  is_function_call <- "ast_node_function_call" %in% class(current_node)
-  is_return <- "ast_node_return" %in% class(current_node)
-  is_name <- "ast_node_name" %in% class(current_node)
-
-  # first deduce type of children
-  for (el in tail_elements) {
-    deduce_types_rec(el)
-  }
-
-  if (is_function) {
-    current_node$update_return_type()
-  }
-  if (is_return) {
-    current_node$update_return_type()
-  }
-  if (is_function_call) {
-    current_node$update_return_type()
-  }
-
-  all_auto <- all(vapply(tail_elements, function(x) x$has_auto_cpp_type(), logical(1L)))
-  if (length(tail_elements) > 0L && all_auto && !is_assignment && !is_function && !is_name && !is_function_call) {
-    current_node$set_cpp_type("auto")
-  }
 }
 
 function_to_sexp <- function(sexp) {
@@ -192,6 +172,18 @@ function_to_sexp <- function(sexp) {
       as.call(list(as.name("arma_pairlist"))),
       sexp[[length(sexp)]]
     )
+  }
+  sexp
+}
+
+ensure_has_block <- function(sexp, index_el_to_be_wrapped) {
+  body <- sexp[[index_el_to_be_wrapped]]
+  is_block <- all("{" %in% as.character(body[[1L]]))
+  if (!is_block) {
+    sexp_block <- bquote({
+      .(body)
+    })
+    sexp[[index_el_to_be_wrapped]] <- sexp_block
   }
   sexp
 }

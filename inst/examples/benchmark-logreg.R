@@ -13,7 +13,7 @@ log_reg <- armacmp(function(X, y = type_colvec()) {
     delta <- solve(XtX, score)
     beta <- beta + delta
   }
-  return(beta, type = type_colvec())
+  return(beta)
 })
 
 log_reg_r_v1 <- function(X, y) {

@@ -36,9 +36,22 @@ ast_node <- R6::R6Class("ast_node",
     get_sexp = function() {
       private$sexp
     },
+    set_sexp = function(sexp) {
+      private$sexp <- sexp
+    },
     get_cpp_type = function() {
       private$cpp_type
     },
+    is_armadillo_cpp_type = function() {
+      grepl("^arma", self$get_cpp_type())
+    },
+    is_scalar_cpp_type = function() {
+      !self$is_armadillo_type() && !self$is_auto_type()
+    },
+    is_auto_cpp_type = function() {
+      self$has_auto_cpp_type()
+    },
+    # TODO: only one function
     has_auto_cpp_type = function() {
       self$get_cpp_type() == "auto"
     },
@@ -56,25 +69,6 @@ ast_node <- R6::R6Class("ast_node",
     },
     find_all_names = function() {
       private$find_nodes("ast_node_name")
-    },
-    ensure_has_block = function(index_el_to_be_wrapped) {
-      tail_elements <- self$get_tail_elements()
-      body <- tail_elements[[index_el_to_be_wrapped]]
-      is_block <- "ast_node_block" %in% class(body)
-      if (!is_block) {
-        sexp <- bquote({
-          .(body$get_sexp())
-        })
-        new_block <- ast_node_block$new(sexp = sexp, head = as.name("{"))
-        new_block$set_tail_elements(list(body))
-        for (el in tail_elements) {
-          el$set_parent(new_block)
-        }
-        new_block$set_scope(self$get_scope())
-        new_block$set_parent(self)
-        tail_elements[[index_el_to_be_wrapped]] <- new_block
-        self$set_tail_elements(tail_elements)
-      }
     }
   ),
   private = list(
@@ -83,7 +77,7 @@ ast_node <- R6::R6Class("ast_node",
     tail_elements = list(),
     scope = NULL,
     parent = NULL,
-    cpp_type = "arma::mat",
+    cpp_type = "auto",
     find_nodes = function(node_type, stop_at = NULL) {
       find_elements_rec <- function(node) {
         if (!is.null(stop_at) && stop_at %in% class(node)) {
@@ -148,6 +142,8 @@ ast_node_arma_pairlist <- R6::R6Class(
         }
         new_param <- ast_node_name$new(var_name, var_name)
         new_param$set_cpp_type(type$cpp_type)
+        new_param$set_parent(self)
+        new_param$set_scope(self$get_scope())
         tail[[i]] <- new_param
       }
       self$set_tail_elements(tail)
@@ -172,8 +168,13 @@ ast_node_function <- R6::R6Class(
         stopifnot("ast_node_name" %in% class(param))
         dummy_value <- ast_node_dummy$new()
         dummy_value$set_cpp_type(param$get_cpp_type())
-        # TODO: add method `get_name`
-        body$register_new_name(as.character(param$get_head()), dummy_value)
+        dummy_value$set_parent(self)
+        dummy_value$set_scope(body)
+        body$register_new_name(param$get_name(), dummy_value)
+        # Also we need to change the scope of the input variables to the body
+        # as we register the names there
+        # TODO: revisit that
+        param$set_scope(body)
       }
     },
     is_recursive = function(assigned_name) {
@@ -195,32 +196,41 @@ ast_node_function <- R6::R6Class(
         ")>"
       )
     },
-    ensure_has_block = function() {
-      super$ensure_has_block(2L)
-    },
     get_function_body = function() {
       self$get_tail_elements()[[2L]]
     },
     get_function_parameters = function() {
       self$get_tail_elements()[[1L]]
     },
-    update_return_type = function() {
+    get_cpp_type = function() {
       body <- self$get_function_body()
       return_types <- body$find_all_returns()
       return_types <- lapply(return_types, function(x) x$get_cpp_type())
       return_type <- if (length(return_types) == 0L) {
         "void"
       } else {
-        stopifnot(length(unique(return_types)) == 1L)
+        if (length(unique(return_types)) != 1L) {
+          stop("There seem to be multiple possible return types in your function. ",
+            "Consider adding type annotations to all `return` statements.",
+            "\n\n",
+            paste0(deparse(body$get_sexp()), collapse = "\n"),
+            call. = FALSE
+          )
+        }
         return_types[[1L]]
       }
-      self$set_cpp_type(return_type)
+      return_type
     },
     compile = function(fun_name = NULL, overwrite_return_type = NULL, is_recursive = FALSE) {
       stopifnot(length(self$get_tail_elements()) == 2L)
       arguments <- self$get_function_parameters()
       body <- self$get_function_body()
       is_lambda <- is.null(fun_name)
+      # first compile arguments and body
+      # currently the compilation can alter the scope
+      args_compiled <- arguments$compile()
+      body_compiled <- body$compile()
+
       return_type <- if (!is.null(overwrite_return_type)) {
         overwrite_return_type
       } else {
@@ -239,10 +249,10 @@ ast_node_function <- R6::R6Class(
       }
       self$emit(
         function_prefix_code,
-        arguments$compile(),
+        args_compiled,
         function_suffix_code,
         "\n",
-        body$compile()
+        body_compiled
       )
     }
   ),
@@ -284,16 +294,16 @@ ast_node_function_call <- R6::R6Class(
         suffix
       )
     },
-    update_return_type = function() {
-      # the type is the type of the function
+    get_cpp_type = function() {
       if (self$has_scope() && is.call(self$get_sexp())) {
         scope <- self$get_scope()
         fun_name <- self$get_sexp()[[1L]]
         if (scope$is_name_defined(fun_name)) {
           fun <- scope$get_value_node_for_name(fun_name)
-          self$set_cpp_type(auto_or_arma_type(fun$get_cpp_type()))
+          return(fun$get_cpp_type())
         }
       }
+      private$cpp_type
     }
   )
 )
@@ -306,6 +316,7 @@ ast_node_terminal <- R6::R6Class(
       val <- self$get_head()
       # val %% 1 == 0, TRUE if val is integer like otherwise FALSE
       # see https://stackoverflow.com/a/3477158/2798441
+      # TODO: move to ast_node_scalar
       if (is.numeric(val) && !is.integer(val) && val %% 1 == 0) {
         self$emit(val, ".0")
       } else {
@@ -315,41 +326,67 @@ ast_node_terminal <- R6::R6Class(
   )
 )
 
+ast_node_scalar <- R6::R6Class(
+  classname = "ast_node_scalar",
+  inherit = ast_node_terminal
+)
+
+ast_node_scalar_double <- R6::R6Class(
+  classname = "ast_node_scalar",
+  inherit = ast_node_scalar,
+  public = list(
+    get_cpp_type = function() {
+      "double"
+    }
+  )
+)
+
+ast_node_scalar_int <- R6::R6Class(
+  classname = "ast_node_int",
+  inherit = ast_node_scalar,
+  public = list(
+    get_cpp_type = function() {
+      "int"
+    }
+  )
+)
+
+ast_node_scalar_bool <- R6::R6Class(
+  classname = "ast_node_bool",
+  inherit = ast_node_scalar,
+  public = list(
+    get_cpp_type = function() {
+      "bool"
+    }
+  )
+)
+
 ast_node_pi <- R6::R6Class(
   classname = "ast_node_pi",
-  inherit = ast_node,
+  inherit = ast_node_scalar_double,
   public = list(
     compile = function() {
       self$emit("arma::datum::pi")
-    },
-    get_cpp_type = function() {
-      "auto"
     }
   )
 )
 
 ast_node_true <- R6::R6Class(
   classname = "ast_node_true",
-  inherit = ast_node,
+  inherit = ast_node_scalar_bool,
   public = list(
     compile = function() {
       self$emit("true")
-    },
-    get_cpp_type = function() {
-      "auto"
     }
   )
 )
 
 ast_node_false <- R6::R6Class(
   classname = "ast_node_false",
-  inherit = ast_node,
+  inherit = ast_node_scalar_bool,
   public = list(
     compile = function() {
       self$emit("false")
-    },
-    get_cpp_type = function() {
-      "auto"
     }
   )
 )
@@ -360,13 +397,15 @@ ast_node_name <- R6::R6Class(
   public = list(
     get_cpp_type = function() {
       scope <- self$get_scope()
-      if (self$has_scope() && scope$is_name_defined(self$get_head())) {
-        value_node <- scope$get_value_node_for_name(as.character(self$get_head()))
-        if (!"ast_node_name" %in% class(value_node)) {
-          return(auto_or_arma_type(value_node$get_cpp_type()))
-        }
+      if (self$has_scope() && scope$is_name_defined(self$get_name())) {
+        value_node <- scope$get_value_node_for_name(self$get_name())
+        # TODO: check for self reference
+        return(value_node$get_cpp_type())
       }
       private$cpp_type
+    },
+    get_name = function() {
+      paste0(deparse(self$get_head()), collapse = "")
     }
   )
 )
@@ -401,11 +440,15 @@ ast_node_assignment <- R6::R6Class(
       if ("ast_node_qr_init" %in% class(rhs)) {
         return(rhs$compile(lhs_compiled))
       }
-
       lhs_is_call <- "ast_node_function_call" %in% class(operands[[1L]]) ||
         "ast_node_element_access" %in% class(operands[[1L]])
       type <- if (self$is_initial_assignment() && !lhs_is_call) {
-        paste0(operands[[2L]]$get_cpp_type(), " ")
+        type <- operands[[2L]]$get_cpp_type()
+        # we use auto for anything non armadillo
+        type <- auto_or_arma_type(type)
+        # also let the name point to this inital expression
+        # operands[[1L]]$set_value_node(operands[[2L]])
+        paste0(type, " ")
       } else {
         ""
       }
@@ -422,10 +465,10 @@ ast_node_assignment <- R6::R6Class(
         }
       }
 
-      # TODO: modifies the AST
-      # Needs to be mangaged better
-      private$register_assignment()
-      deduce_types_rec(self$get_scope())
+      lhs_is_name <- "ast_node_name" %in% class(operands[[1L]])
+      if (self$is_initial_assignment() && lhs_is_name) {
+        private$register_assignment()
+      }
 
       # something wrong here
       if (is_lambda && is_lambda_recursive) {
@@ -471,7 +514,7 @@ ast_node_assignment <- R6::R6Class(
   private = list(
     register_assignment = function() {
       if (self$has_scope()) {
-        var_name <- paste0(deparse(self$get_tail_elements()[[1L]]$get_sexp()), collapse = "")
+        var_name <- self$get_tail_elements()[[1L]]$get_name()
         self$get_scope()$register_new_name(var_name, self$get_tail_elements()[[2L]])
       }
     }
@@ -482,13 +525,6 @@ ast_node_return <- R6::R6Class(
   classname = "ast_node_return",
   inherit = ast_node,
   public = list(
-    update_return_type = function() {
-      operands <- self$get_tail_elements()
-      if (length(operands) == 2L) {
-        type_spec <- eval(operands[[2]]$get_sexp())
-        self$set_cpp_type(type_spec$cpp_type)
-      }
-    },
     compile = function() {
       operands <- self$get_tail_elements()
       stopifnot(length(operands) %in% c(1L, 2L))
@@ -497,6 +533,16 @@ ast_node_return <- R6::R6Class(
         operands[[1L]]$compile(),
         ";"
       )
+    },
+    get_cpp_type = function() {
+      operands <- self$get_tail_elements()
+      if (length(operands) == 2L) {
+        # TODO: no eval :)
+        type_spec <- eval(operands[[2]]$get_sexp())
+        stopifnot(is.character(type_spec$cpp_type))
+        return(type_spec$cpp_type)
+      }
+      operands[[1L]]$get_cpp_type()
     }
   )
 )
@@ -518,6 +564,26 @@ make_binary_operator_class <- function(name, op) {
             operands[[2L]]$compile()
           )
         }
+      },
+      get_cpp_type = function() {
+        operands <- self$get_tail_elements()
+        arma_type <- if (operands[[1L]]$is_armadillo_cpp_type()) {
+          operands[[1L]]
+        } else if (length(operands) == 2L && operands[[2L]]$is_armadillo_cpp_type()) {
+          operands[[2L]]
+        }
+        if (!is.null(arma_type)) {
+          if (op %in% c("*", "/", "+", "-")) {
+            # TODO: HEURISTIC: we return the type of the first armadillo type
+            return(arma_type$get_cpp_type())
+          }
+          if (op %in% c("<=", ">=", "<", ">", "==")) {
+            # it is an arma::umat
+            # TODO: can we figure out if rowvec/colvec?
+            return("arma::umat")
+          }
+        }
+        private$cpp_type
       }
     )
   )
@@ -585,7 +651,15 @@ ast_node_block <- R6::R6Class(
   )
 )
 
-
+ast_node_global_scope <- R6::R6Class(
+  classname = "ast_node_global_scope",
+  inherit = ast_node_block,
+  public = list(
+    initialize = function(sexp) {
+      super$initialize(sexp, quote(`{`))
+    }
+  )
+)
 
 ast_node_length <- R6::R6Class(
   classname = "ast_node_length",
@@ -598,7 +672,7 @@ ast_node_length <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -614,7 +688,7 @@ ast_node_ncol <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -630,7 +704,7 @@ ast_node_nrow <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "int"
     }
   )
 )
@@ -649,9 +723,6 @@ ast_node_if <- R6::R6Class(
           paste0(" else ", elements[[3L]]$compile())
         }
       )
-    },
-    ensure_has_block = function() {
-      super$ensure_has_block(2L)
     }
   )
 )
@@ -663,14 +734,8 @@ ast_node_mult <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      # only use armadillo element-wise multiplication
-      # if both operands are armadillo types
-      op <- if (elements[[1L]]$has_auto_cpp_type() ||
-        elements[[2L]]$has_auto_cpp_type()) {
-        "*"
-      } else {
-        "%"
-      }
+
+      op <- private$get_mult_operator()
       self$emit(
         elements[[1L]]$compile(),
         " ",
@@ -678,6 +743,43 @@ ast_node_mult <- R6::R6Class(
         " ",
         elements[[2L]]$compile()
       )
+    },
+    get_cpp_type = function() {
+      elements <- self$get_tail_elements()
+      if (private$get_mult_operator() == "%") {
+        # TODO: need to figure out types for imat, umat, mat combinations
+        return(elements[[1L]]$get_cpp_type())
+      } else {
+        arma_element <- if (elements[[1L]]$is_armadillo_cpp_type()) {
+          elements[[1L]]
+        } else if (elements[[2L]]$is_armadillo_cpp_type()) {
+          elements[[2L]]
+        }
+        if (!is.null(arma_element)) {
+          return(arma_element$get_cpp_type())
+        } else {
+          # TODO: figure more combinations
+          # # "Otherwise, if either operand is double, the other shall be converted to double."
+          #
+          # if ("double" %in% c(elements[[2L]]$get_cpp_type(), elements[[2L]]$get_cpp_type())) {
+          #   return("double")
+          # }
+        }
+      }
+      private$cpp_type
+    }
+  ),
+  private = list(
+    get_mult_operator = function() {
+      elements <- self$get_tail_elements()
+      # only use armadillo element-wise multiplication
+      # if both operands are armadillo types
+      if (!elements[[1L]]$is_armadillo_cpp_type() ||
+        !elements[[2L]]$is_armadillo_cpp_type()) {
+        "*"
+      } else {
+        "%"
+      }
     }
   )
 )
@@ -694,6 +796,35 @@ ast_node_matmul <- R6::R6Class(
         " * ",
         elements[[2L]]$compile()
       )
+    },
+    get_cpp_type = function() {
+      arma_type <- find_arma_cpp_types(self$get_tail_elements())
+      arma_cpp_types <- vapply(arma_type, function(x) x$get_cpp_type(), character(1L))
+      if (length(arma_type) == 2L) {
+        is_integer_arma_type <- function(type) {
+          grepl("^arma::i", type)
+        }
+        is_unsigned_integer_arma_type <- function(type) {
+          grepl("^arma::u", type)
+        }
+        is_double_arma_type <- function(type) {
+          type %in% paste0("arma::", c("vec", "colvec", "rowvec", "mat"))
+        }
+        # TODO: revisit these rules and contemplate
+        if (any(sapply(arma_cpp_types, is_double_arma_type))) {
+          return("arma::mat")
+        }
+        if (any(sapply(arma_cpp_types, is_integer_arma_type))) {
+          return("arma::imat")
+        }
+        if (all(sapply(arma_cpp_types, is_unsigned_integer_arma_type))) {
+          return("arma::umat")
+        }
+      }
+      if (length(arma_type) == 1L) {
+        return(arma_type[[1L]]$get_cpp_type())
+      }
+      "arma::mat"
     }
   )
 )
@@ -705,11 +836,11 @@ ast_node_pow <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 2L)
       elements <- self$get_tail_elements()
-      fun <- if (elements[[1L]]$has_auto_cpp_type() &&
-        elements[[2L]]$has_auto_cpp_type()) {
-        "std::pow"
-      } else {
+      fun <- if (elements[[1L]]$is_armadillo_cpp_type()) {
+        # we assume the second argument is compatible
         "arma::pow"
+      } else {
+        "std::pow"
       }
       self$emit(
         fun, "(",
@@ -718,6 +849,9 @@ ast_node_pow <- R6::R6Class(
         elements[[2L]]$compile(),
         ")"
       )
+    },
+    get_cpp_type = function() {
+      self$get_tail_elements()[[1L]]$get_cpp_type()
     }
   )
 )
@@ -733,6 +867,9 @@ ast_node_bracket <- R6::R6Class(
         self$get_tail_elements()[[1L]]$compile(),
         ")"
       )
+    },
+    get_cpp_type = function() {
+      self$get_tail_elements()[[1L]]$get_cpp_type()
     }
   )
 )
@@ -746,7 +883,13 @@ ast_node_colsums <- R6::R6Class(
       self$emit("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
     },
     get_cpp_type = function() {
-      "arma::rowvec"
+      input_type <- self$get_tail_elements()[[1L]]$get_cpp_type()
+      arma_type <- arma_element_type(input_type)
+      if (!is.null(arma_type)) {
+        get_arma_type("rowvec", elements = arma_type)
+      } else {
+        private$cpp_type
+      }
     }
   )
 )
@@ -760,7 +903,13 @@ ast_node_rowsums <- R6::R6Class(
       self$emit("arma::sum( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
     },
     get_cpp_type = function() {
-      "arma::colvec"
+      input_type <- self$get_tail_elements()[[1L]]$get_cpp_type()
+      arma_type <- arma_element_type(input_type)
+      if (!is.null(arma_type)) {
+        get_arma_type("colvec", elements = arma_type)
+      } else {
+        private$cpp_type
+      }
     }
   )
 )
@@ -774,7 +923,7 @@ ast_node_colmeans <- R6::R6Class(
       self$emit("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 0 )")
     },
     get_cpp_type = function() {
-      "arma::colvec"
+      "arma::rowvec"
     }
   )
 )
@@ -788,7 +937,7 @@ ast_node_rowmeans <- R6::R6Class(
       self$emit("arma::mean( ", self$get_tail_elements()[[1L]]$compile(), ", 1 )")
     },
     get_cpp_type = function() {
-      "arma::rowvec"
+      "arma::colvec"
     }
   )
 )
@@ -851,6 +1000,13 @@ ast_node_solve <- R6::R6Class(
           ")"
         )
       }
+    },
+    get_cpp_type = function() {
+      if (length(self$get_tail_elements()) == 1L) {
+        "arma::mat"
+      } else {
+        "arma::colvec"
+      }
     }
   )
 )
@@ -870,6 +1026,9 @@ ast_node_crossprod <- R6::R6Class(
         expr2 <- elements[[2L]]$compile()
       }
       self$emit("arma::trans(", expr1, ") * ", expr2)
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -889,6 +1048,9 @@ ast_node_tcrossprod <- R6::R6Class(
         expr2 <- elements[[2L]]$compile()
       }
       self$emit(expr1, " * arma::trans(", expr2, ")")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -904,12 +1066,10 @@ ast_node_while <- R6::R6Class(
         "while (", elements[[1L]]$compile(), ")\n",
         elements[[2L]]$compile()
       )
-    },
-    ensure_has_block = function() {
-      super$ensure_has_block(2L)
     }
   )
 )
+
 ast_node_for <- R6::R6Class(
   classname = "ast_node_for",
   inherit = ast_node,
@@ -937,7 +1097,6 @@ ast_node_for <- R6::R6Class(
         dummy_iter_var <- ast_node_dummy$new()
         dummy_iter_var$set_cpp_type("auto")
         body_scope$register_new_name(iter_var_name, dummy_iter_var)
-        deduce_types_rec(body)
         self$emit(
           "for (const auto& ", iter_var_name,
           " : ", container$compile(), ")\n",
@@ -959,9 +1118,6 @@ ast_node_for <- R6::R6Class(
           "\n"
         )
       }
-    },
-    ensure_has_block = function() {
-      super$ensure_has_block(3L)
     }
   ),
   private = list(
@@ -1002,6 +1158,9 @@ ast_node_qr_q <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(self$get_tail_elements()[[1L]]$compile(), "__Q")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -1013,6 +1172,9 @@ ast_node_qr_r <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(self$get_tail_elements()[[1L]]$compile(), "__R")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -1114,6 +1276,7 @@ ast_node_element_access <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
+      # TODO: depends on matrix type
       "auto"
     }
   )
@@ -1130,7 +1293,7 @@ ast_node_norm <- R6::R6Class(
       )
     },
     get_cpp_type = function() {
-      "auto"
+      "double"
     }
   )
 )
@@ -1158,21 +1321,26 @@ ast_node_rep_int <- R6::R6Class(
 make_generic_unary_function_class <- function(class_name, fun) {
   R6::R6Class(
     classname = paste0("ast_node_generic_unary_function_", class_name),
-    inherit = ast_node,
+    inherit = ast_node_function_call,
     public = list(
       compile = function() {
         stopifnot(length(self$get_tail_elements()) == 1L)
-        fun_type <- if (is.character(fun)) {
+        fun_name <- if (is.character(fun)) {
           fun
         } else {
-          auto_type <- self$get_tail_elements()[[1L]]$has_auto_cpp_type()
-          if (auto_type) {
-            fun$std
-          } else {
+          arma_type <- self$get_tail_elements()[[1L]]$is_armadillo_cpp_type()
+          if (arma_type) {
             fun$arma
+          } else {
+            fun$std
           }
         }
-        self$emit(fun_type, "(", self$get_tail_elements()[[1L]]$compile(), ")")
+        self$emit(fun_name, "(", self$get_tail_elements()[[1L]]$compile(), ")")
+      },
+      get_cpp_type = function() {
+        # the assumption is that the input type is the same as the return type
+        # for these kind of functions
+        self$get_tail_elements()[[1L]]$get_cpp_type()
       }
     )
   )
@@ -1187,6 +1355,7 @@ ast_node_sum <- R6::R6Class(
       self$emit("arma::accu(", self$get_tail_elements()[[1L]]$compile(), ")")
     },
     get_cpp_type = function() {
+      # TODO: depends on data type
       "auto"
     }
   )
@@ -1306,4 +1475,30 @@ auto_or_arma_type <- function(type) {
   } else {
     "auto"
   }
+}
+
+arma_element_type <- function(type) {
+  dbl_types <- c("arma::mat", "arma::colvec", "arma::rowvec")
+  int_types <- c("arma::imat", "arma::icolvec", "arma::irowvec")
+  uint_types <- c("arma::umat", "arma::ucolvec", "arma::urowvec")
+  if (type %in% dbl_types) {
+    "double"
+  } else if (type %in% int_types) {
+    "int"
+  } else if (type %in% uint_types) {
+    "uint"
+  }
+}
+
+get_arma_type <- function(base_type, elements) {
+  prefix <- ""
+  if (elements == "int") prefix <- "i"
+  if (elements == "uint") prefix <- "u"
+  paste0("arma::", prefix, base_type)
+}
+
+find_arma_cpp_types <- function(nodes) {
+  Filter(function(x) {
+    x$is_armadillo_cpp_type()
+  }, nodes)
 }

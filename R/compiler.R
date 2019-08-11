@@ -20,10 +20,23 @@ armacmp_compile_internal <- function(fun, function_name, overwrite_return) {
   return_cpp_type <- if (!missing(overwrite_return)) {
     overwrite_return
   }
+
   cpp_code <- annotated_ast$compile(
     fun_name = function_name,
     overwrite_return = return_cpp_type
   )
+
+  if (is.null(return_cpp_type) && annotated_ast$get_cpp_type() == "auto") {
+    function_body <- annotated_ast$get_function_body()$get_sexp()
+    stop(
+      "The return type of the function cannot be automatically deduced.",
+      " Consider adding an explicit type annotation to your `return` statement.",
+      "\n\n",
+      paste0(deparse(function_body), collapse = "\n"),
+      call. = FALSE
+    )
+  }
+
   new_cpp_function(
     original_code = fun,
     cpp_code = cpp_code

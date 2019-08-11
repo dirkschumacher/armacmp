@@ -1,5 +1,4 @@
 test_that("crossprod", {
-  skip_on_cran()
   crossprod2 <- armacmp(function(X = type_matrix(), Y = type_matrix()) {
     return(t(X) %*% Y)
   })
@@ -8,7 +7,6 @@ test_that("crossprod", {
 })
 
 test_that("inverse", {
-  skip_on_cran()
   inverse <- armacmp(function(X) {
     return(solve(X), type = type_matrix())
   })
@@ -19,7 +17,6 @@ test_that("inverse", {
 test_that("for loop", {
   for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
     X_new <- X
-    # only seq_len is currently supported
     for (i in seq_len(10 + 10)) {
       X_new <- log(t(X_new) %*% X_new + i + offset)
     }
