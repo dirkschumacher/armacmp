@@ -822,7 +822,7 @@ ast_node_matmul <- R6::R6Class(
         }
       }
       if (length(arma_type) == 1L) {
-        return(arma_type$get_cpp_type())
+        return(arma_type[[1L]]$get_cpp_type())
       }
       "arma::mat"
     }
@@ -1158,6 +1158,9 @@ ast_node_qr_q <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(self$get_tail_elements()[[1L]]$compile(), "__Q")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )
@@ -1169,6 +1172,9 @@ ast_node_qr_r <- R6::R6Class(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) == 1L)
       self$emit(self$get_tail_elements()[[1L]]$compile(), "__R")
+    },
+    get_cpp_type = function() {
+      "arma::mat"
     }
   )
 )

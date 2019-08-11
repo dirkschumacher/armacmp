@@ -413,6 +413,7 @@ test_that("ncol and nrow have the right type", {
 })
 
 test_that("type propagation for log reg", {
+  # in parts from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
   code <- armacmp_compile(function(X, y = type_colvec()) {
     beta <- rep.int(0, ncol(X))
     b_old <- beta
@@ -476,5 +477,17 @@ test_that("type of lambdas can be deduced: example #42", {
   )
   expect_true(
     grepl("arma::mat wat(", code, fixed = TRUE)
+  )
+})
+
+test_that("lin reg example works", {
+  # from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
+  expect_silent(
+    armacmp_compile(function(X, y = type_colvec()) {
+      qr_res <- qr(X)
+      qty <- t(qr.Q(qr_res)) %*% y
+      beta_hat <- backsolve(qr.R(qr_res), qty)
+      return(beta_hat, type = type_colvec())
+    }, "wat")
   )
 })
