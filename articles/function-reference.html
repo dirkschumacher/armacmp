@@ -116,7 +116,9 @@
 <div id="type-system" class="section level2">
 <h2 class="hasAnchor">
 <a href="#type-system" class="anchor"></a>Type system</h2>
-<p>The package supports only a very limited number of types. For scalar values these are <code>bool</code>, <code>int</code> and <code>double</code>. All matrices and vectors are of type <code>arma::mat/colvec/rowvec</code> for double matrices, and <code>arma::imat/icolvec/irowvec</code> for integer matrices. By default, it is assumed that a variable is of type <code>arma::mat</code> if nothing else is specified/can be deduced.</p>
+<p>The package supports only a very limited number of types. For scalar values these are <code>bool</code>, <code>int</code> and <code>double</code>. All matrices and vectors are of type <code>arma::mat/colvec/rowvec</code> for double matrices, <code>arma::imat/icolvec/irowvec</code> for integer matrices and <code>arma::umat/ucolvec/urowvec</code> for unsigned integer matrices (used for indicies).</p>
+<p>All operations are performed either on Armadillo types or on scalar types and not on R’s data structures.</p>
+<p>The package tries to figure out the correct types of variables and functions, but you can give type hints. If the package cannot figure out the type, the C++ type <code>auto</code> is used which can have <a href="http://arma.sourceforge.net/faq.html">suboptimal performance</a> when used together with Armadillo operations.</p>
 </div>
 <div id="operators" class="section level2">
 <h2 class="hasAnchor">
