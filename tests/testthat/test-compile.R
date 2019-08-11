@@ -456,3 +456,9 @@ test_that("type deduction works for scales", {
     grepl("bool wat(", code, fixed = TRUE)
   )
 })
+
+test_that("errors if type annotation is needed", {
+  expect_error(armacmp_compile(function(X) {
+    return(1 + 1 + 1) # not yet possible
+  }, "wat"), "annotation")
+})
