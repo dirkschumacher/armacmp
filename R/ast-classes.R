@@ -221,18 +221,6 @@ ast_node_function <- R6::R6Class(
       }
       return_type
     },
-    update_return_type = function() {
-      body <- self$get_function_body()
-      return_types <- body$find_all_returns()
-      return_types <- lapply(return_types, function(x) x$get_cpp_type())
-      return_type <- if (length(return_types) == 0L) {
-        "void"
-      } else {
-        stopifnot(length(unique(return_types)) == 1L)
-        return_types[[1L]]
-      }
-      self$set_cpp_type(return_type)
-    },
     compile = function(fun_name = NULL, overwrite_return_type = NULL, is_recursive = FALSE) {
       stopifnot(length(self$get_tail_elements()) == 2L)
       arguments <- self$get_function_parameters()
@@ -316,17 +304,6 @@ ast_node_function_call <- R6::R6Class(
         }
       }
       private$cpp_type
-    },
-    update_return_type = function() {
-      # the type is the type of the function
-      if (self$has_scope() && is.call(self$get_sexp())) {
-        scope <- self$get_scope()
-        fun_name <- self$get_sexp()[[1L]]
-        if (scope$is_name_defined(fun_name)) {
-          fun <- scope$get_value_node_for_name(fun_name)
-          self$set_cpp_type(auto_or_arma_type(fun$get_cpp_type()))
-        }
-      }
     }
   )
 )
@@ -548,13 +525,6 @@ ast_node_return <- R6::R6Class(
   classname = "ast_node_return",
   inherit = ast_node,
   public = list(
-    update_return_type = function() {
-      operands <- self$get_tail_elements()
-      if (length(operands) == 2L) {
-        type_spec <- eval(operands[[2]]$get_sexp())
-        self$set_cpp_type(type_spec$cpp_type)
-      }
-    },
     compile = function() {
       operands <- self$get_tail_elements()
       stopifnot(length(operands) %in% c(1L, 2L))
