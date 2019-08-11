@@ -41,7 +41,11 @@ All functions need to return a value using the `return` function. The  `return` 
 
 ## Type system
 
-The package supports only a very limited number of types. For scalar values these are `bool`, `int` and `double`. All matrices and vectors are of type `arma::mat/colvec/rowvec` for double matrices, and `arma::imat/icolvec/irowvec` for integer matrices. By default, it is assumed that a variable is of type `arma::mat` if nothing else is specified/can be deduced.
+The package supports only a very limited number of types. For scalar values these are `bool`, `int` and `double`. All matrices and vectors are of type `arma::mat/colvec/rowvec` for double matrices, `arma::imat/icolvec/irowvec` for integer matrices and `arma::umat/ucolvec/urowvec` for unsigned integer matrices (used for indicies).
+
+All operations are performed either on Armadillo types or on scalar types and not on R's data structures.
+
+The package tries to figure out the correct types of variables and functions, but you can give type hints. If the package cannot figure out the type, the C++ type `auto` is used which can have [suboptimal performance](http://arma.sourceforge.net/faq.html) when used together with Armadillo operations.
 
 ## Operators
 

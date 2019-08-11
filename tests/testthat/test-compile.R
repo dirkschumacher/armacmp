@@ -255,7 +255,7 @@ test_that("type decution works with lambdas", {
   code <- armacmp_compile(function(x = type_scalar_numeric(), X) {
     fun <- function(y = type_scalar_numeric()) {
       x2 <- x + y
-      return(x2 + 10, type = type_scalar_numeric())
+      return(x2 + 10)
     }
     fun2 <- function() {
       return(X + 1)
@@ -394,5 +394,16 @@ test_that("sequences with the colon operator", {
   }, "wat")$cpp_code
   expect_true(
     grepl("return arma::linspace<arma::colvec>(1, 10, 10 - 1 + 1);", code, fixed = TRUE)
+  )
+})
+
+test_that("ncol and nrow have the right type", {
+  code <- armacmp_compile(function(X) {
+    a <- ncol(X)
+    b <- nrow(X)
+    return(a + b + 20L)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("int wat(", code, fixed = TRUE)
   )
 })
