@@ -110,7 +110,8 @@ ast_node_arma_pairlist <- R6::R6Class(
     compile = function(fun_name = NULL, overwrite_return_type = NULL) {
       fun_args <- self$get_parameter_types()
       input_params <- generate_cpp_input_parameters_code(
-        fun_args, is_reassigned = function(param_name) {
+        fun_args,
+        is_reassigned = function(param_name) {
           self$get_scope()$count_assignments(param_name) > 0L
         }
       )
@@ -660,7 +661,7 @@ ast_node_block <- R6::R6Class(
       assignments <- Filter(function(assignment) {
         elements <- assignment$get_tail_elements()
         lhs <- elements[[1L]]
-        "ast_node_name" %in% class(lhs)  && lhs$get_name() == of_name ||
+        "ast_node_name" %in% class(lhs) && lhs$get_name() == of_name ||
           (
             "ast_node_element_access" %in% class(lhs) &&
               "ast_node_name" %in% class(lhs$get_tail_elements()[[1L]]) &&
