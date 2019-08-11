@@ -124,19 +124,18 @@ qsort_r = function(a) {
 }
 
 qsort_cpp <- armacmp(function(vec = type_colvec()) {
-  vec_copy <- vec
   qsort_kernel <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
     i <- lo
     j <- hi
     while (i < hi) {
-      pivot <- vec_copy[floor((lo+hi)/2)]
+      pivot <- vec[floor((lo+hi)/2)]
       while (i <= j) {
-        while (vec_copy[i] < pivot) i <- i + 1
-        while (vec_copy[j] > pivot) j <- j - 1
+        while (vec[i] < pivot) i <- i + 1
+        while (vec[j] > pivot) j <- j - 1
         if (i <= j) {
-          t <- vec_copy[i]
-          vec_copy[i] <- vec_copy[j]
-          vec_copy[j] <- t
+          t <- vec[i]
+          vec[i] <- vec[j]
+          vec[j] <- t
           i <- i + 1
           j <- j - 1
         }
@@ -146,8 +145,8 @@ qsort_cpp <- armacmp(function(vec = type_colvec()) {
       j <- hi
     }
   }
-  qsort_kernel(1, length(vec_copy))
-  return(vec_copy, type = type_colvec())
+  qsort_kernel(1, length(vec))
+  return(vec, type = type_colvec())
 })
 
 x <- runif(10000)

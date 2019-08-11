@@ -84,13 +84,13 @@ generate_cpp_input_types <- function(fun_args) {
   )
 }
 
-generate_cpp_input_parameters_code <- function(fun_args) {
+generate_cpp_input_parameters_code <- function(fun_args, is_reassigned = function(x) FALSE) {
   vapply(
     seq_along(fun_args),
     function(i) {
       x <- fun_args[[i]]
       name <- names(fun_args)[[i]]
-      if (x$cpp_type %in% c("double", "int")) {
+      if (x$cpp_type %in% c("double", "int") || is_reassigned(name)) {
         paste0(x$cpp_type, " ", name)
       } else {
         paste0("const ", x$cpp_type, "& ", name)

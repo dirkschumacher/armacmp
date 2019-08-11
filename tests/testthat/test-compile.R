@@ -138,6 +138,9 @@ test_that("access individual elements", {
   expect_true(
     grepl("std::pow(x(1.0 - 1, 1.0 - 1), 2.0)", code, fixed = TRUE)
   )
+  expect_true(
+    grepl("wat(const arma::mat& x)", code, fixed = TRUE)
+  )
 })
 
 test_that("set individual elements", {
@@ -489,5 +492,25 @@ test_that("lin reg example works", {
       beta_hat <- backsolve(qr.R(qr_res), qty)
       return(beta_hat, type = type_colvec())
     }, "wat")
+  )
+})
+
+test_that("reassignments of parameters trigger copys", {
+  code <- armacmp_compile(function(X, Y, Z) {
+    fun <- function() {
+      X <- X + 1
+    }
+    fun()
+    Y[5] <- 10
+    return(X, type = type_matrix())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::mat X", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("arma::mat Y", code, fixed = TRUE)
+  )
+  expect_true(
+    grepl("const arma::mat& Z", code, fixed = TRUE)
   )
 })
