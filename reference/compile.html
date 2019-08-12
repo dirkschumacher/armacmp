@@ -136,17 +136,31 @@
     </tr>
     <tr>
       <th>verbose</th>
-      <td><p>print out compiler information</p></td>
+      <td><p>optional logical, print out compiler information</p>
+<p>This function always compiles functions.
+Every function needs to have a <code>return</code> statement with an optional type argument.
+All input parameters are by default of type double matrix.
+Type inference is tried to be done, but sometimes it is helpful to add type annotation.</p>
+<p>Take a look at function reference vignette for more information.</p></td>
     </tr>
     </table>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>trans</span> <span class='kw'>&lt;-</span> <span class='fu'>compile</span>(<span class='kw'>function</span>(<span class='no'>X</span>) {
+  <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/function'>return</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/t'>t</a></span>(<span class='no'>X</span>))
+})
+<span class='fu'>trans</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>))
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+            
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>
