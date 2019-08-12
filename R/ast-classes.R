@@ -1501,7 +1501,7 @@ new_node_by_chr <- function(head_chr, is_call = FALSE) {
 }
 
 make_random_var_name <- function(id) {
-  paste0("__arma_tmp_", id)
+  paste0("arma___tmp_", id)
 }
 
 # our type system
