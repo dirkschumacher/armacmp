@@ -31,7 +31,7 @@ It has three main functions:
 
 * `compile` compiles an R function to C++ and makes that function again avaliable in your R session.
 * `translate` translates an R function to C++ and returns the code as text.
-* `compile_optimization_problem` uses `RcppEnsmallen` uses the functions above to compile continuous mathematical optimizations problems to C++.
+* `compile_optimization_problem` uses `RcppEnsmallen` and the functions above to compile continuous mathematical optimizations problems to C++.
 
 This is currently an *experimental prototype* with most certainly bugs or unexpected behaviour. However I would be happy for any type of feedback, alpha testers, feature requests and potential use cases.
 

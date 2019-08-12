@@ -29,7 +29,7 @@ It has three main functions:
     again avaliable in your R session.
   - `translate` translates an R function to C++ and returns the code as
     text.
-  - `compile_optimization_problem` uses `RcppEnsmallen` uses the
+  - `compile_optimization_problem` uses `RcppEnsmallen` and the
     functions above to compile continuous mathematical optimizations
     problems to C++.
 
@@ -150,9 +150,9 @@ optimize <- compile_optimization_problem(
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
 #>               [,1]
-#> [1,]  0.0001389234
-#> [2,] -0.0006827793
-#> [3,]  0.0002540279
+#> [1,] -6.411589e-05
+#> [2,]  2.314313e-04
+#> [3,]  8.573798e-05
 ```
 
 Optimizers:
@@ -192,11 +192,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -1.997475
-#> [2,]  1.496734
-#> [3,]  2.998867
-#> [4,]  8.200459
-#> [5,]  6.601844
+#> [1,] -2.000079
+#> [2,]  1.504263
+#> [3,]  3.002013
+#> [4,]  8.202451
+#> [5,]  6.602681
 ```
 
 Optimizers:

@@ -20,6 +20,7 @@ compile_optimization_problem(data = list(), evaluate, gradient,
 The function compiles the code to C++ and uses Armadillo and ensmallen to optimize it.
 }
 \examples{
+\dontrun{
 optimize <- compile_optimization_problem(
   data = list(),
   evaluate = function(x) {
@@ -30,4 +31,5 @@ optimize <- compile_optimization_problem(
 
 # should be roughly c(0, 0, 0)
 result <- optimize(matrix(c(1, -1, 1), ncol = 1))
+}
 }

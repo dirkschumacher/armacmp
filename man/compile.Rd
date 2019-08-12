@@ -9,8 +9,23 @@ compile(fun, verbose = FALSE)
 \arguments{
 \item{fun}{a function}
 
-\item{verbose}{print out compiler information}
+\item{verbose}{optional logical, print out compiler information
+
+This function always compiles functions.
+Every function needs to have a \code{return} statement with an optional type argument.
+All input parameters are by default of type double matrix.
+Type inference is tried to be done, but sometimes it is helpful to add type annotation.
+
+Take a look at function reference vignette for more information.}
 }
 \description{
 Compile Linear Algebra Code to C++
+}
+\examples{
+\dontrun{
+trans <- compile(function(X) {
+  return(t(X))
+})
+trans(matrix(1:10))
+}
 }

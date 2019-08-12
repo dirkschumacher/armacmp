@@ -9,6 +9,7 @@
 #' @include optimizers.R
 #'
 #' @examples
+#' \dontrun{
 #' optimize <- compile_optimization_problem(
 #'   data = list(),
 #'   evaluate = function(x) {
@@ -19,6 +20,7 @@
 #'
 #' # should be roughly c(0, 0, 0)
 #' result <- optimize(matrix(c(1, -1, 1), ncol = 1))
+#' }
 #' @export
 compile_optimization_problem <- function(data = list(), evaluate, gradient, optimizer = optimizer_SA()) {
   stopifnot(is.function(evaluate))
