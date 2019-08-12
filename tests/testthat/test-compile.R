@@ -514,3 +514,16 @@ test_that("reassignments of parameters trigger copys", {
     grepl("const arma::mat& Z", code, fixed = TRUE)
   )
 })
+
+test_that("for loops without a loop variable is deterministic", {
+  fun <- function() {
+    x <- 0
+    for (k in seq_len(10L)) {
+      x <- x + 1
+    }
+    return(x, type = type_scalar_numeric())
+  }
+  code1 <- armacmp_compile(fun, "wat")$cpp_code
+  code2 <- armacmp_compile(fun, "wat")$cpp_code
+  expect_equal(code1, code2)
+})
