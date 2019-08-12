@@ -23,6 +23,16 @@ optimize functions in C++.
 The scope of the package is linear algebra and Armadillo. It is not
 meant to evolve into a general purpose R to C++ transpiler.
 
+It has three main functions:
+
+  - `compile` compiles an R function to C++ and makes that function
+    again avaliable in your R session.
+  - `translate` translates an R function to C++ and returns the code as
+    text.
+  - `compile_optimization_problem` uses `RcppEnsmallen` uses the
+    functions above to compile continuous mathematical optimizations
+    problems to C++.
+
 This is currently an *experimental prototype* with most certainly bugs
 or unexpected behaviour. However I would be happy for any type of
 feedback, alpha testers, feature requests and potential use cases.
@@ -32,9 +42,9 @@ Potential use cases:
   - Speed up your code :)
   - Quickly estimate `Rcpp` speedup gain for linear algebra code
   - Learn how R linear algebra code can be expressed in C++ using
-    `armacmp_compile` and use the code as a starting point for further
+    `translate` and use the code as a starting point for further
     development.
-  - Mathematical optimization with `arma_optim`
+  - Mathematical optimization with `optimize`
   - …
 
 ## Installation
@@ -67,7 +77,7 @@ library(armacmp)
 Takes a matrix and returns its transpose.
 
 ``` r
-trans <- armacmp(function(X) {
+trans <- compile(function(X) {
   return(t(X))
 })
 trans(matrix(1:10))
@@ -79,7 +89,7 @@ Or a slightly larger example using QR decomposition
 
 ``` r
 # from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
-lm_cpp <- armacmp(function(X, y = type_colvec()) {
+lm_cpp <- compile(function(X, y = type_colvec()) {
   qr_res <- qr(X)
   qty <- t(qr.Q(qr_res)) %*% y
   beta_hat <- backsolve(qr.R(qr_res), qty)
@@ -103,7 +113,7 @@ all.equal(
 `return` statement with an optional type argument.
 
 ``` r
-my_fun <- armacmp(function(X, y = type_colvec())) {
+my_fun <- compile(function(X, y = type_colvec())) {
   return(X %*% y, type = type_colvec())
 }
 ```
@@ -129,7 +139,7 @@ Here we minimize `2 * norm(x)^2` using simulated annealing.
 
 ``` r
 # taken from the docs of ensmallen.org
-optimize <- arma_optim(
+optimize <- compile_optimization_problem(
   data = list(),
   evaluate = function(x) {
     return(2 * norm(x)^2)
@@ -140,9 +150,9 @@ optimize <- arma_optim(
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
 #>               [,1]
-#> [1,] -0.0014143145
-#> [2,] -0.0002712769
-#> [3,] -0.0003427564
+#> [1,]  0.0001389234
+#> [2,] -0.0006827793
+#> [3,]  0.0002540279
 ```
 
 Optimizers:
@@ -156,7 +166,7 @@ Optimizers:
 Here solve a linear regression problem using L-BFGS.
 
 ``` r
-optimize_lbfgs <- arma_optim(
+optimize_lbfgs <- compile_optimization_problem(
   data = list(design_matrix = type_matrix(), response = type_colvec()),
   evaluate = function(beta) {
     return(norm(response - design_matrix %*% beta)^2)
@@ -182,11 +192,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -1.999494
-#> [2,]  1.497021
-#> [3,]  2.998242
-#> [4,]  8.198832
-#> [5,]  6.602705
+#> [1,] -1.997475
+#> [2,]  1.496734
+#> [3,]  2.998867
+#> [4,]  8.200459
+#> [5,]  6.601844
 ```
 
 Optimizers:

@@ -20,7 +20,7 @@
 #' # should be roughly c(0, 0, 0)
 #' result <- optimize(matrix(c(1, -1, 1), ncol = 1))
 #' @export
-arma_optim <- function(data = list(), evaluate, gradient, optimizer = optimizer_SA()) {
+compile_optimization_problem <- function(data = list(), evaluate, gradient, optimizer = optimizer_SA()) {
   stopifnot(is.function(evaluate))
   fun_args <- Filter(function(x) !is.null(x), as.list(args(evaluate)))
   eval_fun_argname <- names(fun_args)

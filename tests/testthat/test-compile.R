@@ -2,14 +2,14 @@ test_that("some basic checks", {
   a_lot_of_fun <- function(x, y = type_matrix()) {
     return(t(x) %*% y)
   }
-  expect_silent(armacmp_compile(a_lot_of_fun, "wat")$cpp_code)
+  expect_silent(translate(a_lot_of_fun, "wat")$cpp_code)
 })
 
 test_that("it fails if an element is not supported", {
   a_lot_of_fun <- function(x, y = type_matrix()) {
     return(asodied(x^10))
   }
-  expect_error(armacmp_compile(a_lot_of_fun, "wat")$cpp_code,
+  expect_error(translate(a_lot_of_fun, "wat")$cpp_code,
     regexp = "asodied"
   )
 })
@@ -19,7 +19,7 @@ test_that("it fails if two different return types", {
     return(10, type = type_scalar_int())
     return(10, type = type_scalar_numeric())
   }
-  expect_error(armacmp_compile(a_lot_of_fun, "wat")$cpp_code,
+  expect_error(translate(a_lot_of_fun, "wat")$cpp_code,
     regexp = "return"
   )
 })
@@ -30,12 +30,12 @@ test_that("you can reassign variables", {
     x2 <- x
     return(x2)
   }
-  code <- armacmp_compile(a_lot_of_fun, "wat")$cpp_code
+  code <- translate(a_lot_of_fun, "wat")$cpp_code
   expect_true(grepl("x2 = x", code, fixed = TRUE))
 })
 
 test_that("solve accepts 1 and 2 arguments", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     return(solve(X))
   }, "wat")$cpp_code
   expect_true(
@@ -45,7 +45,7 @@ test_that("solve accepts 1 and 2 arguments", {
       fixed = TRUE
     )
   )
-  code <- armacmp_compile(function(X, y) {
+  code <- translate(function(X, y) {
     return(solve(X, y))
   }, "wat")$cpp_code
   expect_true(
@@ -56,14 +56,14 @@ test_that("solve accepts 1 and 2 arguments", {
     )
   )
   expect_error(
-    armacmp_compile(function(X, y) {
+    translate(function(X, y) {
       return(solve(X, y, X))
     }, "wat")
   )
 })
 
 test_that("arma element wise mult only when arma is used", {
-  code <- armacmp_compile(function(x = type_scalar_numeric(), y = type_scalar_numeric()) {
+  code <- translate(function(x = type_scalar_numeric(), y = type_scalar_numeric()) {
     return(x * y, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
@@ -72,7 +72,7 @@ test_that("arma element wise mult only when arma is used", {
 })
 
 test_that("multi dispatch of arma and std functions", {
-  code <- armacmp_compile(function(x, y = type_scalar_numeric()) {
+  code <- translate(function(x, y = type_scalar_numeric()) {
     X <- exp(x)
     Y <- exp(y)
     return(1, type = type_scalar_numeric())
@@ -86,7 +86,7 @@ test_that("multi dispatch of arma and std functions", {
 })
 
 test_that("generic range-based for loops work", {
-  code <- armacmp_compile(function(y = type_scalar_numeric()) {
+  code <- translate(function(y = type_scalar_numeric()) {
     iter <- seq_len(y)
     x <- 1
     for (i in iter) {
@@ -103,7 +103,7 @@ test_that("generic range-based for loops work", {
 })
 
 test_that("generic range-based for loops work", {
-  code <- armacmp_compile(function(X = type_matrix()) {
+  code <- translate(function(X = type_matrix()) {
     X2 <- crossprod(X)
     X3 <- crossprod(X, X2)
     return(X3)
@@ -117,7 +117,7 @@ test_that("generic range-based for loops work", {
 })
 
 test_that("determinants work", {
-  code <- armacmp_compile(function(X = type_matrix()) {
+  code <- translate(function(X = type_matrix()) {
     return(det(X))
   }, "wat")$cpp_code
   expect_true(
@@ -126,7 +126,7 @@ test_that("determinants work", {
 })
 
 test_that("access individual elements", {
-  code <- armacmp_compile(function(x) {
+  code <- translate(function(x) {
     return(x[1, 2] - x[1]^2 - x[1, 1]^2, type = type_scalar_numeric())
   }, "wat")$cpp_code
   expect_true(
@@ -144,7 +144,7 @@ test_that("access individual elements", {
 })
 
 test_that("set individual elements", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     X2 <- X
     X2[1] <- 5
     X2[1, 2] <- 10
@@ -159,7 +159,7 @@ test_that("set individual elements", {
 })
 
 test_that("access individual elements", {
-  code <- armacmp_compile(function(x) {
+  code <- translate(function(x) {
     i <- 0
     for (i in seq_len(10)) {
       if (i < 5) {
@@ -179,7 +179,7 @@ test_that("access individual elements", {
 })
 
 test_that("proper double representation for integer like numerics", {
-  code <- armacmp_compile(function(x) {
+  code <- translate(function(x) {
     y1 <- 2
     y2 <- 2.1
     y3 <- 2L
@@ -197,7 +197,7 @@ test_that("proper double representation for integer like numerics", {
 })
 
 test_that("tcrossprod is supported", {
-  code <- armacmp_compile(function(x, y) {
+  code <- translate(function(x, y) {
     X <- tcrossprod(x)
     X <- tcrossprod(x, y)
     return(X)
@@ -211,7 +211,7 @@ test_that("tcrossprod is supported", {
 })
 
 test_that("element-wise multiplication only for arma types", {
-  code <- armacmp_compile(function(x, y) {
+  code <- translate(function(x, y) {
     X <- x * 2
     Y <- x * y
     return(X)
@@ -226,7 +226,7 @@ test_that("element-wise multiplication only for arma types", {
 
 test_that("function can have 0 arguments", {
   expect_silent(
-    armacmp_compile(function() {
+    translate(function() {
       return(5)
     }, "wat")
   )
@@ -234,12 +234,12 @@ test_that("function can have 0 arguments", {
     return(5)
   }
   expect_silent(
-    armacmp_compile(fun, "wat")
+    translate(fun, "wat")
   )
 })
 
 test_that("test lambdas", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     square <- function(y) {
       return(y^2)
     }
@@ -255,7 +255,7 @@ test_that("test lambdas", {
 })
 
 test_that("type decution works with lambdas", {
-  code <- armacmp_compile(function(x = type_scalar_numeric(), X) {
+  code <- translate(function(x = type_scalar_numeric(), X) {
     fun <- function(y = type_scalar_numeric()) {
       x2 <- x + y
       return(x2 + 10)
@@ -296,7 +296,7 @@ test_that("type decution works with lambdas", {
 })
 
 test_that("element-wise multiplications only used for arma::types in loops", {
-  code <- armacmp_compile(function() {
+  code <- translate(function() {
     for (k in seq_len(10L)) {
       t <- k * k
     }
@@ -309,7 +309,7 @@ test_that("element-wise multiplications only used for arma::types in loops", {
 
 test_that("for loops without blocks work", {
   expect_silent(
-    armacmp_compile(function() {
+    translate(function() {
       x <- 0
       for (k in seq_len(10L)) x <- k + 1
       return(x, type = type_scalar_numeric())
@@ -318,7 +318,7 @@ test_that("for loops without blocks work", {
 })
 
 test_that("while loops are supported", {
-  code <- armacmp_compile(function() {
+  code <- translate(function() {
     x <- 0
     while (x < 10) {
       y <- 5
@@ -339,7 +339,7 @@ test_that("while loops are supported", {
 })
 
 test_that("lambdas are mutable by default and do not need to have a return", {
-  code <- armacmp_compile(function() {
+  code <- translate(function() {
     x <- 1
     fun <- function(y = type_scalar_numeric()) {
       x <- x + y
@@ -356,7 +356,7 @@ test_that("lambdas are mutable by default and do not need to have a return", {
 })
 
 test_that("lambdas are mutable by default and do not need to have a return", {
-  code <- armacmp_compile(function() {
+  code <- translate(function() {
     fun <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
       i <- lo
       j <- hi
@@ -377,7 +377,7 @@ test_that("lambdas are mutable by default and do not need to have a return", {
 })
 
 test_that("recursive lambdas are detected and work", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     fun <- function(x = type_scalar_numeric(), X) {
       if (x == 0) {
         return(0, type = type_scalar_numeric())
@@ -392,7 +392,7 @@ test_that("recursive lambdas are detected and work", {
 })
 
 test_that("sequences with the colon operator", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     return(1L:10L)
   }, "wat")$cpp_code
   expect_true(
@@ -401,13 +401,13 @@ test_that("sequences with the colon operator", {
 })
 
 test_that("ncol and nrow have the right type", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     return(ncol(X))
   }, "wat")$cpp_code
   expect_true(
     grepl("int wat(", code, fixed = TRUE)
   )
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     return(nrow(X))
   }, "wat")$cpp_code
   expect_true(
@@ -417,7 +417,7 @@ test_that("ncol and nrow have the right type", {
 
 test_that("type propagation for log reg", {
   # in parts from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
-  code <- armacmp_compile(function(X, y = type_colvec()) {
+  code <- translate(function(X, y = type_colvec()) {
     beta <- rep.int(0, ncol(X))
     b_old <- beta
     alpha <- X %*% beta
@@ -436,7 +436,7 @@ test_that("type propagation for log reg", {
 })
 
 test_that("type deduction works for scales", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     x <- 1
     return(x)
   }, "wat")$cpp_code
@@ -444,7 +444,7 @@ test_that("type deduction works for scales", {
     grepl("double wat(", code, fixed = TRUE)
   )
 
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     x <- 1L
     return(x)
   }, "wat")$cpp_code
@@ -452,7 +452,7 @@ test_that("type deduction works for scales", {
     grepl("int wat(", code, fixed = TRUE)
   )
 
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     x <- TRUE
     return(x)
   }, "wat")$cpp_code
@@ -462,13 +462,13 @@ test_that("type deduction works for scales", {
 })
 
 test_that("errors if type annotation is needed", {
-  expect_error(armacmp_compile(function(X) {
+  expect_error(translate(function(X) {
     return(1 + 1 + 1) # not yet possible
   }, "wat"), "annotation")
 })
 
 test_that("type of lambdas can be deduced: example #42", {
-  code <- armacmp_compile(function(X) {
+  code <- translate(function(X) {
     square <- function(y) {
       return(y^2)
     }
@@ -486,7 +486,7 @@ test_that("type of lambdas can be deduced: example #42", {
 test_that("lin reg example works", {
   # from Arnold, T., Kane, M., & Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.
   expect_silent(
-    armacmp_compile(function(X, y = type_colvec()) {
+    translate(function(X, y = type_colvec()) {
       qr_res <- qr(X)
       qty <- t(qr.Q(qr_res)) %*% y
       beta_hat <- backsolve(qr.R(qr_res), qty)
@@ -496,7 +496,7 @@ test_that("lin reg example works", {
 })
 
 test_that("reassignments of parameters trigger copys", {
-  code <- armacmp_compile(function(X, Y, Z) {
+  code <- translate(function(X, Y, Z) {
     fun <- function() {
       X <- X + 1
     }
@@ -523,7 +523,7 @@ test_that("for loops without a loop variable is deterministic", {
     }
     return(x, type = type_scalar_numeric())
   }
-  code1 <- armacmp_compile(fun, "wat")$cpp_code
-  code2 <- armacmp_compile(fun, "wat")$cpp_code
+  code1 <- translate(fun, "wat")$cpp_code
+  code2 <- translate(fun, "wat")$cpp_code
   expect_equal(code1, code2)
 })

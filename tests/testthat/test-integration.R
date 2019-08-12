@@ -1,5 +1,5 @@
 test_that("crossprod", {
-  crossprod2 <- armacmp(function(X = type_matrix(), Y = type_matrix()) {
+  crossprod2 <- compile(function(X = type_matrix(), Y = type_matrix()) {
     return(t(X) %*% Y)
   })
   x <- matrix(1:1000)
@@ -7,7 +7,7 @@ test_that("crossprod", {
 })
 
 test_that("inverse", {
-  inverse <- armacmp(function(X) {
+  inverse <- compile(function(X) {
     return(solve(X), type = type_matrix())
   })
   x <- matrix(runif(100), ncol = 10)
@@ -15,7 +15,7 @@ test_that("inverse", {
 })
 
 test_that("for loop", {
-  for_loop <- armacmp(function(X, offset = type_scalar_numeric()) {
+  for_loop <- compile(function(X, offset = type_scalar_numeric()) {
     X_new <- X
     for (i in seq_len(10 + 10)) {
       X_new <- log(t(X_new) %*% X_new + i + offset)
@@ -38,7 +38,7 @@ test_that("for loop", {
 })
 
 test_that("if", {
-  if_clause <- armacmp(function(X) {
+  if_clause <- compile(function(X) {
     # infers that test needs to be bool (auto)
     test <- sum(log(X)) < 10
     if (test) {
@@ -69,7 +69,7 @@ test_that("if", {
 })
 
 test_that("qr", {
-  qr2 <- armacmp(function(X) {
+  qr2 <- compile(function(X) {
     x <- qr(X)
     return(qr.Q(x) %*% qr.R(x))
   })
@@ -82,7 +82,7 @@ test_that("qr", {
 })
 
 test_that("chol", {
-  chol2 <- armacmp(function(X) return(chol(X)))
+  chol2 <- compile(function(X) return(chol(X)))
   X <- matrix(c(5, 1, 1, 3), 2, 2)
   expect_equal(
     chol2(X),
@@ -91,7 +91,7 @@ test_that("chol", {
 })
 
 test_that("nrow and ncol", {
-  nrc <- armacmp(function(X) {
+  nrc <- compile(function(X) {
     return(nrow(X) + ncol(X), type = type_scalar_int())
   })
   X <- matrix(1:100, ncol = 10)
@@ -100,7 +100,7 @@ test_that("nrow and ncol", {
 
 test_that("scoping works", {
   expect_silent(
-    fun <- armacmp(function(X) {
+    fun <- compile(function(X) {
       x <- X
       y <- 10
       test <- 5 < 10
@@ -142,7 +142,7 @@ test_that("scoping works", {
 })
 
 test_that("for loops only create loop variable if used", {
-  expect_silent(fun <- armacmp(function() {
+  expect_silent(fun <- compile(function() {
     x <- 10
     for (i in 1:10) {
       x <- x + 1
@@ -153,10 +153,10 @@ test_that("for loops only create loop variable if used", {
 })
 
 test_that("back and forwardsolve", {
-  backsolve2 <- armacmp(function(x, y = type_colvec()) {
+  backsolve2 <- compile(function(x, y = type_colvec()) {
     return(backsolve(x, y))
   })
-  forwardsolve2 <- armacmp(function(x, y = type_colvec()) {
+  forwardsolve2 <- compile(function(x, y = type_colvec()) {
     return(forwardsolve(x, y))
   })
 
@@ -172,7 +172,7 @@ test_that("back and forwardsolve", {
 })
 
 test_that("cum* functions work", {
-  cumprod_sum <- armacmp(function(x = type_colvec()) {
+  cumprod_sum <- compile(function(x = type_colvec()) {
     return(cumprod(x) + cumsum(x))
   })
 
@@ -184,10 +184,10 @@ test_that("cum* functions work", {
 })
 
 test_that("colsums et al. work", {
-  colSums2 <- armacmp(function(X) return(colSums(X)))
-  rowSums2 <- armacmp(function(X) return(rowSums(X)))
-  colMeans2 <- armacmp(function(X) return(colMeans(X)))
-  rowMeans2 <- armacmp(function(X) return(rowMeans(X)))
+  colSums2 <- compile(function(X) return(colSums(X)))
+  rowSums2 <- compile(function(X) return(rowSums(X)))
+  colMeans2 <- compile(function(X) return(colMeans(X)))
+  rowMeans2 <- compile(function(X) return(rowMeans(X)))
 
   X <- matrix(1:100, ncol = 10)
   expect_equal(colSums(X), as.numeric(colSums2(X)))
@@ -197,7 +197,7 @@ test_that("colsums et al. work", {
 })
 
 test_that("QR decompositions", {
-  qr2 <- armacmp(function(X) {
+  qr2 <- compile(function(X) {
     qr_res <- qr(X)
     return(qr.Q(qr_res) %*% qr.R(qr_res))
   })
@@ -216,7 +216,7 @@ test_that("QR decompositions", {
 })
 
 test_that("rep.int generates a colvec", {
-  fun <- armacmp(function() {
+  fun <- compile(function() {
     x <- rep.int(1, 10)
     return(x + 10, type = type_colvec())
   })
@@ -227,7 +227,7 @@ test_that("rep.int generates a colvec", {
 })
 
 test_that("element access works with doubles", {
-  fun <- armacmp(function(X) {
+  fun <- compile(function(X) {
     X2 <- X
     X2[2] <- X2[1] + 13
     return(X2)
@@ -240,7 +240,7 @@ test_that("element access works with doubles", {
 
 test_that("lambdas work", {
   expect_silent(
-    armacmp(function(X, y = type_scalar_numeric(), z = type_colvec()) {
+    compile(function(X, y = type_scalar_numeric(), z = type_colvec()) {
       log_fun <- function(el, e = type_scalar_numeric()) {
         return(log(el)^log(e))
       }
@@ -254,7 +254,7 @@ test_that("lambdas work", {
 })
 
 test_that("boolean integration test", {
-  fun <- armacmp(function(y = type_scalar_logical()) {
+  fun <- compile(function(y = type_scalar_logical()) {
     z <- TRUE
     if (y) {
       z <- FALSE

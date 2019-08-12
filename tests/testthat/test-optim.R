@@ -1,5 +1,5 @@
 test_that("SA works", {
-  optimize <- arma_optim(
+  optimize <- compile_optimization_problem(
     data = list(),
     evaluate = function(x) {
       return(2 * norm(x)^2)
@@ -12,7 +12,7 @@ test_that("SA works", {
 })
 
 test_that("CNE works", {
-  optimize <- arma_optim(
+  optimize <- compile_optimization_problem(
     data = list(),
     evaluate = function(x) {
       return(2 * norm(x)^2)
@@ -25,7 +25,7 @@ test_that("CNE works", {
 })
 
 test_that("L_BFGS works", {
-  optimize_lbfgs <- arma_optim(
+  optimize_lbfgs <- compile_optimization_problem(
     data = list(design_matrix = type_matrix(), response = type_colvec()),
     evaluate = function(beta) {
       return(norm(response - design_matrix %*% beta)^2)
@@ -54,7 +54,7 @@ test_that("L_BFGS works", {
 })
 
 test_that("rosenbrock works", {
-  rosenbrock <- arma_optim(
+  rosenbrock <- compile_optimization_problem(
     data = list(),
     evaluate = function(x) {
       return(100 * (x[2] - x[1]^2)^2 + (1 - x[1])^2)

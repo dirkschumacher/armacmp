@@ -24,7 +24,7 @@ Here we minimize `2 * norm(x)^2` using simulated annealing.
 
 ```{r}
 # taken from the docs of ensmallen.org
-optimize <- arma_optim(
+optimize <- compile_optimization_problem(
   data = list(),
   evaluate = function(x) {
     return(2 * norm(x)^2)
@@ -47,7 +47,7 @@ optimize(matrix(c(1, -1, 1), ncol = 1))
 Here solve a linear regression problem using L-BFGS.
 
 ```{r}
-optimize_lbfgs <- arma_optim(
+optimize_lbfgs <- compile_optimization_problem(
   data = list(design_matrix = type_matrix(), response = type_colvec()),
   evaluate = function(beta) {
     return(norm(response - design_matrix %*% beta)^2)
