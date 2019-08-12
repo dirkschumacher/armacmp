@@ -20,7 +20,7 @@ compile_optimization_problem(data = list(), evaluate, gradient,
 The function compiles the code to C++ and uses Armadillo and ensmallen to optimize it.
 }
 \examples{
-optimize <- arma_optim(
+optimize <- compile_optimization_problem(
   data = list(),
   evaluate = function(x) {
     return(2 * norm(x)^2)

@@ -9,7 +9,7 @@
 #' @include optimizers.R
 #'
 #' @examples
-#' optimize <- arma_optim(
+#' optimize <- compile_optimization_problem(
 #'   data = list(),
 #'   evaluate = function(x) {
 #'     return(2 * norm(x)^2)
