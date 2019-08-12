@@ -633,6 +633,16 @@ ast_node_block <- R6::R6Class(
         private$value_map[[name_chr]] <- value_node
       }
     },
+    new_random_variable_id = function() {
+      prefix <- if (self$has_scope()) {
+        self$get_scope()$new_random_variable_id()
+      } else {
+        ""
+      }
+      var_id <- paste0(prefix, private$rand_variable_name_count)
+      private$rand_variable_name_count <- private$rand_variable_name_count + 1L
+      var_id
+    },
     is_name_defined = function(name) {
       if (nchar(name) == 0L) {
         return(FALSE)
@@ -672,7 +682,8 @@ ast_node_block <- R6::R6Class(
     }
   ),
   private = list(
-    value_map = NULL
+    value_map = NULL,
+    rand_variable_name_count = 0L
   )
 )
 
@@ -1129,10 +1140,10 @@ ast_node_for <- R6::R6Class(
           "\n"
         )
       } else {
-        container_var_name <- random_var_name()
-        iter_var_name <- random_var_name()
-        # TODO: this creates non-deterministic source code
-        # not a good thing!!
+
+        container_var_name <- make_random_var_name(self$get_scope()$new_random_variable_id())
+        iter_var_name <- make_random_var_name(self$get_scope()$new_random_variable_id())
+
         self$emit(
           "\nauto&& ", container_var_name, " = ", container$compile(), ";\n",
           "for (auto ",
@@ -1489,8 +1500,8 @@ new_node_by_chr <- function(head_chr, is_call = FALSE) {
   ast_node
 }
 
-random_var_name <- function() {
-  paste0("__armacmp_", substr(digest::sha1(stats::runif(1)), 1, 6))
+make_random_var_name <- function(id) {
+  paste0("__arma_tmp_", id)
 }
 
 # our type system
