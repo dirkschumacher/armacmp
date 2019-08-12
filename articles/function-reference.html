@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">armacmp</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.5.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
       </span>
     </div>
 
@@ -95,7 +95,7 @@
 <h2 class="hasAnchor">
 <a href="#function-signature" class="anchor"></a>Function signature</h2>
 <p><code>armacmp</code> always compiles functions. Every function needs to have a <code>return</code> statement with an optional type argument.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())) {</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())) {</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">}</a></code></pre></div>
 <p>You can define your inputs using the standard function syntax. By default paramters are of type <code>type_matrix</code>. But they can have other types such as:</p>
@@ -127,7 +127,7 @@
 <h3 class="hasAnchor">
 <a href="#assignments" class="anchor"></a>Assignments</h3>
 <p>Example:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">  X2 &lt;-<span class="st"> </span>X <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">  X2 &lt;-<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
 <a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X2)</a>
@@ -231,7 +231,7 @@
 <div id="ifelse" class="section level3">
 <h3 class="hasAnchor">
 <a href="#ifelse" class="anchor"></a>if/else</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="co"># infers that test needs to be bool (auto)</span></a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">  X_new &lt;-<span class="st"> </span>X</a>
@@ -259,7 +259,7 @@
 <a class="sourceLine" id="cb5-4" data-line-number="4">  ...</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">}</a></code></pre></div>
 <p>Example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
 <a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
 <a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
@@ -280,7 +280,7 @@
 <h3 class="hasAnchor">
 <a href="#functions-1" class="anchor"></a>Functions</h3>
 <p>You can also define functions within your functions.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/armacmp.html">armacmp</a></span>(<span class="cf">function</span>(X) {</a>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb8-4" data-line-number="4">  }</a>

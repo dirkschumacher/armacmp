@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>L-BFGS Optimizer — optimizer_L_BFGS • armacmp</title>
+<title>Compile Linear Algebra Code to C++ — compile • armacmp</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,9 @@
 
 
 
-<meta property="og:title" content="L-BFGS Optimizer — optimizer_L_BFGS" />
+<meta property="og:title" content="Compile Linear Algebra Code to C++ — compile" />
 
-<meta property="og:description" content="L-BFGS Optimizer" />
+<meta property="og:description" content="Compile Linear Algebra Code to C++" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -114,60 +114,29 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>L-BFGS Optimizer</h1>
-    <small class="dont-index">Source: <a href='https://github.com/dirkschumacher/armacmp/blob/master/R/optimizers.R'><code>R/optimizers.R</code></a></small>
-    <div class="hidden name"><code>optimizer_L_BFGS.Rd</code></div>
+    <h1>Compile Linear Algebra Code to C++</h1>
+    <small class="dont-index">Source: <a href='https://github.com/dirkschumacher/armacmp/blob/master/R/armacmp.R'><code>R/armacmp.R</code></a></small>
+    <div class="hidden name"><code>compile.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>L-BFGS Optimizer</p>
+    <p>Compile Linear Algebra Code to C++</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>optimizer_L_BFGS</span>(<span class='kw'>numBasis</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>maxIterations</span> <span class='kw'>=</span> <span class='fl'>10000</span>,
-  <span class='kw'>armijoConstant</span> <span class='kw'>=</span> <span class='fl'>1e-04</span>, <span class='kw'>wolfe</span> <span class='kw'>=</span> <span class='fl'>0.9</span>, <span class='kw'>minGradientNorm</span> <span class='kw'>=</span> <span class='fl'>1e-06</span>,
-  <span class='kw'>factr</span> <span class='kw'>=</span> <span class='fl'>1e-15</span>, <span class='kw'>maxLineSearchTrials</span> <span class='kw'>=</span> <span class='fl'>50</span>, <span class='kw'>minStep</span> <span class='kw'>=</span> <span class='fl'>1e-20</span>,
-  <span class='kw'>maxStep</span> <span class='kw'>=</span> <span class='fl'>1e+20</span>)</pre>
+    <pre class="usage"><span class='fu'>compile</span>(<span class='no'>fun</span>, <span class='kw'>verbose</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>numBasis</th>
-      <td><p>Number of memory points to be stored (default 10)</p></td>
+      <th>fun</th>
+      <td><p>a function</p></td>
     </tr>
     <tr>
-      <th>maxIterations</th>
-      <td><p>Maximum number of iterations for the optimization (0 means no limit and may run indefinitely)</p></td>
-    </tr>
-    <tr>
-      <th>armijoConstant</th>
-      <td><p>Controls the accuracy of the line search routine for determining the Armijo condition</p></td>
-    </tr>
-    <tr>
-      <th>wolfe</th>
-      <td><p>Parameter for detecting the Wolfe condition</p></td>
-    </tr>
-    <tr>
-      <th>minGradientNorm</th>
-      <td><p>Minimum gradient norm required to continue the optimization</p></td>
-    </tr>
-    <tr>
-      <th>factr</th>
-      <td><p>Minimum relative function value decrease to continue the optimization</p></td>
-    </tr>
-    <tr>
-      <th>maxLineSearchTrials</th>
-      <td><p>The maximum number of trials for the line search (before giving up)</p></td>
-    </tr>
-    <tr>
-      <th>minStep</th>
-      <td><p>The minimum step of the line search</p></td>
-    </tr>
-    <tr>
-      <th>maxStep</th>
-      <td><p>The maximum step of the line search</p></td>
+      <th>verbose</th>
+      <td><p>print out compiler information</p></td>
     </tr>
     </table>
     
