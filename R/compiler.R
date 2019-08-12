@@ -5,7 +5,7 @@
 #'
 #' @return a list of type "armacmp_cpp_fun"
 #' @export
-armacmp_compile <- function(fun, function_name) {
+translate <- function(fun, function_name) {
   armacmp_compile_internal(fun, function_name)
 }
 

@@ -4,9 +4,9 @@
 #' @param verbose print out compiler information
 #'
 #' @export
-armacmp <- function(fun, verbose = FALSE) {
+compile <- function(fun, verbose = FALSE) {
   stopifnot(is.function(fun))
-  compiled_code <- armacmp_compile(fun, function_name = "armacmp_fun")
+  compiled_code <- translate(fun, function_name = "armacmp_fun")
   if (verbose) {
     message(format(compiled_code))
   }
