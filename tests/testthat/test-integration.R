@@ -264,3 +264,20 @@ test_that("boolean integration test", {
   expect_true(fun(FALSE))
   expect_false(fun(TRUE))
 })
+
+test_that("svd works", {
+  X <- matrix(rnorm(100), ncol = 10)
+  fun_r <- function(X) {
+    s <- svd(X)
+    x <- s$d
+    y <- s$v
+    D <- diag(s$d)
+    X <- s$u %*% D %*% t(y)
+    return(X)
+  }
+  fun <- compile(fun_r)
+  expect_equal(
+    fun(X),
+    fun_r(X)
+  )
+})

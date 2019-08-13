@@ -446,14 +446,22 @@ ast_node_assignment <- R6::R6Class(
       stopifnot(length(operands) == 2L)
       lhs_compiled <- operands[[1L]]$compile()
 
+      lhs_is_name <- "ast_node_name" %in% class(operands[[1L]])
+      is_initial_assignment <- self$is_initial_assignment()
+      if (is_initial_assignment && lhs_is_name) {
+        private$register_assignment()
+      }
+
       # check if assignment is a QR decomposition
       rhs <- operands[[2L]]
-      if ("ast_node_qr_init" %in% class(rhs)) {
+      if (any(c("ast_node_qr_init", "ast_node_svd_init") %in% class(rhs))) {
         return(rhs$compile(lhs_compiled))
       }
+
+
       lhs_is_call <- "ast_node_function_call" %in% class(operands[[1L]]) ||
         "ast_node_element_access" %in% class(operands[[1L]])
-      type <- if (self$is_initial_assignment() && !lhs_is_call) {
+      type <- if (is_initial_assignment && !lhs_is_call) {
         type <- operands[[2L]]$get_cpp_type()
         # we use auto for anything non armadillo
         type <- auto_or_arma_type(type)
@@ -474,11 +482,6 @@ ast_node_assignment <- R6::R6Class(
         } else {
           type <- paste0("auto", " ")
         }
-      }
-
-      lhs_is_name <- "ast_node_name" %in% class(operands[[1L]])
-      if (self$is_initial_assignment() && lhs_is_name) {
-        private$register_assignment()
       }
 
       # something wrong here
@@ -1187,6 +1190,88 @@ ast_node_qr_init <- R6::R6Class(
   )
 )
 
+ast_node_dollar <- R6::R6Class(
+  classname = "ast_node_dollar",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      lhs_val <- private$get_lhs_value()
+      if (!is.null(lhs_val)) {
+        rhs <- self$get_tail_elements()[[2L]]
+        self$emit(
+          lhs_val$dollar(rhs)$compile()
+        )
+      }
+    },
+    get_cpp_type = function() {
+      lhs_val <- private$get_lhs_value()
+      if (!is.null(lhs_val)) {
+        rhs <- self$get_tail_elements()[[2L]]
+        return(lhs_val$dollar(rhs)$get_cpp_type())
+      }
+      private$cpp_type
+    }
+  ),
+  private = list(
+    get_lhs_value = function() {
+      elements <- self$get_tail_elements()
+      lhs <- elements[[1L]]
+      rhs <- elements[[2L]]
+      stopifnot("ast_node_name" %in% class(lhs))
+      stopifnot("ast_node_name" %in% class(rhs))
+      #stopifnot(self$get_scope()$is_name_defined(lhs$get_name()))
+      self$get_scope()$get_value_node_for_name(lhs$get_name())
+    }
+  )
+)
+
+ast_node_svd_init <- R6::R6Class(
+  classname = "ast_node_svd_init",
+  inherit = ast_node,
+  public = list(
+    compile = function(assigned_var_name) {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      stopifnot("ast_node_assignment" %in% class(self$get_parent()))
+      rhs <- self$get_tail_elements()[[1L]]$compile()
+      var_name <- make_random_var_name(self$get_scope()$new_random_variable_id())
+      private$set_base_varname(var_name)
+      var_name_u <- private$get_varname("u")
+      var_name_v <- private$get_varname("v")
+      var_name_d <- private$get_varname("d")
+      self$emit(
+        "arma::mat ", var_name_u, ", ", var_name_v, ";\n",
+        "arma::colvec ", var_name_d, ";\n",
+        "arma::svd_econ(", var_name_u, ", ", var_name_d, ", ", var_name_v, ", ", rhs, ");\n"
+      )
+    },
+    dollar = function(node) {
+      stopifnot("ast_node_name" %in% class(node))
+      type <- node$get_name()
+      var_name <- private$get_varname(type)
+      var_name_node <- ast_node_name$new(var_name, var_name)
+      cpp_type <- if (type %in% c("u", "v")) {
+        "arma::mat"
+      } else {
+        "arma::colvec"
+      }
+      var_name_node$set_cpp_type(cpp_type)
+      var_name_node$set_parent(self)
+      var_name_node$set_scope(self$get_scope())
+      var_name_node
+    }
+  ),
+  private = list(
+    base_var_name = NULL,
+    set_base_varname = function(name) {
+      private$base_var_name <- name
+    },
+    get_varname = function(type) {
+      stopifnot(type %in% c("u", "v", "d"))
+      paste0(private$base_var_name, "__", type)
+    }
+  )
+)
+
 ast_node_qr_q <- R6::R6Class(
   classname = "ast_node_qr_q",
   inherit = ast_node,
@@ -1334,6 +1419,22 @@ ast_node_norm <- R6::R6Class(
   )
 )
 
+ast_node_diag <- R6::R6Class(
+  classname = "ast_node_diag",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) == 1L)
+      self$emit(
+        "arma::diagmat(", self$get_tail_elements()[[1L]]$compile(), ")"
+      )
+    },
+    get_cpp_type = function() {
+      "arma::mat"
+    }
+  )
+)
+
 ast_node_rep_int <- R6::R6Class(
   classname = "ast_node_rep_int",
   inherit = ast_node,
@@ -1407,6 +1508,7 @@ element_type_map[["{"]] <- ast_node_block
 element_type_map[["function"]] <- ast_node_function
 element_type_map[["arma_pairlist"]] <- ast_node_arma_pairlist
 element_type_map[["["]] <- ast_node_element_access
+element_type_map[["$"]] <- ast_node_dollar
 element_type_map[["+"]] <- ast_node_plus
 element_type_map[["-"]] <- ast_node_minus
 element_type_map[["^"]] <- ast_node_pow
@@ -1422,6 +1524,7 @@ element_type_map[["&&"]] <- ast_node_logical_and
 element_type_map[["||"]] <- ast_node_logical_or
 element_type_map[["%*%"]] <- ast_node_matmul
 element_type_map[["("]] <- ast_node_bracket
+element_type_map[["svd"]] <- ast_node_svd_init
 element_type_map[["qr"]] <- ast_node_qr_init
 element_type_map[["qr.Q"]] <- ast_node_qr_q
 element_type_map[["qr.R"]] <- ast_node_qr_r
@@ -1435,6 +1538,7 @@ element_type_map[["seq"]] <- ast_node_seq
 element_type_map[[":"]] <- ast_node_colon
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
+element_type_map[["diag"]] <- ast_node_diag
 element_type_map[["crossprod"]] <- ast_node_crossprod
 element_type_map[["tcrossprod"]] <- ast_node_tcrossprod
 element_type_map[["colSums"]] <- ast_node_colsums
@@ -1447,7 +1551,6 @@ element_type_map[["forwardsolve"]] <- ast_node_forwardsolve
 element_type_map[["if"]] <- ast_node_if
 element_type_map[["for"]] <- ast_node_for
 element_type_map[["while"]] <- ast_node_while
-
 
 # TODO: not pretty
 multi_dispatch_fun <- function(arma, std) {
@@ -1464,7 +1567,6 @@ unary_function_mapping$abs <- multi_dispatch_fun(arma = "arma::abs", std = "std:
 unary_function_mapping$log <- multi_dispatch_fun(arma = "arma::log", std = "std::log")
 unary_function_mapping$chol <- "arma::chol"
 unary_function_mapping$cumsum <- "arma::cumsum"
-unary_function_mapping$diag <- "arma::diagmat"
 unary_function_mapping$sqrt <- multi_dispatch_fun(arma = "arma::sqrt", std = "std::sqrt")
 unary_function_mapping$floor <- multi_dispatch_fun(arma = "arma::floor", std = "std::floor")
 unary_function_mapping$ceiling <- multi_dispatch_fun(arma = "arma::ceil", std = "std::ceil")

@@ -108,6 +108,7 @@ The following operators are translated to their C++ counter-part.
 * `chol`
 * `diag`
 * `QR`
+* `svd`
 * `solve`
 * `ncol`
 * `nrow`
