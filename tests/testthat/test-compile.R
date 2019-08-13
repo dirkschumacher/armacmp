@@ -109,10 +109,10 @@ test_that("generic range-based for loops work", {
     return(X3)
   }, "wat")$cpp_code
   expect_true(
-    grepl("arma::trans(X) * X", code, fixed = TRUE)
+    grepl("arma::trans(X) * (X)", code, fixed = TRUE)
   )
   expect_true(
-    grepl("arma::trans(X) * X2", code, fixed = TRUE)
+    grepl("arma::trans(X) * (X2)", code, fixed = TRUE)
   )
 })
 
@@ -203,10 +203,10 @@ test_that("tcrossprod is supported", {
     return(X)
   }, "wat")$cpp_code
   expect_true(
-    grepl("x * arma::trans(x)", code, fixed = TRUE)
+    grepl("(x) * arma::trans(x)", code, fixed = TRUE)
   )
   expect_true(
-    grepl("x * arma::trans(y)", code, fixed = TRUE)
+    grepl("(x) * arma::trans(y)", code, fixed = TRUE)
   )
 })
 
