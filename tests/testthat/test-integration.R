@@ -265,7 +265,7 @@ test_that("boolean integration test", {
   expect_false(fun(TRUE))
 })
 
-tet_that("svd works", {
+test_that("svd works", {
   X <- matrix(rnorm(100), ncol = 10)
   fun_r <- function(X) {
     s <- svd(X)
