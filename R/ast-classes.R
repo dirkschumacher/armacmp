@@ -1064,7 +1064,7 @@ ast_node_crossprod <- R6::R6Class(
         expr1 <- elements[[1L]]$compile()
         expr2 <- elements[[2L]]$compile()
       }
-      self$emit("arma::trans(", expr1, ") * ", expr2)
+      self$emit("arma::trans(", expr1, ") * (", expr2, ")")
     },
     get_cpp_type = function() {
       "arma::mat"
@@ -1086,7 +1086,7 @@ ast_node_tcrossprod <- R6::R6Class(
         expr1 <- elements[[1L]]$compile()
         expr2 <- elements[[2L]]$compile()
       }
-      self$emit(expr1, " * arma::trans(", expr2, ")")
+      self$emit("(", expr1, ") * arma::trans(", expr2, ")")
     },
     get_cpp_type = function() {
       "arma::mat"
