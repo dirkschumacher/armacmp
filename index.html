@@ -188,10 +188,10 @@
 <a class="sourceLine" id="cb6-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co"># should be roughly 0</span></a>
 <a class="sourceLine" id="cb6-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/optimize">optimize</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;              [,1]</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] 0.0010350885</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,] 0.0001028139</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,] 0.0003232507</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;               [,1]</span></a>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] -0.0007841365</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,]  0.0011513047</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,]  0.0007202816</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>Simulated Annealing through <code>optimizer_SA</code>
@@ -231,11 +231,11 @@
 <a class="sourceLine" id="cb7-24" data-line-number="24">  <span class="dt">beta =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(p), <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb7-25" data-line-number="25">)</a>
 <a class="sourceLine" id="cb7-26" data-line-number="26"><span class="co">#&gt;           [,1]</span></a>
-<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -2.002544</span></a>
-<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.500645</span></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  3.000761</span></a>
-<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.199712</span></a>
-<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.598246</span></a></code></pre></div>
+<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -2.000847</span></a>
+<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.498129</span></a>
+<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  3.000741</span></a>
+<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.201521</span></a>
+<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.598720</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>L-BFGS through <code>optimizer_L_BFGS</code>
