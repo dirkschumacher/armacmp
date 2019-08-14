@@ -120,16 +120,11 @@ ast_node_arma_pairlist <- R6::R6Class(
       )
     },
     get_parameter_types = function() {
-      fun_args <- as.list(self$get_sexp()[-1])
-      fun_args <- Filter(function(x) !is.null(x), fun_args)
-      lapply(fun_args, function(x) {
-        if (is.call(x)) {
-          eval(x) # leaks internal
-        } else {
-          # we overwrite by matrix type ... YOLO
-          type_matrix()
-        }
-      })
+      fun_args <- self$get_tail_elements()
+      names <- vapply(fun_args, function(x) x$get_name(), character(1L))
+      setNames(lapply(fun_args, function(x) {
+        x$get_cpp_type()
+      }), names)
     },
     # needs to be done ones
     update_parameter_types = function() {
@@ -138,16 +133,15 @@ ast_node_arma_pairlist <- R6::R6Class(
       for (i in seq_along(tail)) {
         param <- tail[[i]]
         var_name <- as.name(var_names[[i]])
-        stopifnot(any(c("ast_node_function_call", "ast_node_terminal") %in% class(param)))
+        stopifnot(any(c("ast_node_function_call","ast_node_type_spec", "ast_node_terminal") %in% class(param)))
         x <- param$get_sexp()
-        type <- if (!missing(x) && is.call(x)) {
-          eval(x) # leaks internal
+        type <- if (!missing(x) && "ast_node_type_spec" %in% class(param)) {
+          param$get_cpp_type()
         } else {
-          # we overwrite by matrix type ... YOLO
-          type_matrix()
+          ast_node_type_matrix$new(as.name("type_matrix"), as.name("type_matrix"))$get_cpp_type()
         }
         new_param <- ast_node_name$new(var_name, var_name)
-        new_param$set_cpp_type(type$cpp_type)
+        new_param$set_cpp_type(type)
         new_param$set_parent(self)
         new_param$set_scope(self$get_scope())
         tail[[i]] <- new_param
@@ -551,10 +545,7 @@ ast_node_return <- R6::R6Class(
     get_cpp_type = function() {
       operands <- self$get_tail_elements()
       if (length(operands) == 2L) {
-        # TODO: no eval :)
-        type_spec <- eval(operands[[2]]$get_sexp())
-        stopifnot(is.character(type_spec$cpp_type))
-        return(type_spec$cpp_type)
+        return(operands[[2]]$get_cpp_type())
       }
       operands[[1L]]$get_cpp_type()
     }
@@ -1498,9 +1489,70 @@ ast_node_sum <- R6::R6Class(
   )
 )
 
-# note to self:
-# count depth of scopes and use it for indentation of
-# for, assignment, return and if
+ast_node_type_spec <- R6::R6Class(
+  classname = "ast_node_type_spec",
+  inherit = ast_node
+)
+
+ast_node_type_matrix <- R6::R6Class(
+  classname = "ast_node_type_matrix",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "arma::mat"
+    }
+  )
+)
+
+ast_node_type_colvec <- R6::R6Class(
+  classname = "ast_node_type_colvec",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "arma::colvec"
+    }
+  )
+)
+
+ast_node_type_rowvec <- R6::R6Class(
+  classname = "ast_node_type_rowvec",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "arma::rowvec"
+    }
+  )
+)
+
+ast_node_type_scalar_integer <- R6::R6Class(
+  classname = "ast_node_type_scalar_integer",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "int"
+    }
+  )
+)
+
+ast_node_type_scalar_logical <- R6::R6Class(
+  classname = "ast_node_type_scalar_logical",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "bool"
+    }
+  )
+)
+
+ast_node_type_scalar_numeric <- R6::R6Class(
+  classname = "ast_node_type_scalar_numeric",
+  inherit = ast_node_type_spec,
+  public = list(
+    get_cpp_type = function() {
+      "double"
+    }
+  )
+)
 
 element_type_map <- new.env(parent = emptyenv())
 element_type_map[["<-"]] <- ast_node_assignment
@@ -1551,6 +1603,12 @@ element_type_map[["forwardsolve"]] <- ast_node_forwardsolve
 element_type_map[["if"]] <- ast_node_if
 element_type_map[["for"]] <- ast_node_for
 element_type_map[["while"]] <- ast_node_while
+element_type_map[["type_matrix"]] <- ast_node_type_matrix
+element_type_map[["type_colvec"]] <- ast_node_type_colvec
+element_type_map[["type_rowvec"]] <- ast_node_type_rowvec
+element_type_map[["type_scalar_integer"]] <- ast_node_type_scalar_integer
+element_type_map[["type_scalar_numeric"]] <- ast_node_type_scalar_numeric
+element_type_map[["type_scalar_logical"]] <- ast_node_type_scalar_logical
 
 # TODO: not pretty
 multi_dispatch_fun <- function(arma, std) {

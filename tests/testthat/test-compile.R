@@ -16,7 +16,7 @@ test_that("it fails if an element is not supported", {
 
 test_that("it fails if two different return types", {
   a_lot_of_fun <- function(x, y = type_matrix()) {
-    return(10, type = type_scalar_int())
+    return(10, type = type_scalar_integer())
     return(10, type = type_scalar_numeric())
   }
   expect_error(translate(a_lot_of_fun, "wat")$cpp_code,
@@ -168,7 +168,7 @@ test_that("access individual elements", {
       if (i > 8) break
       i <- i + 1
     }
-    return(i, type = type_scalar_int())
+    return(i, type = type_scalar_integer())
   }, "wat")$cpp_code
   expect_true(
     grepl("break;", code, fixed = TRUE)
@@ -357,7 +357,7 @@ test_that("lambdas are mutable by default and do not need to have a return", {
 
 test_that("lambdas are mutable by default and do not need to have a return", {
   code <- translate(function() {
-    fun <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
+    fun <- function(lo = type_scalar_integer(), hi = type_scalar_integer()) {
       i <- lo
       j <- hi
       while (0 == 0) {

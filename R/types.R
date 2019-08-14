@@ -2,7 +2,7 @@
 #' @export
 type_matrix <- function() {
   structure(
-    list(cpp_type = "arma::mat"),
+    "arma::mat",
     class = "type_matrix"
   )
 }
@@ -11,7 +11,7 @@ type_matrix <- function() {
 #' @export
 type_colvec <- function() {
   structure(
-    list(cpp_type = "arma::colvec"),
+    "arma::colvec",
     class = "type_colvec"
   )
 }
@@ -20,7 +20,7 @@ type_colvec <- function() {
 #' @export
 type_rowvec <- function() {
   structure(
-    list(cpp_type = "arma::rowvec"),
+    "arma::rowvec",
     class = "type_rowvec"
   )
 }
@@ -28,10 +28,10 @@ type_rowvec <- function() {
 
 #' Type int
 #' @export
-type_scalar_int <- function() {
+type_scalar_integer <- function() {
   structure(
-    list(cpp_type = "int"),
-    class = "type_scalar_int"
+    "int",
+    class = "type_scalar_integer"
   )
 }
 
@@ -39,7 +39,7 @@ type_scalar_int <- function() {
 #' @export
 type_scalar_numeric <- function() {
   structure(
-    list(cpp_type = "double"),
+    "double",
     class = "type_scalar_numeric"
   )
 }
@@ -48,7 +48,7 @@ type_scalar_numeric <- function() {
 #' @export
 type_scalar_logical <- function() {
   structure(
-    list(cpp_type = "bool"),
+    "bool",
     class = "type_scalar_logical"
   )
 }

@@ -25,15 +25,15 @@ library(armacmp)
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-fib_cpp <- armacmp(function(n = type_scalar_int()) {
-  fib_rec <-  function(nr = type_scalar_int()) {
+fib_cpp <- compile(function(n = type_scalar_integer()) {
+  fib_rec <-  function(nr = type_scalar_integer()) {
     if (nr < 2) {
-      return(nr, type = type_scalar_int())
+      return(nr, type = type_scalar_integer())
     } else {
-      return(fib_rec(nr-1) + fib_rec(nr-2), type = type_scalar_int())
+      return(fib_rec(nr-1) + fib_rec(nr-2), type = type_scalar_integer())
     }
   }
-  return(fib_rec(n), type = type_scalar_int())
+  return(fib_rec(n), type = type_scalar_integer())
 })
 stopifnot(fib_cpp(20) == 6765)
 fib_r <- function(n) {
@@ -60,7 +60,7 @@ microbenchmark::microbenchmark(
 #>    100
 #>    100
 
-pisum_cpp <- armacmp(function() {
+pisum_cpp <- compile(function() {
   t <- 0.0
   for (j in seq_len(500L)) {
     t <- 0.0
@@ -123,8 +123,8 @@ qsort_r = function(a) {
   return(a)
 }
 
-qsort_cpp <- armacmp(function(vec = type_colvec()) {
-  qsort_kernel <- function(lo = type_scalar_int(), hi = type_scalar_int()) {
+qsort_cpp <- compile(function(vec = type_colvec()) {
+  qsort_kernel <- function(lo = type_scalar_integer(), hi = type_scalar_integer()) {
     i <- lo
     j <- hi
     while (i < hi) {
