@@ -66,3 +66,16 @@ test_that("rosenbrock works", {
   # optimal value at 1,1
   expect_true(abs(sum(result) - 2) < 0.4)
 })
+
+test_that("SPSA works", {
+  optimize <- compile_optimization_problem(
+    data = list(),
+    evaluate = function(x) {
+      return(2 * norm(x)^2)
+    },
+    optimizer = optimizer_SPSA()
+  )
+
+  result <- optimize(matrix(c(1, -1, 1), ncol = 1))
+  expect_true(sum(result) < 0.1)
+})
