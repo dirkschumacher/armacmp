@@ -17,7 +17,7 @@ test_that("CNE works", {
     evaluate = function(x) {
       return(2 * norm(x)^2)
     },
-    optimizer = optimizer_CNE()
+    optimizer = optimizer_CNE(tolerance = -1)
   )
 
   result <- optimize(matrix(c(1, -1, 1), ncol = 1))
