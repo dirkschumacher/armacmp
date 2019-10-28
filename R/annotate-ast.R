@@ -22,6 +22,7 @@ annotate_ast <- function(ast) {
     if (length(current_sexp) < 1L) { # empty element in pairlist
       return(ast_node_empty$new(current_sexp, current_sexp))
     }
+
     if (length(current_sexp) == 1L) {
       class_type <- ast_node_terminal
       if (is.call(current_sexp)) {
@@ -34,7 +35,10 @@ annotate_ast <- function(ast) {
         } else if (current_sexp[[1L]] == "arma_pairlist") {
           class_type <- ast_node_arma_pairlist
         } else {
-          class_type <- ast_node_function_call
+          class_type <- new_node_by_chr(
+            paste0(deparse(current_sexp[[1L]]), collapse = ""),
+            is_call = TRUE
+          )
         }
       }
 

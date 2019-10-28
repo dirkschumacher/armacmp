@@ -97,3 +97,29 @@ optimizer_CNE <- function(populationSize = 500,
     ");\n"
   )
 }
+
+#' Simultaneous Perturbation Stochastic Approximation (SPSA)
+#' @param alpha Scaling exponent for the step size.
+#' @param gamma Scaling exponent for evaluation step size.
+#' @param stepSize Scaling parameter for step size.
+#' @param evaluationStepSize Scaling parameter for evaluation step size.
+#' @param maxIterations Maximum number of iterations allowed (0 means no limit).
+#' @param tolerance Maximum absolute tolerance to terminate algorithm.
+#' @export
+optimizer_SPSA <- function(alpha = 0.602,
+                           gamma = 0.101,
+                           stepSize = 0.16,
+                           evaluationStepSize = 0.3,
+                           maxIterations = 100000,
+                           tolerance = 1e-5) {
+  paste0(
+    "ens::SPSA optimizer(",
+    alpha, ", ",
+    gamma, ", ",
+    stepSize, ", ",
+    evaluationStepSize, ", ",
+    maxIterations, ", ",
+    tolerance,
+    ");\n"
+  )
+}
