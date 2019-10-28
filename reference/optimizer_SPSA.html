@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Type logical — type_scalar_logical • armacmp</title>
+<title>Simultaneous Perturbation Stochastic Approximation (SPSA) — optimizer_SPSA • armacmp</title>
 
 
 <!-- jquery -->
@@ -35,8 +35,8 @@
 
 
 
-<meta property="og:title" content="Type logical — type_scalar_logical" />
-<meta property="og:description" content="Type logical" />
+<meta property="og:title" content="Simultaneous Perturbation Stochastic Approximation (SPSA) — optimizer_SPSA" />
+<meta property="og:description" content="Simultaneous Perturbation Stochastic Approximation (SPSA)" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,23 +120,53 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Type logical</h1>
-    <small class="dont-index">Source: <a href='https://github.com/dirkschumacher/armacmp/blob/master/R/types.R'><code>R/types.R</code></a></small>
-    <div class="hidden name"><code>type_scalar_logical.Rd</code></div>
+    <h1>Simultaneous Perturbation Stochastic Approximation (SPSA)</h1>
+    <small class="dont-index">Source: <a href='https://github.com/dirkschumacher/armacmp/blob/master/R/optimizers.R'><code>R/optimizers.R</code></a></small>
+    <div class="hidden name"><code>optimizer_SPSA.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Type logical</p>
+    <p>Simultaneous Perturbation Stochastic Approximation (SPSA)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>type_scalar_logical</span>()</pre>
+    <pre class="usage"><span class='fu'>optimizer_SPSA</span>(<span class='kw'>alpha</span> <span class='kw'>=</span> <span class='fl'>0.602</span>, <span class='kw'>gamma</span> <span class='kw'>=</span> <span class='fl'>0.101</span>, <span class='kw'>stepSize</span> <span class='kw'>=</span> <span class='fl'>0.16</span>,
+  <span class='kw'>evaluationStepSize</span> <span class='kw'>=</span> <span class='fl'>0.3</span>, <span class='kw'>maxIterations</span> <span class='kw'>=</span> <span class='fl'>1e+05</span>, <span class='kw'>tolerance</span> <span class='kw'>=</span> <span class='fl'>1e-05</span>)</pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>alpha</th>
+      <td><p>Scaling exponent for the step size.</p></td>
+    </tr>
+    <tr>
+      <th>gamma</th>
+      <td><p>Scaling exponent for evaluation step size.</p></td>
+    </tr>
+    <tr>
+      <th>stepSize</th>
+      <td><p>Scaling parameter for step size.</p></td>
+    </tr>
+    <tr>
+      <th>evaluationStepSize</th>
+      <td><p>Scaling parameter for evaluation step size.</p></td>
+    </tr>
+    <tr>
+      <th>maxIterations</th>
+      <td><p>Maximum number of iterations allowed (0 means no limit).</p></td>
+    </tr>
+    <tr>
+      <th>tolerance</th>
+      <td><p>Maximum absolute tolerance to terminate algorithm.</p></td>
+    </tr>
+    </table>
 
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
     </ul>
 
   </div>

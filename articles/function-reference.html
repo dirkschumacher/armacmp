@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Function reference • armacmp</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Function reference">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -64,7 +65,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/dirkschumacher/armacmp">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -77,6 +78,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -96,7 +98,7 @@
 <a href="#function-signature" class="anchor"></a>Function signature</h2>
 <p><code>armacmp</code> always compiles functions. Every function needs to have a <code>return</code> statement with an optional type argument.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())) {</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="../reference/type_colvec.html">type_colvec</a></span>())</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">}</a></code></pre></div>
 <p>You can define your inputs using the standard function syntax. By default paramters are of type <code>type_matrix</code>. But they can have other types such as:</p>
 <ul>
@@ -111,7 +113,7 @@
 <li>
 <code>type_scalar_bool</code> - a single boolean value</li>
 </ul>
-<p>All functions need to return a value using the <code>return</code> function. The <code>return</code> function can have an optional return type argument with <code><a href="https://www.rdocumentation.org/packages/base/topics/function">return(value, type = type_rowvec())</a></code></p>
+<p>All functions need to return a value using the <code>return</code> function. The <code>return</code> function can have an optional return type argument with <code><a href="https://rdrr.io/r/base/function.html">return(value, type = type_rowvec())</a></code></p>
 </div>
 <div id="type-system" class="section level2">
 <h2 class="hasAnchor">
@@ -130,7 +132,7 @@
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2">  X2 &lt;-<span class="st"> </span>X <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
 <a class="sourceLine" id="cb2-3" data-line-number="3">  X2 &lt;-<span class="st"> </span>X2 <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X2)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(X2)</a>
 <a class="sourceLine" id="cb2-5" data-line-number="5">})</a></code></pre></div>
 </div>
 <div id="multiplication" class="section level3">
@@ -138,9 +140,9 @@
 <a href="#multiplication" class="anchor"></a>Multiplication</h3>
 <ul>
 <li>
-<code>%*%</code> - <em>matrix multiplication</em> translates to the <code>*</code> operator on both <code>arma::mat</code> types and regular variables/expressions.</li>
+<code><a href="https://rdrr.io/r/base/matmult.html">%*%</a></code> - <em>matrix multiplication</em> translates to the <code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> operator on both <code>arma::mat</code> types and regular variables/expressions.</li>
 <li>
-<code>*</code> - <em>elementwise multiplication</em> gets translated to <code>%</code> for <code>arma::mat</code> types and to <code>*</code> otherwise.</li>
+<code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> - <em>elementwise multiplication</em> gets translated to <code>%</code> for <code>arma::mat</code> types and to <code><a href="https://rdrr.io/r/base/Arithmetic.html">*</a></code> otherwise.</li>
 </ul>
 </div>
 <div id="the-rest" class="section level3">
@@ -148,14 +150,14 @@
 <a href="#the-rest" class="anchor"></a>The rest</h3>
 <p>The following operators are translated to their C++ counter-part.</p>
 <ul>
-<li><code>/</code></li>
-<li><code>+</code></li>
-<li><code>-</code></li>
+<li><code><a href="https://rdrr.io/r/base/Arithmetic.html">/</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/Arithmetic.html">+</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/Arithmetic.html">-</a></code></li>
 <li><code>!</code></li>
-<li><code>&lt;</code></li>
-<li><code>&gt;</code></li>
-<li><code>&gt;=</code></li>
-<li><code>&lt;=</code></li>
+<li><code><a href="https://rdrr.io/r/base/Comparison.html">&lt;</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/Comparison.html">&gt;</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/Comparison.html">&gt;=</a></code></li>
+<li><code><a href="https://rdrr.io/r/base/Comparison.html">&lt;=</a></code></li>
 </ul>
 </div>
 </div>
@@ -234,16 +236,16 @@
 <a href="#ifelse" class="anchor"></a>if/else</h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">if_clause &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="co"># infers that test needs to be bool (auto)</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  test &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(X)) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span></a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">  X_new &lt;-<span class="st"> </span>X</a>
 <a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="cf">if</span> (test) {</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/sum">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-7" data-line-number="7">  } <span class="cf">else</span> <span class="cf">if</span> (<span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(X) <span class="op">&lt;</span><span class="st"> </span><span class="dv">10</span>) {</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X</a>
 <a class="sourceLine" id="cb3-9" data-line-number="9">  } <span class="cf">else</span> {</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">    X_new &lt;-<span class="st"> </span>(<span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(X) <span class="op">%*%</span><span class="st"> </span>X) <span class="op">+</span><span class="st"> </span><span class="dv">10</span></a>
 <a class="sourceLine" id="cb3-11" data-line-number="11">  }</a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(X_new)</a>
 <a class="sourceLine" id="cb3-13" data-line-number="13">})</a></code></pre></div>
 <p>Just make sure all return statements return the same type.</p>
 <p>Also <code>if/else</code> cannot be used as an expression:</p>
@@ -255,7 +257,7 @@
 <a href="#for-loops" class="anchor"></a>For loops</h3>
 <p>For loops are supported:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># currently only seq_len is available to create sequences of ints</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(n)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">x &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(n)</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3"><span class="cf">for</span> (i <span class="cf">in</span> x) {</a>
 <a class="sourceLine" id="cb5-4" data-line-number="4">  ...</a>
 <a class="sourceLine" id="cb5-5" data-line-number="5">}</a></code></pre></div>
@@ -263,10 +265,10 @@
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">for_loop &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">offset =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">  X_new &lt;-<span class="st"> </span>X</a>
 <a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="co"># only seq_len is currently supported</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq_len</a></span>(<span class="dv">20</span>)) {</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Log">log</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">for</span> (i <span class="cf">in</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span>(<span class="dv">20</span>)) {</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">    X_new &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/Log.html">log</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(X_new) <span class="op">%*%</span><span class="st"> </span>X_new <span class="op">+</span><span class="st"> </span>i <span class="op">+</span><span class="st"> </span>offset)</a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">  }</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X_new)</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(X_new)</a>
 <a class="sourceLine" id="cb6-8" data-line-number="8">})</a></code></pre></div>
 </div>
 <div id="while-loops" class="section level3">
@@ -283,12 +285,12 @@
 <p>You can also define functions within your functions.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb8-4" data-line-number="4">  }</a>
 <a class="sourceLine" id="cb8-5" data-line-number="5">  Y &lt;-<span class="st"> </span><span class="kw">square</span>(X)</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(Y)</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(Y)</a>
 <a class="sourceLine" id="cb8-7" data-line-number="7">})</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8"><span class="kw">fun</span>(<span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
 <a class="sourceLine" id="cb8-9" data-line-number="9"><span class="co">#&gt;       [,1]</span></a>
 <a class="sourceLine" id="cb8-10" data-line-number="10"><span class="co">#&gt;  [1,]    1</span></a>
 <a class="sourceLine" id="cb8-11" data-line-number="11"><span class="co">#&gt;  [2,]    4</span></a>
@@ -305,6 +307,7 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -321,17 +324,20 @@
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Dirk Schumacher.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

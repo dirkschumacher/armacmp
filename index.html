@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Translate R Linear Algebra Code to Armadillo C++ • armacmp</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Translate R Linear Algebra Code to Armadillo C++">
 <meta property="og:description" content="Compile linear algebra R code to C++ using the Armadillo Template Library.
     The package further supports mathematical optimization purely in C++.">
@@ -19,7 +20,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-article">
+    <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -39,7 +40,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -65,7 +66,7 @@
 <ul class="nav navbar-nav navbar-right">
 <li>
   <a href="https://github.com/dirkschumacher/armacmp">
-    <span class="fa fa-github fa-lg"></span>
+    <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -78,13 +79,9 @@
 <!--/.navbar -->
 
       
-      </header><div class="row">
-  <div class="col-md-9 contents">
-    
 
-    
-    
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+      </header><div class="row">
+  <div class="contents col-md-9">
 <div id="armacmp" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#armacmp" class="anchor"></a>armacmp</h1></div>
@@ -114,7 +111,7 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">remotes<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/remotes/topics/install_github">install_github</a></span>(<span class="st">"dirkschumacher/armacmp"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">remotes<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/remotes/man/install_github.html">install_github</a></span>(<span class="st">"dirkschumacher/armacmp"</span>)</a></code></pre></div>
 </div>
 <div id="caveats-and-limitations" class="section level2">
 <h2 class="hasAnchor">
@@ -132,30 +129,30 @@
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
 <p>You can compile R like code to C++. Not all R functions are supported.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(armacmp)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(armacmp)</a></code></pre></div>
 <p>Takes a matrix and returns its transpose.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">trans &lt;-<span class="st"> </span><span class="kw"><a href="reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(X))</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(X))</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">})</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">trans</span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">trans</span>(<span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>))</a>
 <a class="sourceLine" id="cb3-5" data-line-number="5"><span class="co">#&gt;      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]</span></a>
 <a class="sourceLine" id="cb3-6" data-line-number="6"><span class="co">#&gt; [1,]    1    2    3    4    5    6    7    8    9    10</span></a></code></pre></div>
 <p>Or a slightly larger example using QR decomposition</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># from Arnold, T., Kane, M., &amp; Lewis, B. W. (2019). A Computational Approach to Statistical Learning. CRC Press.</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">lm_cpp &lt;-<span class="st"> </span><span class="kw"><a href="reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()) {</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  qr_res &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qr">qr</a></span>(X)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  qty &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.Q</a></span>(qr_res)) <span class="op">%*%</span><span class="st"> </span>y</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">  beta_hat &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/backsolve">backsolve</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/qraux">qr.R</a></span>(qr_res), qty)</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(beta_hat, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  qr_res &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/qr.html">qr</a></span>(X)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  qty &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/qraux.html">qr.Q</a></span>(qr_res)) <span class="op">%*%</span><span class="st"> </span>y</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  beta_hat &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/backsolve.html">backsolve</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/qraux.html">qr.R</a></span>(qr_res), qty)</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(beta_hat, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
 <a class="sourceLine" id="cb4-7" data-line-number="7">})</a>
 <a class="sourceLine" id="cb4-8" data-line-number="8"></a>
 <a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co"># example from the R docs of lm.fit</span></a>
 <a class="sourceLine" id="cb4-10" data-line-number="10">n &lt;-<span class="st"> </span><span class="dv">70000</span> ; p &lt;-<span class="st"> </span><span class="dv">20</span></a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>p), n, p) </a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">y &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n)</a>
-<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all.equal">all.equal</a></span>(</a>
-<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/coef">coef</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/lmfit">lm.fit</a></span>(X, y))),</a>
-<a class="sourceLine" id="cb4-15" data-line-number="15">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw">lm_cpp</span>(X, y))</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">X &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(n <span class="op">*</span><span class="st"> </span>p), n, p) </a>
+<a class="sourceLine" id="cb4-12" data-line-number="12">y &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(n)</a>
+<a class="sourceLine" id="cb4-13" data-line-number="13"><span class="kw"><a href="https://rdrr.io/r/base/all.equal.html">all.equal</a></span>(</a>
+<a class="sourceLine" id="cb4-14" data-line-number="14">  <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/lmfit.html">lm.fit</a></span>(X, y))),</a>
+<a class="sourceLine" id="cb4-15" data-line-number="15">  <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="kw">lm_cpp</span>(X, y))</a>
 <a class="sourceLine" id="cb4-16" data-line-number="16">)</a>
 <a class="sourceLine" id="cb4-17" data-line-number="17"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
 </div>
@@ -164,7 +161,7 @@
 <a href="#api" class="anchor"></a>API</h2>
 <p><code>armacmp</code> always compiles functions. Every function needs to have a <code>return</code> statement with an optional type argument.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">my_fun &lt;-<span class="st"> </span><span class="kw"><a href="reference/compile.html">compile</a></span>(<span class="cf">function</span>(X, <span class="dt">y =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())) {</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(X <span class="op">%*%</span><span class="st"> </span>y, <span class="dt">type =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>())</a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">}</a></code></pre></div>
 <p>A lot of linear algebra functions/operators are defined as well some control flow (for loops and if/else). Please take a look at the <a href="https://dirkschumacher.github.io/armacmp/articles/function-reference.html">function reference article</a> for more details what can be expressed.</p>
 <div id="optimization-of-arbitrary-and-differentiable-functions-using-ensmallen" class="section level3">
@@ -179,19 +176,19 @@
 <p>Here we minimize <code>2 * norm(x)^2</code> using simulated annealing.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># taken from the docs of ensmallen.org</span></a>
 <a class="sourceLine" id="cb6-2" data-line-number="2">optimize &lt;-<span class="st"> </span><span class="kw"><a href="reference/compile_optimization_problem.html">compile_optimization_problem</a></span>(</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(),</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(),</a>
 <a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="dt">evaluate =</span> <span class="cf">function</span>(x) {</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/norm">norm</a></span>(x)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="dv">2</span> <span class="op">*</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/norm.html">norm</a></span>(x)<span class="op">^</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">  },</a>
 <a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="dt">optimizer =</span> <span class="kw"><a href="reference/optimizer_SA.html">optimizer_SA</a></span>()</a>
 <a class="sourceLine" id="cb6-8" data-line-number="8">)</a>
 <a class="sourceLine" id="cb6-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb6-10" data-line-number="10"><span class="co"># should be roughly 0</span></a>
-<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/optimize">optimize</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11"><span class="kw"><a href="https://rdrr.io/r/stats/optimize.html">optimize</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, <span class="dv">-1</span>, <span class="dv">1</span>), <span class="dt">ncol =</span> <span class="dv">1</span>))</a>
 <a class="sourceLine" id="cb6-12" data-line-number="12"><span class="co">#&gt;               [,1]</span></a>
-<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] -0.0003732893</span></a>
-<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,]  0.0016131833</span></a>
-<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,]  0.0006854281</span></a></code></pre></div>
+<a class="sourceLine" id="cb6-13" data-line-number="13"><span class="co">#&gt; [1,] -6.411589e-05</span></a>
+<a class="sourceLine" id="cb6-14" data-line-number="14"><span class="co">#&gt; [2,]  2.314313e-04</span></a>
+<a class="sourceLine" id="cb6-15" data-line-number="15"><span class="co">#&gt; [3,]  8.573798e-05</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>Simulated Annealing through <code>optimizer_SA</code>
@@ -206,12 +203,12 @@
 <a href="#differentiable-functions" class="anchor"></a>Differentiable functions</h4>
 <p>Here solve a linear regression problem using L-BFGS.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">optimize_lbfgs &lt;-<span class="st"> </span><span class="kw"><a href="reference/compile_optimization_problem.html">compile_optimization_problem</a></span>(</a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="dt">data =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">design_matrix =</span> <span class="kw"><a href="reference/type_matrix.html">type_matrix</a></span>(), <span class="dt">response =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()),</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="dt">design_matrix =</span> <span class="kw"><a href="reference/type_matrix.html">type_matrix</a></span>(), <span class="dt">response =</span> <span class="kw"><a href="reference/type_colvec.html">type_colvec</a></span>()),</a>
 <a class="sourceLine" id="cb7-3" data-line-number="3">  <span class="dt">evaluate =</span> <span class="cf">function</span>(beta) {</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/norm">norm</a></span>(response <span class="op">-</span><span class="st"> </span>design_matrix <span class="op">%*%</span><span class="st"> </span>beta)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/norm.html">norm</a></span>(response <span class="op">-</span><span class="st"> </span>design_matrix <span class="op">%*%</span><span class="st"> </span>beta)<span class="op">^</span><span class="dv">2</span>)</a>
 <a class="sourceLine" id="cb7-5" data-line-number="5">  },</a>
 <a class="sourceLine" id="cb7-6" data-line-number="6">  <span class="dt">gradient =</span> <span class="cf">function</span>(beta) {</a>
-<a class="sourceLine" id="cb7-7" data-line-number="7">    <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/function">return</a></span>(<span class="op">-</span><span class="dv">2</span> <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/t">t</a></span>(design_matrix) <span class="op">%*%</span><span class="st"> </span>(response <span class="op">-</span><span class="st"> </span>design_matrix <span class="op">%*%</span><span class="st"> </span>beta))</a>
+<a class="sourceLine" id="cb7-7" data-line-number="7">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="op">-</span><span class="dv">2</span> <span class="op">%*%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/t.html">t</a></span>(design_matrix) <span class="op">%*%</span><span class="st"> </span>(response <span class="op">-</span><span class="st"> </span>design_matrix <span class="op">%*%</span><span class="st"> </span>beta))</a>
 <a class="sourceLine" id="cb7-8" data-line-number="8">  },</a>
 <a class="sourceLine" id="cb7-9" data-line-number="9">  <span class="dt">optimizer =</span> <span class="kw"><a href="reference/optimizer_L_BFGS.html">optimizer_L_BFGS</a></span>()</a>
 <a class="sourceLine" id="cb7-10" data-line-number="10">)</a>
@@ -219,23 +216,23 @@
 <a class="sourceLine" id="cb7-12" data-line-number="12"><span class="co"># this example is taken from the RcppEnsmallen package</span></a>
 <a class="sourceLine" id="cb7-13" data-line-number="13"><span class="co"># https://github.com/coatless/rcppensmallen/blob/master/src/example-linear-regression-lbfgs.cpp</span></a>
 <a class="sourceLine" id="cb7-14" data-line-number="14">n &lt;-<span class="st"> </span><span class="fl">1e6</span></a>
-<a class="sourceLine" id="cb7-15" data-line-number="15">beta &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="op">-</span><span class="dv">2</span>, <span class="fl">1.5</span>, <span class="dv">3</span>, <span class="fl">8.2</span>, <span class="fl">6.6</span>)</a>
-<a class="sourceLine" id="cb7-16" data-line-number="16">p &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/length">length</a></span>(beta)</a>
-<a class="sourceLine" id="cb7-17" data-line-number="17">X &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(<span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n), <span class="dt">ncol =</span> p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
-<a class="sourceLine" id="cb7-18" data-line-number="18">y &lt;-<span class="st"> </span>X <span class="op">%*%</span><span class="st"> </span>beta <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Normal">rnorm</a></span>(n <span class="op">/</span><span class="st"> </span>(p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb7-15" data-line-number="15">beta &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="op">-</span><span class="dv">2</span>, <span class="fl">1.5</span>, <span class="dv">3</span>, <span class="fl">8.2</span>, <span class="fl">6.6</span>)</a>
+<a class="sourceLine" id="cb7-16" data-line-number="16">p &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(beta)</a>
+<a class="sourceLine" id="cb7-17" data-line-number="17">X &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span>(<span class="dv">1</span>, <span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(n), <span class="dt">ncol =</span> p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
+<a class="sourceLine" id="cb7-18" data-line-number="18">y &lt;-<span class="st"> </span>X <span class="op">%*%</span><span class="st"> </span>beta <span class="op">+</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span>(n <span class="op">/</span><span class="st"> </span>(p <span class="op">-</span><span class="st"> </span><span class="dv">1</span>))</a>
 <a class="sourceLine" id="cb7-19" data-line-number="19"></a>
 <a class="sourceLine" id="cb7-20" data-line-number="20"><span class="co"># Run optimization with lbfgs fullly in C++</span></a>
 <a class="sourceLine" id="cb7-21" data-line-number="21"><span class="kw">optimize_lbfgs</span>(</a>
 <a class="sourceLine" id="cb7-22" data-line-number="22">  <span class="dt">design_matrix =</span> X,</a>
 <a class="sourceLine" id="cb7-23" data-line-number="23">  <span class="dt">response =</span> y,</a>
-<a class="sourceLine" id="cb7-24" data-line-number="24">  <span class="dt">beta =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/matrix">matrix</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/stats/topics/Uniform">runif</a></span>(p), <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb7-24" data-line-number="24">  <span class="dt">beta =</span> <span class="kw"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span>(p), <span class="dt">ncol =</span> <span class="dv">1</span>)</a>
 <a class="sourceLine" id="cb7-25" data-line-number="25">)</a>
 <a class="sourceLine" id="cb7-26" data-line-number="26"><span class="co">#&gt;           [,1]</span></a>
-<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -1.996911</span></a>
-<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.502330</span></a>
-<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  2.998897</span></a>
-<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.200404</span></a>
-<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.596477</span></a></code></pre></div>
+<a class="sourceLine" id="cb7-27" data-line-number="27"><span class="co">#&gt; [1,] -2.000079</span></a>
+<a class="sourceLine" id="cb7-28" data-line-number="28"><span class="co">#&gt; [2,]  1.504263</span></a>
+<a class="sourceLine" id="cb7-29" data-line-number="29"><span class="co">#&gt; [3,]  3.002013</span></a>
+<a class="sourceLine" id="cb7-30" data-line-number="30"><span class="co">#&gt; [4,]  8.202451</span></a>
+<a class="sourceLine" id="cb7-31" data-line-number="31"><span class="co">#&gt; [5,]  6.602681</span></a></code></pre></div>
 <p>Optimizers:</p>
 <ul>
 <li>L-BFGS through <code>optimizer_L_BFGS</code>
@@ -300,6 +297,12 @@
 <li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+<div class="community">
+<h2>Community</h2>
+<ul class="list-unstyled">
+<li><a href="CODE_OF_CONDUCT.html">Code of conduct</a></li>
+</ul>
+</div>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
@@ -307,7 +310,7 @@
 </ul>
 </div>
 
-      <div class="dev-status">
+  <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://www.tidyverse.org/lifecycle/#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
@@ -317,7 +320,6 @@
 </ul>
 </div>
 </div>
-
 </div>
 
 
@@ -326,12 +328,14 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
