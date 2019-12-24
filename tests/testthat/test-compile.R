@@ -528,7 +528,6 @@ test_that("for loops without a loop variable is deterministic", {
   expect_equal(code1, code2)
 })
 
-
 test_that("test assign with '='", {
   assign2 <- function(x) {
     x2 = x
