@@ -123,7 +123,7 @@ annotate_ast <- function(ast) {
     # for assignments we really want to check rhs
     # and then also assign cpp type to LHS as well as expression
     # for later symbol lookup
-    is_assigment <- first_element_chr == "<-"
+    is_assigment <- first_element_chr == "<-" || first_element_chr == "="
     lhs_is_name <- "ast_node_name" %in% class(tail_elements[[1L]])
     if (is_assigment && lhs_is_name) {
       current_node$check_and_register_assignment()
