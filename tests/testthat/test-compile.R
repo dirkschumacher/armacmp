@@ -527,3 +527,13 @@ test_that("for loops without a loop variable is deterministic", {
   code2 <- translate(fun, "wat")$cpp_code
   expect_equal(code1, code2)
 })
+
+
+test_that("test assign with '='", {
+  assign2 <- function(x) {
+    x2 = x
+    return(x2)
+  }
+  code <- translate(assign2, "wat")$cpp_code
+  expect_true(grepl("x2 = x", code, fixed = TRUE))
+})

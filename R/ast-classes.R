@@ -1556,6 +1556,7 @@ ast_node_type_scalar_numeric <- R6::R6Class(
 
 element_type_map <- new.env(parent = emptyenv())
 element_type_map[["<-"]] <- ast_node_assignment
+element_type_map[["="]] <- ast_node_assignment
 element_type_map[["{"]] <- ast_node_block
 element_type_map[["function"]] <- ast_node_function
 element_type_map[["arma_pairlist"]] <- ast_node_arma_pairlist
