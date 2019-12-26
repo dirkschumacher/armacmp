@@ -1426,6 +1426,29 @@ ast_node_diag <- R6::R6Class(
   )
 )
 
+ast_node_list <- R6::R6Class(
+  classname = "ast_node_list",
+  inherit = ast_node,
+  public = list(
+    compile = function() {
+      stopifnot(length(self$get_tail_elements()) >= 1L)
+      args <- vapply(
+        self$get_tail_elements(),
+        function (x) x$compile(),
+        character(1L)
+      )
+      self$emit(
+        "Rcpp::List::create(",
+        paste0(args, collapse = ", "),
+        ")"
+      )
+    },
+    get_cpp_type = function() {
+      "Rcpp::List"
+    }
+  )
+)
+
 ast_node_rep_int <- R6::R6Class(
   classname = "ast_node_rep_int",
   inherit = ast_node,
@@ -1592,6 +1615,7 @@ element_type_map[[":"]] <- ast_node_colon
 element_type_map[["rep.int"]] <- ast_node_rep_int
 element_type_map[["norm"]] <- ast_node_norm
 element_type_map[["diag"]] <- ast_node_diag
+element_type_map[["list"]] <- ast_node_list
 element_type_map[["crossprod"]] <- ast_node_crossprod
 element_type_map[["tcrossprod"]] <- ast_node_tcrossprod
 element_type_map[["colSums"]] <- ast_node_colsums

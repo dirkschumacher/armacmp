@@ -281,3 +281,16 @@ test_that("svd works", {
     fun_r(X)
   )
 })
+
+test_that("multiple returns", {
+  fun_r <- function(X) {
+    q <- qr(X)
+    return(
+      list(qr.Q(q), qr.R(q))
+    )
+  }
+  fun <- compile(fun_r)
+  res <- fun(matrix(1:100, 10, 10))
+  expect_true(is.list(res))
+  expect_equal(length(res), 2)
+})
