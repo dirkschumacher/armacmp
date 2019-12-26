@@ -1393,13 +1393,8 @@ ast_node_element_access <- R6::R6Class(
       # x[i, ] => list(x, i, )
       # x[, j] => list(x, , j)
       # x[i] => list(x, i)
-      all_args_have_values <- all(
-        vapply(self$get_tail_elements(), function(x) {
-          !inherits(x, "ast_node_name") || x$has_value()
-        }, logical(1L))
-      )
       head_code <- self$get_tail_elements()[[1L]]$compile()
-      if (all_args_have_values) {
+      if (!private$is_subview()) {
         args <- self$get_tail_elements()[[2L]]$compile()
         if (length(self$get_tail_elements()) == 3L) {
           args <- c(args, self$get_tail_elements()[[3L]]$compile())
@@ -1434,8 +1429,20 @@ ast_node_element_access <- R6::R6Class(
       stop("unreachable")
     },
     get_cpp_type = function() {
+      if (private$is_subview()) {
+        return("arma::mat")
+      }
       # TODO: depends on matrix type
       "auto"
+    }
+  ),
+  private = list(
+    is_subview = function() {
+      !all(
+        vapply(self$get_tail_elements(), function(x) {
+          !inherits(x, "ast_node_name") || x$has_value()
+        }, logical(1L))
+      )
     }
   )
 )

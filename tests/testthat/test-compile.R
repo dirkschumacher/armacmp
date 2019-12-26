@@ -557,3 +557,14 @@ test_that("subviews for col/row selection are supported", {
     grepl("X.row(col - 1) = arma::trans(X.col(col - 1));", code, fixed = TRUE)
   )
 })
+
+test_that("subviews have typle matrix", {
+  code <- translate(function(X) {
+    col <- 1
+    a <- sum(X[, col] * X[1, ])
+    return(a, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("X.col(col - 1) % X.row(1.0 - 1)", code, fixed = TRUE)
+  )
+})
