@@ -536,3 +536,13 @@ test_that("test assign with '='", {
   code <- translate(assign2, "wat")$cpp_code
   expect_true(grepl("x2 = x", code, fixed = TRUE))
 })
+
+test_that("we can return lists", {
+  code <- translate(function(X) {
+    x <- 1
+    return(list(x, 1))
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("Rcpp::List wat(", code, fixed = TRUE)
+  )
+})
