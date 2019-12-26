@@ -546,3 +546,14 @@ test_that("we can return lists", {
     grepl("Rcpp::List wat(", code, fixed = TRUE)
   )
 })
+
+test_that("subviews for col/row selection are supported", {
+  code <- translate(function(X) {
+    col <- 1
+    X[col, ] <- t(X[, col])
+    return(X)
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("X.row(col - 1) = arma::trans(X.col(col - 1));", code, fixed = TRUE)
+  )
+})

@@ -294,3 +294,15 @@ test_that("multiple returns", {
   expect_true(is.list(res))
   expect_equal(length(res), 2)
 })
+
+test_that("subviews indexed by scalars", {
+  fun_r <- function(X) {
+    col <- 1L
+    X[col, ] <- t(X[, col])
+    X[, 2L] <- t(X[1L, ])
+    return(X)
+  }
+  fun <- compile(fun_r)
+  res <- fun(matrix(1:4, 2, 2))
+  expect_equal(res, matrix(c(1, 2, 1, 2), 2, 2))
+})

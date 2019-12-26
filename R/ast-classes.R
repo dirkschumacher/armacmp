@@ -318,6 +318,9 @@ ast_node_terminal <- R6::R6Class(
   inherit = ast_node,
   public = list(
     compile = function() {
+      if (!self$has_value()) {
+        return(self$emit(""))
+      }
       val <- self$get_head()
       # val %% 1 == 0, TRUE if val is integer like otherwise FALSE
       # see https://stackoverflow.com/a/3477158/2798441
@@ -327,6 +330,9 @@ ast_node_terminal <- R6::R6Class(
       } else {
         self$emit(as.character(val))
       }
+    },
+    has_value = function() {
+      TRUE
     }
   )
 )
@@ -411,6 +417,9 @@ ast_node_name <- R6::R6Class(
     },
     get_name = function() {
       paste0(deparse(self$get_head()), collapse = "")
+    },
+    has_value = function() {
+      self$get_name() != ""
     }
   )
 )
@@ -1376,16 +1385,53 @@ ast_node_element_access <- R6::R6Class(
   public = list(
     compile = function() {
       stopifnot(length(self$get_tail_elements()) %in% 2:3)
-      args <- self$get_tail_elements()[[2L]]$compile()
-      if (length(self$get_tail_elements()) == 3L) {
-        args <- c(args, self$get_tail_elements()[[3L]]$compile())
-      }
-      # counting starts at 0
-      args <- paste0(args, " - 1")
-      self$emit(
-        self$get_tail_elements()[[1L]]$compile(),
-        "(", paste0(args, collapse = ", "), ")"
+      # TODO: refactor and reflect "missing" names
+      # in the OO structure properly. Currently that is indicated
+      # by the method $has_value() of ast_node_name objects
+      # possible allowed and assumed values are
+      # x[i, j] => list(x, i, j)
+      # x[i, ] => list(x, i, )
+      # x[, j] => list(x, , j)
+      # x[i] => list(x, i)
+      all_args_have_values <- all(
+        vapply(self$get_tail_elements(), function(x) {
+          !inherits(x, "ast_node_name") || x$has_value()
+        }, logical(1L))
       )
+      head_code <- self$get_tail_elements()[[1L]]$compile()
+      if (all_args_have_values) {
+        args <- self$get_tail_elements()[[2L]]$compile()
+        if (length(self$get_tail_elements()) == 3L) {
+          args <- c(args, self$get_tail_elements()[[3L]]$compile())
+        }
+        # counting starts at 0
+        args <- paste0(args, " - 1")
+        return(self$emit(
+          head_code,
+          "(", paste0(args, collapse = ", "), ")"
+        ))
+      }
+      elements <- self$get_tail_elements()
+      is_selected <- function(idx) {
+      inherits(elements[[idx]], "ast_node_name") &&
+        elements[[idx]]$has_value() ||
+        (inherits(elements[[idx]], "ast_node_terminal") &&
+          !inherits(elements[[idx]], "ast_node_name"))
+      }
+      row_selection <- is_selected(2L)
+      col_selection <- is_selected(3L)
+      stopifnot(xor(row_selection, col_selection))
+      if (row_selection) {
+        return(self$emit(
+          head_code, ".row(", elements[[2L]]$compile(), " - 1)"
+        ))
+      }
+      if (col_selection) {
+        return(self$emit(
+          head_code, ".col(", elements[[3L]]$compile(), " - 1)"
+        ))
+      }
+      stop("unreachable")
     },
     get_cpp_type = function() {
       # TODO: depends on matrix type
