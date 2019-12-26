@@ -3,12 +3,6 @@
 language: R
 cache: packages
 
-r_packages:
-  - covr
-  - microbenchmark
-  - bench
-  - pkgdown
-
 after_success:
   - Rscript -e 'covr::codecov()'
 
