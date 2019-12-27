@@ -286,7 +286,7 @@
 <div id="functions-1" class="section level3">
 <h3 class="hasAnchor">
 <a href="#functions-1" class="anchor"></a>Functions</h3>
-<p>You can also define functions within your functions.</p>
+<p>You can also define functions within your functions (lambdas).</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">fun &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(X) {</a>
 <a class="sourceLine" id="cb8-2" data-line-number="2">  square &lt;-<span class="st"> </span><span class="cf">function</span>(y) {</a>
 <a class="sourceLine" id="cb8-3" data-line-number="3">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(y<span class="op">^</span><span class="dv">2</span>)</a>
@@ -306,6 +306,19 @@
 <a class="sourceLine" id="cb8-17" data-line-number="17"><span class="co">#&gt;  [8,]   64</span></a>
 <a class="sourceLine" id="cb8-18" data-line-number="18"><span class="co">#&gt;  [9,]   81</span></a>
 <a class="sourceLine" id="cb8-19" data-line-number="19"><span class="co">#&gt; [10,]  100</span></a></code></pre></div>
+<p>Using lambdas it is possible to define recursive functions as well.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">is_even &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compile.html">compile</a></span>(<span class="cf">function</span>(<span class="dt">x =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
+<a class="sourceLine" id="cb9-2" data-line-number="2">  is_even_internal &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">y =</span> <span class="kw"><a href="../reference/type_scalar_numeric.html">type_scalar_numeric</a></span>()) {</a>
+<a class="sourceLine" id="cb9-3" data-line-number="3">    <span class="cf">if</span> (y <span class="op">==</span><span class="st"> </span><span class="dv">0</span>) <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb9-4" data-line-number="4">    <span class="cf">if</span> (y <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>) <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb9-5" data-line-number="5">    <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw">is_even_internal</span>(y <span class="op">-</span><span class="st"> </span><span class="dv">2</span>), <span class="dt">type =</span> <span class="kw"><a href="../reference/type_scalar_logical.html">type_scalar_logical</a></span>())</a>
+<a class="sourceLine" id="cb9-6" data-line-number="6">  }</a>
+<a class="sourceLine" id="cb9-7" data-line-number="7">  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span>(<span class="kw">is_even_internal</span>(x))</a>
+<a class="sourceLine" id="cb9-8" data-line-number="8">})</a>
+<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="kw">is_even</span>(<span class="dv">5</span>)</a>
+<a class="sourceLine" id="cb9-10" data-line-number="10"><span class="co">#&gt; [1] FALSE</span></a>
+<a class="sourceLine" id="cb9-11" data-line-number="11"><span class="kw">is_even</span>(<span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb9-12" data-line-number="12"><span class="co">#&gt; [1] TRUE</span></a></code></pre></div>
 </div>
 </div>
   </div>
