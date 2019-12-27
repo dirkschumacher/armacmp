@@ -123,3 +123,28 @@ optimizer_SPSA <- function(alpha = 0.602,
     ");\n"
   )
 }
+
+#' Differential Evolution (DE)
+#' @param populationSize Scaling exponent for the step size.
+#' @param maxGenerations Scaling exponent for evaluation step size.
+#' @param crossoverRate Scaling parameter for step size.
+#' @param differentialWeight Scaling parameter for evaluation step size.
+#' @param tolerance Maximum absolute tolerance to terminate algorithm.
+#' @export
+optimizer_DE <- function(populationSize = 100,
+                         maxGenerations = 2000,
+                         crossoverRate = 0.6,
+                         differentialWeight = 0.8,
+                         tolerance = 1e-5) {
+  stopifnot(populationSize >= 3)
+  paste0(
+    "ens::DE optimizer(",
+    populationSize, ", ",
+    maxGenerations, ", ",
+    crossoverRate, ", ",
+    differentialWeight, ", ",
+    tolerance,
+    ");\n"
+  )
+}
+
