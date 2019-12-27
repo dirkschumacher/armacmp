@@ -568,3 +568,15 @@ test_that("subviews have typle matrix", {
     grepl("X.col(col - 1) % X.row(1.0 - 1)", code, fixed = TRUE)
   )
 })
+
+test_that("min/max are supported", {
+  code <- translate(function(X) {
+    col_min <- min(X[, 1])
+    row_max <- max(X[1, ])
+    return(col_min + row_max, type = type_scalar_numeric())
+  }, "wat")$cpp_code
+  expect_true(
+    grepl("arma::min(X.col", code, fixed = TRUE) &&
+      grepl("arma::max(X.row", code, fixed = TRUE)
+  )
+})
