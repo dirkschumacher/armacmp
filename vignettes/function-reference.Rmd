@@ -203,7 +203,7 @@ while (x < 10) {
 
 ### Functions
 
-You can also define functions within your functions.
+You can also define functions within your functions (lambdas).
 
 ```{r}
 fun <- compile(function(X) {
@@ -214,4 +214,19 @@ fun <- compile(function(X) {
   return(Y)
 })
 fun(matrix(1:10))
+```
+
+Using lambdas it is possible to define recursive functions as well.
+
+```{r}
+is_even <- compile(function(x = type_scalar_numeric()) {
+  is_even_internal <- function(y = type_scalar_numeric()) {
+    if (y == 0) return(TRUE)
+    if (y < 0) return(FALSE)
+    return(is_even_internal(y - 2), type = type_scalar_logical())
+  }
+  return(is_even_internal(x))
+})
+is_even(5)
+is_even(4)
 ```
