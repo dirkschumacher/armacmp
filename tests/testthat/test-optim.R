@@ -77,5 +77,5 @@ test_that("SPSA works", {
   )
 
   result <- optimize(matrix(c(1, -1, 1), ncol = 1))
-  expect_true(sum(result) < 0.1)
+  expect_true(sum(result) < 0.2)
 })
