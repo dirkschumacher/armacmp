@@ -1550,20 +1550,31 @@ make_generic_unary_function_class <- function(class_name, fun) {
   )
 }
 
-ast_node_sum <- R6::R6Class(
-  classname = "ast_node_sum",
-  inherit = ast_node,
-  public = list(
-    compile = function() {
-      stopifnot(length(self$get_tail_elements()) == 1L)
-      self$emit("arma::accu(", self$get_tail_elements()[[1L]]$compile(), ")")
-    },
-    get_cpp_type = function() {
-      # TODO: depends on data type
-      "auto"
-    }
+unary_reduction_node <- function(arma_fun,
+                                 classname = paste0("ast_node_", arma_fun)) {
+  R6::R6Class(
+    classname = classname,
+    inherit = ast_node,
+    public = list(
+      compile = function() {
+        stopifnot(length(self$get_tail_elements()) == 1L)
+        self$emit(
+          "arma::", arma_fun, "(",
+          self$get_tail_elements()[[1L]]$compile(),
+          ")"
+        )
+      },
+      get_cpp_type = function() {
+        # TODO: depends on data type
+        "auto"
+      }
+    )
   )
-)
+}
+
+ast_node_sum <- unary_reduction_node("accu", "ast_node_sum")
+ast_node_min <- unary_reduction_node("min")
+ast_node_max <- unary_reduction_node("max")
 
 ast_node_type_spec <- R6::R6Class(
   classname = "ast_node_type_spec",
@@ -1659,6 +1670,8 @@ element_type_map[["qr.Q"]] <- ast_node_qr_q
 element_type_map[["qr.R"]] <- ast_node_qr_r
 element_type_map[["solve"]] <- ast_node_solve
 element_type_map[["sum"]] <- ast_node_sum
+element_type_map[["min"]] <- ast_node_min
+element_type_map[["max"]] <- ast_node_max
 element_type_map[["nrow"]] <- ast_node_nrow
 element_type_map[["ncol"]] <- ast_node_ncol
 element_type_map[["length"]] <- ast_node_length
