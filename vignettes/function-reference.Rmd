@@ -88,6 +88,8 @@ The following operators are translated to their C++ counter-part.
 * `abs`
 * `log`
 * `sum`
+* `min`
+* `max`
 * `sqrt`
 * `cos`
 * `acos`
@@ -116,6 +118,8 @@ The following operators are translated to their C++ counter-part.
 * `tcrossprod`
 * `det`
 * `[i, j]`
+* `[i, ]`
+* `[, j]`
 * `[i]`
 * `length`
 
