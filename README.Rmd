@@ -18,8 +18,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Codecov test coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
 [![R-CMD-check](https://github.com/dirkschumacher/armacmp/workflows/R-CMD-check/badge.svg)](https://github.com/dirkschumacher/armacmp/actions)
+[![Codecov test coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dirkschumacher/armacmp?branch=master)
 <!-- badges: end -->
 
 The goal of `armacmp` is to create a DSL to formulate linear algebra code in R that is compiled to C++ using the Armadillo Template Library. It also offers an mathematical optimization that uses `RcppEnsmallen` to optimize functions in C++.
