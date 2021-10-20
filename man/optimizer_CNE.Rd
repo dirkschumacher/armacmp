@@ -4,9 +4,14 @@
 \alias{optimizer_CNE}
 \title{Conventional Neural Evolution Optimizer}
 \usage{
-optimizer_CNE(populationSize = 500, maxGenerations = 5000,
-  mutationProb = 0.1, mutationSize = 0.02, selectPercent = 0.2,
-  tolerance = 1e-05)
+optimizer_CNE(
+  populationSize = 500,
+  maxGenerations = 5000,
+  mutationProb = 0.1,
+  mutationSize = 0.02,
+  selectPercent = 0.2,
+  tolerance = 1e-05
+)
 }
 \arguments{
 \item{populationSize}{The number of candidates in the population. This should be at least 4 in size     500}

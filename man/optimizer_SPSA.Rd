@@ -4,8 +4,14 @@
 \alias{optimizer_SPSA}
 \title{Simultaneous Perturbation Stochastic Approximation (SPSA)}
 \usage{
-optimizer_SPSA(alpha = 0.602, gamma = 0.101, stepSize = 0.16,
-  evaluationStepSize = 0.3, maxIterations = 1e+05, tolerance = 1e-05)
+optimizer_SPSA(
+  alpha = 0.602,
+  gamma = 0.101,
+  stepSize = 0.16,
+  evaluationStepSize = 0.3,
+  maxIterations = 1e+05,
+  tolerance = 1e-05
+)
 }
 \arguments{
 \item{alpha}{Scaling exponent for the step size.}

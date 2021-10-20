@@ -4,10 +4,17 @@
 \alias{optimizer_L_BFGS}
 \title{L-BFGS Optimizer}
 \usage{
-optimizer_L_BFGS(numBasis = 10, maxIterations = 10000,
-  armijoConstant = 1e-04, wolfe = 0.9, minGradientNorm = 1e-06,
-  factr = 1e-15, maxLineSearchTrials = 50, minStep = 1e-20,
-  maxStep = 1e+20)
+optimizer_L_BFGS(
+  numBasis = 10,
+  maxIterations = 10000,
+  armijoConstant = 1e-04,
+  wolfe = 0.9,
+  minGradientNorm = 1e-06,
+  factr = 1e-15,
+  maxLineSearchTrials = 50,
+  minStep = 1e-20,
+  maxStep = 1e+20
+)
 }
 \arguments{
 \item{numBasis}{Number of memory points to be stored (default 10)}

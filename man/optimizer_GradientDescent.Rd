@@ -4,8 +4,11 @@
 \alias{optimizer_GradientDescent}
 \title{Gradient Descent Optimizer}
 \usage{
-optimizer_GradientDescent(stepSize = 0.01, maxIterations = 1e+05,
-  tolerance = 1e-05)
+optimizer_GradientDescent(
+  stepSize = 0.01,
+  maxIterations = 1e+05,
+  tolerance = 1e-05
+)
 }
 \arguments{
 \item{stepSize}{Step size for each iteration}

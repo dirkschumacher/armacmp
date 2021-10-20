@@ -4,8 +4,12 @@
 \alias{compile_optimization_problem}
 \title{Optimize arbitrary and differentiable functions}
 \usage{
-compile_optimization_problem(data = list(), evaluate, gradient,
-  optimizer = optimizer_SA())
+compile_optimization_problem(
+  data = list(),
+  evaluate,
+  gradient,
+  optimizer = optimizer_SA()
+)
 }
 \arguments{
 \item{data}{a named list of prior data you would like to supply to the evaluate function.}

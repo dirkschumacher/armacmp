@@ -11,7 +11,7 @@ Description: Compile linear algebra R code to C++ using the Armadillo Template L
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2
 Imports: 
     Rcpp,
     RcppArmadillo,
