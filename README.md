@@ -147,9 +147,9 @@ optimize <- compile_optimization_problem(
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
 #>               [,1]
-#> [1,] -0.0003114919
-#> [2,]  0.0005349846
-#> [3,]  0.0010003341
+#> [1,] -9.930631e-04
+#> [2,]  1.696781e-05
+#> [3,]  1.891890e-03
 ```
 
 Optimizers:
@@ -189,11 +189,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -2.000487
-#> [2,]  1.498723
-#> [3,]  2.998337
-#> [4,]  8.200486
-#> [5,]  6.598982
+#> [1,] -1.997780
+#> [2,]  1.500975
+#> [3,]  2.999542
+#> [4,]  8.200816
+#> [5,]  6.600444
 ```
 
 Optimizers:
@@ -242,3 +242,10 @@ you agree to abide by its terms.
     ensmallen: a flexible C++ library for efficient function
     optimization. Workshop on Systems for ML and Open Source Software at
     NIPS 2018.
+-   Dirk Eddelbuettel, Conrad Sanderson (2014). RcppArmadillo:
+    Accelerating R with high-performance C++ linear algebra.
+    Computational Statistics and Data Analysis, Volume 71, March 2014,
+    pages 1054-1063. URL <http://dx.doi.org/10.1016/j.csda.2013.02.005>
+-   Dirk Eddelbuettel and Romain Francois (2011). Rcpp: Seamless R and
+    C++ Integration. Journal of Statistical Software, 40(8), 1-18. URL
+    <https://www.jstatsoft.org/v40/i08/>.
