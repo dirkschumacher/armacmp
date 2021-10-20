@@ -7,9 +7,9 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Codecov test
-coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
 [![R-CMD-check](https://github.com/dirkschumacher/armacmp/workflows/R-CMD-check/badge.svg)](https://github.com/dirkschumacher/armacmp/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dirkschumacher/armacmp?branch=master)
 <!-- badges: end -->
 
 The goal of `armacmp` is to create a DSL to formulate linear algebra
@@ -146,10 +146,10 @@ optimize <- compile_optimization_problem(
 
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
-#>               [,1]
-#> [1,] -9.930631e-04
-#> [2,]  1.696781e-05
-#> [3,]  1.891890e-03
+#>              [,1]
+#> [1,]  0.001071887
+#> [2,] -0.001426598
+#> [3,]  0.001272070
 ```
 
 Optimizers:
@@ -189,11 +189,11 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -1.997780
-#> [2,]  1.500975
-#> [3,]  2.999542
-#> [4,]  8.200816
-#> [5,]  6.600444
+#> [1,] -1.999974
+#> [2,]  1.502354
+#> [3,]  3.002081
+#> [4,]  8.199424
+#> [5,]  6.597857
 ```
 
 Optimizers:
