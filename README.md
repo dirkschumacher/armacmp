@@ -7,12 +7,9 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Travis build
-status](https://travis-ci.org/dirkschumacher/armacmp.svg?branch=master)](https://travis-ci.org/dirkschumacher/armacmp)
 [![Codecov test
 coverage](https://codecov.io/gh/dirkschumacher/armacmp/branch/master/graph/badge.svg)](https://codecov.io/gh/dirkschumacher/armacmp?branch=master)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/dirkschumacher/armacmp?branch=master&svg=true)](https://ci.appveyor.com/project/dirkschumacher/armacmp)
+[![R-CMD-check](https://github.com/dirkschumacher/armacmp/workflows/R-CMD-check/badge.svg)](https://github.com/dirkschumacher/armacmp/actions)
 <!-- badges: end -->
 
 The goal of `armacmp` is to create a DSL to formulate linear algebra
@@ -25,11 +22,11 @@ meant to evolve into a general purpose R to C++ transpiler.
 
 It has three main functions:
 
-  - `compile` compiles an R function to C++ and makes that function
+-   `compile` compiles an R function to C++ and makes that function
     again avaliable in your R session.
-  - `translate` translates an R function to C++ and returns the code as
+-   `translate` translates an R function to C++ and returns the code as
     text.
-  - `compile_optimization_problem` uses `RcppEnsmallen` and the
+-   `compile_optimization_problem` uses `RcppEnsmallen` and the
     functions above to compile continuous mathematical optimizations
     problems to C++.
 
@@ -39,13 +36,13 @@ feedback, alpha testers, feature requests and potential use cases.
 
 Potential use cases:
 
-  - Speed up your code :)
-  - Quickly estimate `Rcpp` speedup gain for linear algebra code
-  - Learn how R linear algebra code can be expressed in C++ using
+-   Speed up your code :)
+-   Quickly estimate `Rcpp` speedup gain for linear algebra code
+-   Learn how R linear algebra code can be expressed in C++ using
     `translate` and use the code as a starting point for further
     development.
-  - Mathematical optimization with `optimize`
-  - …
+-   Mathematical optimization with `optimize`
+-   …
 
 ## Installation
 
@@ -55,14 +52,14 @@ remotes::install_github("dirkschumacher/armacmp")
 
 ## Caveats and limitations
 
-  - *speed*: R is already really fast when it comes to linear algebra
+-   *speed*: R is already really fast when it comes to linear algebra
     operations. So simply compiling your code to C++ might not give you
     a *significant and relevant* speed boost. The best way to check is
     to measure it yourself and see for your specific use-case, if
     compiling your code to C++ justifies the additional complexity.
-  - *NAs*: there is currently no NA handling. In fact everything is
+-   *NAs*: there is currently no NA handling. In fact everything is
     assumed to be double (if you use matrices/vectors).
-  - *numerical stability*: Note that your C++ code might produce
+-   *numerical stability*: Note that your C++ code might produce
     different results in certain situations. Always validate before you
     use it for important applications.
 
@@ -150,16 +147,16 @@ optimize <- compile_optimization_problem(
 # should be roughly 0
 optimize(matrix(c(1, -1, 1), ncol = 1))
 #>               [,1]
-#> [1,] -6.411589e-05
-#> [2,]  2.314313e-04
-#> [3,]  8.573798e-05
+#> [1,] -0.0003114919
+#> [2,]  0.0005349846
+#> [3,]  0.0010003341
 ```
 
 Optimizers:
 
-  - Simulated Annealing through `optimizer_SA`
-  - Conventional Neural Evolution `optimizer_CNE`
-  - …
+-   Simulated Annealing through `optimizer_SA`
+-   Conventional Neural Evolution `optimizer_CNE`
+-   …
 
 #### Differentiable functions
 
@@ -192,18 +189,18 @@ optimize_lbfgs(
   beta = matrix(runif(p), ncol = 1)
 )
 #>           [,1]
-#> [1,] -2.000079
-#> [2,]  1.504263
-#> [3,]  3.002013
-#> [4,]  8.202451
-#> [5,]  6.602681
+#> [1,] -2.000487
+#> [2,]  1.498723
+#> [3,]  2.998337
+#> [4,]  8.200486
+#> [5,]  6.598982
 ```
 
 Optimizers:
 
-  - L-BFGS through `optimizer_L_BFGS`
-  - Gradient Descent through `optimizer_GradientDescent`
-  - …
+-   L-BFGS through `optimizer_L_BFGS`
+-   Gradient Descent through `optimizer_GradientDescent`
+-   …
 
 ### When does `armacmp` improve performance?
 
@@ -220,7 +217,7 @@ linear algebra code to C++ actually makes sense for pure speed reasons.
 
 ### Related projects
 
-  - [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
+-   [nCompiler](https://github.com/nimble-dev/nCompiler) - Code-generate
     C++ from R. Inspired the approach to compile R functions directly
     instead of just a code block as in the initial version.
 
@@ -238,10 +235,10 @@ you agree to abide by its terms.
 
 ### References
 
-  - Conrad Sanderson and Ryan Curtin. Armadillo: a template-based C++
+-   Conrad Sanderson and Ryan Curtin. Armadillo: a template-based C++
     library for linear algebra. Journal of Open Source Software, Vol. 1,
     pp. 26, 2016.
-  - S. Bhardwaj, R. Curtin, M. Edel, Y. Mentekidis, C. Sanderson.
+-   S. Bhardwaj, R. Curtin, M. Edel, Y. Mentekidis, C. Sanderson.
     ensmallen: a flexible C++ library for efficient function
     optimization. Workshop on Systems for ML and Open Source Software at
     NIPS 2018.
